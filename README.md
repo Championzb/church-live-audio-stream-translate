@@ -76,7 +76,7 @@ npm run typecheck
 
 ## Notes
 
-- The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager).
+- The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager) and also keeps an app-local fallback copy to prevent repeated key prompts if secure storage lookup is unavailable.
 - The main page header shows a masked API key indicator (for quick verification without exposing the full key).
 - To change the API key after setup, click the masked API key box in the main page header to open the compact popup.
 - The selected source language is also saved locally for future sessions.

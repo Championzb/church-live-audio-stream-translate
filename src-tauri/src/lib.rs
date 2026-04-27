@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
@@ -143,6 +144,38 @@ fn mask_api_key(value: &str) -> String {
     format!("{prefix}***{suffix}")
 }
 
+fn fallback_api_key_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let config_dir = app
+        .path()
+        .app_config_dir()
+        .map_err(|e| format!("Failed to resolve app config directory: {e}"))?;
+    Ok(config_dir.join("api_key_fallback.txt"))
+}
+
+fn save_fallback_api_key(app: &tauri::AppHandle, api_key: &str) -> Result<(), String> {
+    let path = fallback_api_key_path(app)?;
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create app config directory: {e}"))?;
+    }
+    fs::write(path, api_key).map_err(|e| format!("Failed to persist fallback API key: {e}"))?;
+    Ok(())
+}
+
+fn load_fallback_api_key(app: &tauri::AppHandle) -> Result<Option<String>, String> {
+    let path = fallback_api_key_path(app)?;
+    if !path.exists() {
+        return Ok(None);
+    }
+    let value = fs::read_to_string(path)
+        .map_err(|e| format!("Failed to read fallback API key: {e}"))?;
+    let trimmed = value.trim().to_string();
+    if trimmed.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(trimmed))
+}
+
 fn source_language_label(code: &str) -> &'static str {
     match code {
         "korean" => "Korean",
@@ -166,6 +199,7 @@ fn target_language_label(code: &str) -> &'static str {
 #[tauri::command]
 fn config_api_key(
     api_key: String,
+    app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<ApiKeyConfigResponse, String> {
     let trimmed = api_key.trim().to_string();
@@ -180,11 +214,10 @@ fn config_api_key(
         .map_err(|_| "Failed to lock API key state".to_string())?;
     *key_guard = Some(trimmed);
 
-    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT)
-        .map_err(|e| format!("Failed to access secure key storage: {e}"))?;
-    entry
-        .set_password(&secure_value)
-        .map_err(|e| format!("Failed to save API key in secure storage: {e}"))?;
+    if let Ok(entry) = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
+        let _ = entry.set_password(&secure_value);
+    }
+    save_fallback_api_key(&app, &secure_value)?;
 
     Ok(ApiKeyConfigResponse {
         ok: true,
@@ -193,38 +226,42 @@ fn config_api_key(
 }
 
 #[tauri::command]
-fn load_saved_api_key(state: tauri::State<'_, AppState>) -> Result<SavedApiKeyResponse, String> {
-    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT)
-        .map_err(|e| format!("Failed to access secure key storage: {e}"))?;
+fn load_saved_api_key(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<SavedApiKeyResponse, String> {
+    let mut value_from_storage: Option<String> = None;
 
-    match entry.get_password() {
-        Ok(value) => {
-            if value.trim().is_empty() {
-                return Ok(SavedApiKeyResponse {
-                    found: false,
-                    masked_key: None,
-                });
+    if let Ok(entry) = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
+        match entry.get_password() {
+            Ok(value) if !value.trim().is_empty() => {
+                value_from_storage = Some(value.trim().to_string());
             }
-            let mut key_guard = state
-                .api_key
-                .lock()
-                .map_err(|_| "Failed to lock API key state".to_string())?;
-            *key_guard = Some(value);
-            let masked = key_guard
-                .as_ref()
-                .map(|key| mask_api_key(key))
-                .unwrap_or_else(|| "hidden".to_string());
-            Ok(SavedApiKeyResponse {
-                found: true,
-                masked_key: Some(masked),
-            })
+            Ok(_) | Err(keyring::Error::NoEntry) => {}
+            Err(_) => {}
         }
-        Err(keyring::Error::NoEntry) => Ok(SavedApiKeyResponse {
-            found: false,
-            masked_key: None,
-        }),
-        Err(e) => Err(format!("Failed to load API key from secure storage: {e}")),
     }
+
+    if value_from_storage.is_none() {
+        value_from_storage = load_fallback_api_key(&app)?;
+    }
+
+    if let Some(value) = value_from_storage {
+        let mut key_guard = state
+            .api_key
+            .lock()
+            .map_err(|_| "Failed to lock API key state".to_string())?;
+        *key_guard = Some(value.clone());
+        return Ok(SavedApiKeyResponse {
+            found: true,
+            masked_key: Some(mask_api_key(&value)),
+        });
+    }
+
+    Ok(SavedApiKeyResponse {
+        found: false,
+        masked_key: None,
+    })
 }
 
 #[tauri::command]
