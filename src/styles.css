@@ -351,6 +351,11 @@ button.stop:hover {
   flex: 1;
 }
 
+#adminApiKey {
+  min-width: min(360px, 100%);
+  flex: 1;
+}
+
 #projectId {
   min-width: min(360px, 100%);
   flex: 1;
@@ -477,6 +482,11 @@ button.stop:hover {
   flex: 1;
 }
 
+#mainAdminApiKeyInput {
+  width: min(420px, 100%);
+  flex: 1;
+}
+
 #mainProjectIdInput {
   width: min(420px, 100%);
   flex: 1;
@@ -530,6 +540,7 @@ button.stop:hover {
   }
 
   #apiKey,
+  #adminApiKey,
   #projectId,
   #audioInput,
   #sourceLanguage,
@@ -538,6 +549,7 @@ button.stop:hover {
   #glossary,
   #vadThreshold,
   #mainApiKeyInput,
+  #mainAdminApiKeyInput,
   #mainProjectIdInput {
     width: 100%;
     min-width: 0;

@@ -7,6 +7,7 @@ const landingTitleEl = document.getElementById('landingTitle');
 const landingSubtitleEl = document.getElementById('landingSubtitle');
 const landingStatusEl = document.getElementById('landingStatus');
 const apiKeyInput = document.getElementById('apiKey');
+const adminApiKeyInput = document.getElementById('adminApiKey');
 const projectIdInput = document.getElementById('projectId');
 const saveKeyButton = document.getElementById('saveKey');
 const maskedApiKeyEl = document.getElementById('maskedApiKey');
@@ -14,8 +15,10 @@ const apiKeyModal = document.getElementById('apiKeyModal');
 const apiKeyModalTitleEl = document.getElementById('apiKeyModalTitle');
 const apiKeyModalSubtitleEl = document.getElementById('apiKeyModalSubtitle');
 const labelMainApiKeyEl = document.getElementById('labelMainApiKey');
+const labelMainAdminApiKeyEl = document.getElementById('labelMainAdminApiKey');
 const labelMainProjectIdEl = document.getElementById('labelMainProjectId');
 const mainApiKeyInput = document.getElementById('mainApiKeyInput');
+const mainAdminApiKeyInput = document.getElementById('mainAdminApiKeyInput');
 const mainProjectIdInput = document.getElementById('mainProjectIdInput');
 const saveMainApiKeyButton = document.getElementById('saveMainApiKey');
 const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey');
@@ -62,6 +65,7 @@ const autoSaveOnStopInput = document.getElementById('autoSaveOnStop');
 const helpOverlay = document.getElementById('helpOverlay');
 const closeHelpButton = document.getElementById('closeHelp');
 const labelApiKeyEl = document.getElementById('labelApiKey');
+const labelAdminApiKeyEl = document.getElementById('labelAdminApiKey');
 const labelProjectIdEl = document.getElementById('labelProjectId');
 const labelUiLanguageEl = document.getElementById('labelUiLanguage');
 const labelAudioInputEl = document.getElementById('labelAudioInput');
@@ -116,6 +120,7 @@ const UI_TEXT = {
         'landing.title': 'Connect OpenAI API Key',
         'landing.subtitle': 'Enter your key once to continue. It is stored securely in your OS keychain/credential manager.',
         'label.apiKey': 'OpenAI API Key',
+        'label.adminApiKey': 'OpenAI Admin Key',
         'label.projectId': 'Project ID',
         'label.uiLanguage': 'UI Language',
         'label.audioInput': 'Audio Input',
@@ -156,7 +161,7 @@ const UI_TEXT = {
         'apiKey.masked': 'OpenAI Key: {masked}',
         'apiKey.hidden': 'OpenAI Key: hidden',
         'modal.apiKeyTitle': 'Update OpenAI API Key',
-        'modal.apiKeySubtitle': 'Enter a new key or update project ID, then save.',
+        'modal.apiKeySubtitle': 'Enter API/Admin key or update project ID, then save.',
         'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
         'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
         'tooltip.start': 'Start live capture and translation (F8).',
@@ -204,6 +209,7 @@ const UI_TEXT = {
         'status.stopped': 'Stopped',
         'status.autoSaveFailed': 'Stopped (auto-save failed: {error})',
         'status.apiKeySaved': 'API key configured and saved securely',
+        'status.adminApiKeySaved': 'Admin key saved securely',
         'status.projectIdSaved': 'Project ID saved',
         'status.apiKeyFailed': 'Failed to configure API key',
         'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
@@ -252,6 +258,7 @@ const UI_TEXT = {
         'landing.title': '连接 OpenAI API 密钥',
         'landing.subtitle': '请输入一次密钥后继续。密钥将安全存储在系统钥匙串/凭据管理器中。',
         'label.apiKey': 'OpenAI API 密钥',
+        'label.adminApiKey': 'OpenAI 管理员密钥',
         'label.projectId': 'Project ID',
         'label.uiLanguage': '界面语言',
         'label.audioInput': '音频输入',
@@ -292,7 +299,7 @@ const UI_TEXT = {
         'apiKey.masked': 'OpenAI 密钥：{masked}',
         'apiKey.hidden': 'OpenAI 密钥：隐藏',
         'modal.apiKeyTitle': '更新 OpenAI API 密钥',
-        'modal.apiKeySubtitle': '输入新密钥或更新 Project ID，然后保存。',
+        'modal.apiKeySubtitle': '输入 API/管理员密钥或更新 Project ID，然后保存。',
         'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
         'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
         'tooltip.start': '开始实时采集和翻译（F8）。',
@@ -340,6 +347,7 @@ const UI_TEXT = {
         'status.stopped': '已停止',
         'status.autoSaveFailed': '已停止（自动保存失败：{error}）',
         'status.apiKeySaved': 'API 密钥已配置并安全保存',
+        'status.adminApiKeySaved': '管理员密钥已安全保存',
         'status.projectIdSaved': 'Project ID 已保存',
         'status.apiKeyFailed': '配置 API 密钥失败',
         'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
@@ -420,6 +428,7 @@ let cachedRealCostMonth = 0;
 let cachedRealCostCurrency = 'USD';
 let cachedRealCostError = '';
 let hasConfiguredApiKey = false;
+let hasConfiguredAdminKey = false;
 function loadNumericSetting(key, fallback, minValue, maxValue) {
     const raw = localStorage.getItem(key);
     if (!raw)
@@ -514,7 +523,7 @@ function saveProjectId(rawProjectId) {
     return projectId;
 }
 async function refreshRealProjectCosts(force = false) {
-    if (!hasConfiguredApiKey)
+    if (!hasConfiguredApiKey && !hasConfiguredAdminKey)
         return;
     const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
     if (!projectId)
@@ -565,11 +574,13 @@ function setApiKeyModalVisible(nextVisible) {
     apiKeyModal.classList.toggle('hidden', !visible);
     if (visible) {
         mainApiKeyInput.value = '';
+        mainAdminApiKeyInput.value = '';
         mainProjectIdInput.value = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
         mainApiKeyInput.focus();
     }
     else {
         mainApiKeyInput.value = '';
+        mainAdminApiKeyInput.value = '';
     }
 }
 function sttRatePerMinute() {
@@ -801,6 +812,7 @@ function applyUiLanguage() {
     landingTitleEl.textContent = t('landing.title');
     landingSubtitleEl.textContent = t('landing.subtitle');
     labelApiKeyEl.textContent = t('label.apiKey');
+    labelAdminApiKeyEl.textContent = t('label.adminApiKey');
     labelProjectIdEl.textContent = t('label.projectId');
     labelUiLanguageEl.textContent = t('label.uiLanguage');
     labelAudioInputEl.textContent = t('label.audioInput');
@@ -834,6 +846,7 @@ function applyUiLanguage() {
     apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
     apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
     labelMainApiKeyEl.textContent = t('label.apiKey');
+    labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
     labelMainProjectIdEl.textContent = t('label.projectId');
     helpTitleEl.textContent = t('help.title');
     helpF8El.innerHTML = t('help.f8');
@@ -1332,9 +1345,33 @@ async function persistApiKey(apiKey, options = {}) {
     }
     return false;
 }
+async function persistAdminApiKey(adminApiKey) {
+    const trimmed = (adminApiKey || '').trim();
+    if (!trimmed) {
+        return true;
+    }
+    try {
+        const result = await invoke('config_admin_api_key', { adminApiKey: trimmed });
+        if (result.ok) {
+            hasConfiguredAdminKey = true;
+            adminApiKeyInput.value = '';
+            mainAdminApiKeyInput.value = '';
+            setStatusKey('status.adminApiKeySaved');
+            return true;
+        }
+    }
+    catch (err) {
+        setStatus(err.message || t('status.apiKeyFailed'));
+    }
+    return false;
+}
 saveKeyButton.addEventListener('click', async () => {
     const apiKey = apiKeyInput.value.trim();
+    const adminApiKey = adminApiKeyInput.value.trim();
     saveProjectId(projectIdInput.value);
+    const adminSaved = await persistAdminApiKey(adminApiKey);
+    if (!adminSaved)
+        return;
     const saved = await persistApiKey(apiKey, { enterMain: true });
     if (saved) {
         void refreshRealProjectCosts(true);
@@ -1345,9 +1382,18 @@ maskedApiKeyEl.addEventListener('click', () => {
 });
 async function saveApiKeyModalChanges() {
     const apiKey = mainApiKeyInput.value.trim();
+    const adminApiKey = mainAdminApiKeyInput.value.trim();
     saveProjectId(mainProjectIdInput.value);
+    const adminSaved = await persistAdminApiKey(adminApiKey);
+    if (!adminSaved)
+        return;
     if (!apiKey) {
-        setStatusKey('status.projectIdSaved');
+        if (adminApiKey) {
+            setStatusKey('status.adminApiKeySaved');
+        }
+        else {
+            setStatusKey('status.projectIdSaved');
+        }
         setApiKeyModalVisible(false);
         void refreshRealProjectCosts(true);
         return;
@@ -1376,6 +1422,11 @@ apiKeyModal.addEventListener('click', (event) => {
     }
 });
 mainApiKeyInput.addEventListener('keydown', async (event) => {
+    if (event.key !== 'Enter')
+        return;
+    await saveApiKeyModalChanges();
+});
+mainAdminApiKeyInput.addEventListener('keydown', async (event) => {
     if (event.key !== 'Enter')
         return;
     await saveApiKeyModalChanges();
@@ -1515,6 +1566,18 @@ exportTranscriptButton.addEventListener('click', async () => {
         setStatus(result.message || t('status.transcriptExportFailed'));
     }
 });
+async function loadSavedAdminApiKeyIfAvailable() {
+    try {
+        const loadedAdmin = await invoke('load_saved_admin_api_key');
+        hasConfiguredAdminKey = Boolean(loadedAdmin && loadedAdmin.found);
+        if (hasConfiguredAdminKey) {
+            console.info('[api-key-storage] Admin API key loaded from saved storage');
+        }
+    }
+    catch {
+        hasConfiguredAdminKey = false;
+    }
+}
 async function boot() {
     const savedUiLanguage = localStorage.getItem('church-ui-language');
     if (savedUiLanguage && SUPPORTED_UI_LANGUAGES.includes(savedUiLanguage)) {
@@ -1526,6 +1589,7 @@ async function boot() {
     uiLanguage = getUiLanguage();
     applyUiLanguage();
     setMainView('live');
+    await loadSavedAdminApiKeyIfAvailable();
     try {
         const loaded = await invoke('load_saved_api_key');
         if (loaded.found) {
