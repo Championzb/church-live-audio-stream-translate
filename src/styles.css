@@ -646,14 +646,25 @@ body.presentation-mode .captions {
 body.presentation-mode .caption-card {
   min-height: calc(100vh - 36px);
   padding: 10px;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-items: start;
 }
 
 body.presentation-mode .caption-card h2 {
   font-size: 2rem;
+  min-height: 2.4rem;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
 }
 
 body.presentation-mode .live-line {
   font-size: 1.1rem;
+  min-height: 1.7rem;
+  margin: 4px 0 10px;
+  display: flex;
+  align-items: center;
 }
 
 body.presentation-mode .line {
