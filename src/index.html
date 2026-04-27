@@ -47,89 +47,104 @@
         </header>
 
         <section class="controls">
-          <details class="control-card" open>
-            <summary>Session Setup</summary>
-            <div class="card-body">
-              <div class="row">
-                <label id="labelAudioInput" for="audioInput">Audio Input</label>
-                <select id="audioInput"></select>
-                <button id="refreshDevices">Refresh</button>
-              </div>
-            </div>
-          </details>
+          <div class="control-page-tabs">
+            <button id="showOperatorPage" class="active">Operator</button>
+            <button id="showAdvancedPage">Advanced</button>
+          </div>
 
-          <details class="control-card" open>
-            <summary>Translation Mode</summary>
-            <div class="card-body">
-              <div class="row">
-                <label id="labelSourceLanguage" for="sourceLanguage">Source Language</label>
-                <select id="sourceLanguage">
-                  <option value="korean" selected>Korean (translate to English)</option>
-                  <option value="english">English (direct transcription)</option>
-                  <option value="japanese">Japanese</option>
-                  <option value="chinese">Chinese</option>
-                </select>
-                <label id="labelTargetLanguage" for="targetLanguage">Output Language</label>
-                <select id="targetLanguage">
-                  <option value="zh-hans" selected>Simplified Chinese</option>
-                  <option value="zh-hant">Traditional Chinese</option>
-                  <option value="korean">Korean</option>
-                  <option value="japanese">Japanese</option>
-                  <option value="spanish">Spanish</option>
-                  <option value="english">English</option>
-                </select>
+          <div id="operatorPage" class="control-page">
+            <details class="control-card" open>
+              <summary>Session Setup</summary>
+              <div class="card-body">
+                <div class="row">
+                  <label id="labelAudioInput" for="audioInput">Audio Input</label>
+                  <select id="audioInput"></select>
+                  <button id="refreshDevices">Refresh</button>
+                </div>
               </div>
-              <div class="row actions-row">
-                <button id="toggleRun" class="run">Start (F8)</button>
-                <button id="toggleWorshipMode">Worship Mode Off (F7)</button>
-                <button id="togglePresentation">Presentation Mode (F6)</button>
-                <button id="toggleHelp">Help (F1)</button>
-                <button id="toggleLockControls">Lock Controls (F2)</button>
-                <button id="toggleOutputWindow">Output Window</button>
-              </div>
-              <div class="row actions-row">
-                <button id="testAudioFile">Test Audio File</button>
-                <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
-                <button id="clearPanels">Clear Captions</button>
-                <button id="clearTranscript">Clear Transcript</button>
-                <button id="resetSession">Reset Session (F4)</button>
-                <button id="copyLatestChinese">Copy Latest Output</button>
-                <button id="exportTranscript">Export Transcript</button>
-              </div>
-            </div>
-          </details>
+            </details>
 
-          <details class="control-card">
-            <summary>Segmentation Tuning</summary>
-            <div class="card-body">
-              <div class="row tuning-row">
-                <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
-                <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
-                <span id="vadValue">0.040</span>
-                <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
-                <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
-                <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
-                <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+            <details class="control-card" open>
+              <summary>Translation Mode</summary>
+              <div class="card-body">
+                <div class="row">
+                  <label id="labelSourceLanguage" for="sourceLanguage">Source Language</label>
+                  <select id="sourceLanguage">
+                    <option value="korean" selected>Korean (translate to English)</option>
+                    <option value="english">English (direct transcription)</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="chinese">Chinese</option>
+                  </select>
+                  <label id="labelTargetLanguage" for="targetLanguage">Output Language</label>
+                  <select id="targetLanguage">
+                    <option value="zh-hans" selected>Simplified Chinese</option>
+                    <option value="zh-hant">Traditional Chinese</option>
+                    <option value="korean">Korean</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="spanish">Spanish</option>
+                    <option value="english">English</option>
+                  </select>
+                </div>
+                <div class="row actions-row">
+                  <button id="toggleRun" class="run">Start (F8)</button>
+                  <button id="toggleWorshipMode">Worship Mode Off (F7)</button>
+                  <button id="togglePresentation">Presentation Mode (F6)</button>
+                  <button id="toggleHelp">Help (F1)</button>
+                  <button id="toggleLockControls">Lock Controls (F2)</button>
+                  <button id="toggleOutputWindow">Output Window</button>
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
+          </div>
 
-          <details class="control-card glossary-card">
-            <summary>Glossary</summary>
-            <div class="card-body">
-              <div class="row">
-                <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
-                <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
+          <div id="advancedPage" class="control-page hidden">
+            <details class="control-card" open>
+              <summary>Utility Actions</summary>
+              <div class="card-body">
+                <div class="row actions-row">
+                  <button id="testAudioFile">Test Audio File</button>
+                  <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
+                  <button id="clearPanels">Clear Captions</button>
+                  <button id="clearTranscript">Clear Transcript</button>
+                  <button id="resetSession">Reset Session (F4)</button>
+                  <button id="copyLatestChinese">Copy Latest Output</button>
+                  <button id="exportTranscript">Export Transcript</button>
+                </div>
               </div>
-              <div class="row actions-row">
-                <button id="saveGlossary">Save Glossary</button>
-                <button id="importGlossary">Import</button>
-                <button id="exportGlossary">Export</button>
-                <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
-                <input id="autoSaveOnStop" type="checkbox" checked />
+            </details>
+
+            <details class="control-card">
+              <summary>Segmentation Tuning</summary>
+              <div class="card-body">
+                <div class="row tuning-row">
+                  <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
+                  <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
+                  <span id="vadValue">0.040</span>
+                  <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
+                  <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
+                  <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
+                  <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
+
+            <details class="control-card glossary-card">
+              <summary>Glossary</summary>
+              <div class="card-body">
+                <div class="row">
+                  <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
+                  <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
+                </div>
+                <div class="row actions-row">
+                  <button id="saveGlossary">Save Glossary</button>
+                  <button id="importGlossary">Import</button>
+                  <button id="exportGlossary">Export</button>
+                  <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
+                  <input id="autoSaveOnStop" type="checkbox" checked />
+                </div>
+              </div>
+            </details>
+          </div>
         </section>
 
         <section class="captions">

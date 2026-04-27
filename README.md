@@ -85,6 +85,7 @@ npm run typecheck
 - A live mode summary line shows current run/source/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - Control groups are collapsible to reduce visual crowding during operation.
+- Controls are split into `Operator` and `Advanced` pages so frequent live controls stay cleaner.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.

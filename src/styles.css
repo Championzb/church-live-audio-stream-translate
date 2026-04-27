@@ -173,6 +173,35 @@ h1 {
   gap: 12px;
 }
 
+.control-page-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px;
+  width: fit-content;
+}
+
+.control-page-tabs button {
+  border: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: transparent;
+  font-size: 0.86rem;
+}
+
+.control-page-tabs button.active {
+  background: #dbeafe;
+  color: #0c4a6e;
+}
+
+.control-page {
+  display: grid;
+  gap: 12px;
+}
+
 .control-card {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--border);
