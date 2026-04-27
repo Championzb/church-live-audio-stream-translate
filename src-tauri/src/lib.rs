@@ -15,7 +15,7 @@ use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
 struct AppState {
     api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
-    chinese_variant: Mutex<String>,
+    target_language: Mutex<String>,
     source_language: Mutex<String>,
     running: AtomicBool,
 }
@@ -29,14 +29,14 @@ struct SegmentPayload {
 #[derive(Serialize)]
 struct SegmentResult {
     english: String,
-    chinese: String,
+    translated: String,
     warning: String,
 }
 
 #[derive(Deserialize)]
 struct TranslationConfig {
     glossary: Option<String>,
-    chinese_variant: Option<String>,
+    target_language: Option<String>,
     source_language: Option<String>,
 }
 
@@ -76,6 +76,7 @@ struct OutputCaptionPayload {
     english_live: String,
     chinese_live: String,
     mode_summary: String,
+    target_label: String,
 }
 
 #[derive(Deserialize)]
@@ -109,6 +110,26 @@ fn build_audio_form(
     Ok(Form::new().part("file", file_part).text("model", model.to_string()))
 }
 
+fn source_language_label(code: &str) -> &'static str {
+    match code {
+        "korean" => "Korean",
+        "japanese" => "Japanese",
+        "chinese" => "Chinese",
+        _ => "English",
+    }
+}
+
+fn target_language_label(code: &str) -> &'static str {
+    match code {
+        "zh-hans" => "Simplified Chinese",
+        "zh-hant" => "Traditional Chinese",
+        "korean" => "Korean",
+        "japanese" => "Japanese",
+        "spanish" => "Spanish",
+        _ => "English",
+    }
+}
+
 #[tauri::command]
 fn config_api_key(api_key: String, state: tauri::State<'_, AppState>) -> Result<OkResponse, String> {
     let trimmed = api_key.trim().to_string();
@@ -131,12 +152,18 @@ fn set_translation_config(
     state: tauri::State<'_, AppState>,
 ) -> Result<OkResponse, String> {
     let glossary = config.glossary.unwrap_or_default().trim().to_string();
-    let chinese_variant = match config.chinese_variant.as_deref() {
-        Some("traditional") => "traditional".to_string(),
-        _ => "simplified".to_string(),
+    let target_language = match config.target_language.as_deref() {
+        Some("zh-hans") => "zh-hans".to_string(),
+        Some("zh-hant") => "zh-hant".to_string(),
+        Some("korean") => "korean".to_string(),
+        Some("japanese") => "japanese".to_string(),
+        Some("spanish") => "spanish".to_string(),
+        _ => "english".to_string(),
     };
     let source_language = match config.source_language.as_deref() {
         Some("english") => "english".to_string(),
+        Some("japanese") => "japanese".to_string(),
+        Some("chinese") => "chinese".to_string(),
         _ => "korean".to_string(),
     };
 
@@ -149,11 +176,11 @@ fn set_translation_config(
     }
 
     {
-        let mut variant_guard = state
-            .chinese_variant
+        let mut target_language_guard = state
+            .target_language
             .lock()
-            .map_err(|_| "Failed to lock language variant state".to_string())?;
-        *variant_guard = chinese_variant;
+            .map_err(|_| "Failed to lock target language state".to_string())?;
+        *target_language_guard = target_language;
     }
 
     {
@@ -205,12 +232,12 @@ async fn process_segment(
         glossary_guard.clone()
     };
 
-    let chinese_variant = {
-        let variant_guard = state
-            .chinese_variant
+    let target_language = {
+        let target_language_guard = state
+            .target_language
             .lock()
-            .map_err(|_| "Failed to lock language variant state".to_string())?;
-        variant_guard.clone()
+            .map_err(|_| "Failed to lock target language state".to_string())?;
+        target_language_guard.clone()
     };
 
     let source_language = {
@@ -438,19 +465,95 @@ async fn process_segment(
         }
     };
 
+    let english_text = if source_language != "english" && source_language != "korean" {
+        let source_label = source_language_label(&source_language);
+        let transcribe_form = build_audio_form(&audio_bytes, extension, &mime, "gpt-4o-mini-transcribe")?;
+        let transcribe_response = client
+            .post("https://api.openai.com/v1/audio/transcriptions")
+            .bearer_auth(&api_key)
+            .multipart(transcribe_form)
+            .send()
+            .await
+            .map_err(|e| format!("{source_label} transcription failed: {e}"))?;
+        if !transcribe_response.status().is_success() {
+            let status = transcribe_response.status();
+            let body = transcribe_response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read error body".to_string());
+            return Err(format!("{source_label} transcription failed ({status}): {body}"));
+        }
+        let transcribe_json = transcribe_response
+            .json::<WhisperResponse>()
+            .await
+            .map_err(|e| format!("{source_label} transcription decode failed: {e}"))?;
+        let source_text = transcribe_json.text.unwrap_or_default().trim().to_string();
+        if source_text.is_empty() {
+            return Err(format!("{source_label} transcription produced empty text."));
+        }
+        let english_request = serde_json::json!({
+            "model": "gpt-4o-mini",
+            "input": [
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": format!("Translate {source_label} sermon text into natural, faithful English. Return only translated English.")
+                        }
+                    ]
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": source_text
+                        }
+                    ]
+                }
+            ]
+        });
+        let english_response = client
+            .post("https://api.openai.com/v1/responses")
+            .bearer_auth(&api_key)
+            .json(&english_request)
+            .send()
+            .await
+            .map_err(|e| format!("{source_label} -> English translation failed: {e}"))?;
+        if !english_response.status().is_success() {
+            let status = english_response.status();
+            let body = english_response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read error body".to_string());
+            return Err(format!("{source_label} -> English translation failed ({status}): {body}"));
+        }
+        let english_json = english_response
+            .json::<ResponsesResponse>()
+            .await
+            .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
+        english_json.output_text.unwrap_or_default().trim().to_string()
+    } else {
+        english_text
+    };
+
     if english_text.is_empty() {
         return Ok(SegmentResult {
             english: String::new(),
-            chinese: String::new(),
+            translated: String::new(),
             warning: "Empty transcription result for this segment.".to_string(),
         });
     }
 
-    let target_label = if chinese_variant == "traditional" {
-        "Traditional Chinese"
-    } else {
-        "Simplified Chinese"
-    };
+    let target_label = target_language_label(&target_language);
+    if target_language == "english" {
+        return Ok(SegmentResult {
+            english: english_text.clone(),
+            translated: english_text,
+            warning: String::new(),
+        });
+    }
 
     let glossary_prompt = if glossary.is_empty() {
         String::new()
@@ -504,8 +607,8 @@ async fn process_segment(
                     .unwrap_or_else(|_| "Unable to read error body".to_string());
                 return Ok(SegmentResult {
                     english: english_text,
-                    chinese: String::new(),
-                    warning: format!("Chinese translation failed ({status}): {body}"),
+                    translated: String::new(),
+                    warning: format!("Target translation failed ({status}): {body}"),
                 });
             }
 
@@ -516,13 +619,13 @@ async fn process_segment(
 
             Ok(SegmentResult {
                 english: english_text,
-                chinese: json.output_text.unwrap_or_default().trim().to_string(),
+                translated: json.output_text.unwrap_or_default().trim().to_string(),
                 warning: String::new(),
             })
         }
         Err(error) => Ok(SegmentResult {
             english: english_text,
-            chinese: String::new(),
+            translated: String::new(),
             warning: error,
         }),
     }
@@ -696,7 +799,7 @@ pub fn run() {
         .manage(AppState {
             api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
-            chinese_variant: Mutex::new("simplified".to_string()),
+            target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
             running: AtomicBool::new(false),
         })

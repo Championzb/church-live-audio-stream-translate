@@ -4,8 +4,8 @@ Desktop subtitle app for Windows and macOS using Tauri.
 
 - Korean speech in
 - English captions always shown
-- Simplified Chinese captions shown in parallel
-- Source language switch supports Korean or English sermons
+- Configurable output language captions shown in parallel
+- Source language switch supports Korean, English, Japanese, and Chinese sermons
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click presentation mode for full-screen subtitle display (`F6`)
@@ -13,7 +13,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Export transcript to a text file at any time
 - Clear transcript memory without clearing on-screen captions
 - One-tap session reset for queue + captions + transcript (`F4`)
-- One-click copy for the latest Chinese caption line
+- One-click copy for the latest output caption line
 - Optional auto-save transcript when stopping a session
 - Dedicated dual-screen output window for subtitle-only display
 - Operator lock mode to prevent accidental config changes (`F2`)
@@ -47,7 +47,7 @@ npm run start
 ## First run
 
 1. Paste OpenAI API key and click `Save Key`.
-2. Select the desired audio input device and source language.
+2. Select the desired audio input device, source language, and output language.
 3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 4. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
 5. Click `Start (F8)`.
@@ -78,6 +78,7 @@ npm run start
 - `F2` locks or unlocks configuration controls.
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
+- Japanese/Chinese input first transcribes source speech, then converts to English before final output translation.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
 - Segment processing retries automatically on transient API/network errors.
 

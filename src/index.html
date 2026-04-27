@@ -22,6 +22,17 @@
           <select id="sourceLanguage">
             <option value="korean" selected>Korean (translate to English)</option>
             <option value="english">English (direct transcription)</option>
+            <option value="japanese">Japanese</option>
+            <option value="chinese">Chinese</option>
+          </select>
+          <label for="targetLanguage">Output Language</label>
+          <select id="targetLanguage">
+            <option value="zh-hans" selected>Simplified Chinese</option>
+            <option value="zh-hant">Traditional Chinese</option>
+            <option value="korean">Korean</option>
+            <option value="japanese">Japanese</option>
+            <option value="spanish">Spanish</option>
+            <option value="english">English</option>
           </select>
           <button id="refreshDevices">Refresh</button>
           <button id="toggleRun" class="run">Start (F8)</button>
@@ -33,7 +44,7 @@
           <button id="clearPanels">Clear Captions</button>
           <button id="clearTranscript">Clear Transcript</button>
           <button id="resetSession">Reset Session (F4)</button>
-          <button id="copyLatestChinese">Copy Latest Chinese</button>
+          <button id="copyLatestChinese">Copy Latest Output</button>
           <button id="exportTranscript">Export Transcript</button>
         </div>
 
@@ -68,7 +79,7 @@
           <div id="englishPanel" class="panel"></div>
         </article>
         <article>
-          <h2>Simplified Chinese</h2>
+          <h2 id="translatedHeading">Simplified Chinese</h2>
           <div id="chineseLive" class="live-line"></div>
           <div id="chinesePanel" class="panel"></div>
         </article>

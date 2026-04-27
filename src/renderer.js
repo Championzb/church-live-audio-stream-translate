@@ -5,6 +5,7 @@ const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
+const targetLanguageSelect = document.getElementById('targetLanguage');
 const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
 const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
@@ -21,6 +22,7 @@ const statusEl = document.getElementById('status');
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
+const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
 const vadThresholdInput = document.getElementById('vadThreshold');
@@ -60,6 +62,15 @@ const transcriptEntries = [];
 const pendingSegments = [];
 let segmentQueueRunning = false;
 
+const TARGET_LANGUAGE_LABELS = {
+  'zh-hans': 'Simplified Chinese',
+  'zh-hant': 'Traditional Chinese',
+  korean: 'Korean',
+  japanese: 'Japanese',
+  spanish: 'Spanish',
+  english: 'English'
+};
+
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
   if (!raw) return fallback;
@@ -74,9 +85,11 @@ function setStatus(text) {
 }
 
 function updateModeSummary() {
+  const targetLabel = TARGET_LANGUAGE_LABELS[targetLanguageSelect.value] || targetLanguageSelect.value;
   modeSummaryEl.textContent = `Mode: ${running ? 'running' : 'stopped'} | Source: ${
     sourceLanguageSelect.value || 'korean'
-  } | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${
+  } | Target: ${targetLabel}
+  | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${
     presentationMode ? 'on' : 'off'
   } | Queue: ${pendingSegments.length}${segmentQueueRunning ? ' (processing)' : ''}`;
   syncOutputWindow();
@@ -98,6 +111,7 @@ function setControlsLocked(nextLocked) {
     saveKeyButton,
     audioInputSelect,
     sourceLanguageSelect,
+    targetLanguageSelect,
     refreshDevicesButton,
     vadThresholdInput,
     silenceMsInput,
@@ -194,6 +208,10 @@ function getLatestChineseLine() {
   return '';
 }
 
+function updateTranslatedHeading() {
+  translatedHeadingEl.textContent = TARGET_LANGUAGE_LABELS[targetLanguageSelect.value] || 'Translation';
+}
+
 async function syncOutputWindow() {
   try {
     await invoke('push_output_caption', {
@@ -202,7 +220,8 @@ async function syncOutputWindow() {
         chineseLines: chineseLines.map((line) => line.text),
         englishLive: englishLiveEl.textContent || '',
         chineseLive: chineseLiveEl.textContent || '',
-        modeSummary: modeSummaryEl.textContent || ''
+        modeSummary: modeSummaryEl.textContent || '',
+        targetLabel: TARGET_LANGUAGE_LABELS[targetLanguageSelect.value] || targetLanguageSelect.value
       }
     });
   } catch {
@@ -291,12 +310,15 @@ async function drainSegmentQueue() {
       if (result.chinese) {
         appendChinese(result.chinese);
       }
+      if (result.translated) {
+        appendChinese(result.translated);
+      }
 
       if (result.english || result.chinese) {
         transcriptEntries.push({
           timestamp: new Date().toLocaleTimeString(),
           english: result.english || '',
-          chinese: result.chinese || ''
+          chinese: result.translated || result.chinese || ''
         });
       }
 
@@ -524,7 +546,7 @@ async function syncTranslationConfig() {
   await invoke('set_translation_config', {
     config: {
       glossary,
-      chineseVariant: 'simplified',
+      targetLanguage: targetLanguageSelect.value || 'zh-hans',
       sourceLanguage: sourceLanguageSelect.value || 'korean'
     }
   });
@@ -579,6 +601,14 @@ sourceLanguageSelect.addEventListener('change', async () => {
   await syncTranslationConfig();
   localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
   setStatus(`Source language set to ${sourceLanguageSelect.value}`);
+  updateModeSummary();
+});
+
+targetLanguageSelect.addEventListener('change', async () => {
+  await syncTranslationConfig();
+  localStorage.setItem('church-target-language', targetLanguageSelect.value || 'zh-hans');
+  updateTranslatedHeading();
+  setStatus(`Output language set to ${TARGET_LANGUAGE_LABELS[targetLanguageSelect.value] || targetLanguageSelect.value}`);
   updateModeSummary();
 });
 
@@ -651,13 +681,13 @@ resetSessionButton.addEventListener('click', () => {
 copyLatestChineseButton.addEventListener('click', async () => {
   const latestChinese = getLatestChineseLine();
   if (!latestChinese) {
-    setStatus('No Chinese caption available to copy');
+    setStatus('No output caption available to copy');
     return;
   }
 
   try {
     await navigator.clipboard.writeText(latestChinese);
-    setStatus('Copied latest Chinese caption');
+    setStatus('Copied latest output caption');
   } catch {
     setStatus('Clipboard permission denied');
   }
@@ -705,8 +735,13 @@ async function boot() {
   }
 
   const savedSourceLanguage = localStorage.getItem('church-source-language');
-  if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean') {
+  if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean' || savedSourceLanguage === 'japanese' || savedSourceLanguage === 'chinese') {
     sourceLanguageSelect.value = savedSourceLanguage;
+  }
+
+  const savedTargetLanguage = localStorage.getItem('church-target-language');
+  if (savedTargetLanguage && TARGET_LANGUAGE_LABELS[savedTargetLanguage]) {
+    targetLanguageSelect.value = savedTargetLanguage;
   }
 
   const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
@@ -714,6 +749,7 @@ async function boot() {
 
   const savedControlsLocked = localStorage.getItem('church-controls-locked');
   setControlsLocked(savedControlsLocked === '1');
+  updateTranslatedHeading();
 
   await syncTranslationConfig();
   updateModeSummary();
