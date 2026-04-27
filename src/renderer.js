@@ -13,6 +13,8 @@ const togglePresentationButton = document.getElementById('togglePresentation');
 const toggleHelpButton = document.getElementById('toggleHelp');
 const toggleLockControlsButton = document.getElementById('toggleLockControls');
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow');
+const testAudioFileButton = document.getElementById('testAudioFile');
+const testAudioFileInput = document.getElementById('testAudioFileInput');
 const clearPanelsButton = document.getElementById('clearPanels');
 const clearTranscriptButton = document.getElementById('clearTranscript');
 const resetSessionButton = document.getElementById('resetSession');
@@ -147,6 +149,7 @@ function setControlsLocked(nextLocked) {
     sourceLanguageSelect,
     targetLanguageSelect,
     refreshDevicesButton,
+    testAudioFileButton,
     vadThresholdInput,
     silenceMsInput,
     maxSegmentMsInput,
@@ -324,6 +327,50 @@ async function processSegmentWithRetry(payload) {
   }
 
   throw lastError;
+}
+
+async function processTestAudioFile(file) {
+  if (!file) return;
+
+  setStatus(`Testing file: ${file.name}`);
+
+  const buffer = await file.arrayBuffer();
+  const payload = {
+    audioBase64: arrayBufferToBase64(buffer),
+    mimeType: file.type || 'audio/wav',
+    durationMs: 0
+  };
+
+  try {
+    const result = await processSegmentWithRetry(payload);
+
+    if (result.english) {
+      appendEnglish(result.english);
+    }
+    if (result.translated || result.chinese) {
+      appendChinese(result.translated || result.chinese);
+    }
+    if (result.warning) {
+      appendEnglish(`Warning: ${result.warning}`, true);
+    }
+
+    transcriptEntries.push({
+      timestamp: new Date().toLocaleTimeString(),
+      english: result.english || '',
+      chinese: result.translated || result.chinese || ''
+    });
+    totalSegments += 1;
+    totalEnglishChars += (result.english || '').length;
+    totalTranslatedChars += (result.translated || result.chinese || '').length;
+    updateCostSummary();
+    setStatus(`Finished file test: ${file.name}`);
+    updateModeSummary();
+  } catch (err) {
+    setStatus(`File test failed: ${err.message || String(err)}`);
+    appendEnglish(`Warning: ${err.message || String(err)}`, true);
+  } finally {
+    testAudioFileInput.value = '';
+  }
 }
 
 async function drainSegmentQueue() {
@@ -691,6 +738,15 @@ toggleOutputWindowButton.addEventListener('click', async () => {
   } catch (err) {
     setStatus(`Output window error: ${err.message || String(err)}`);
   }
+});
+
+testAudioFileButton.addEventListener('click', () => {
+  testAudioFileInput.click();
+});
+
+testAudioFileInput.addEventListener('change', async (event) => {
+  const file = event.target?.files?.[0];
+  await processTestAudioFile(file);
 });
 
 closeHelpButton.addEventListener('click', () => {

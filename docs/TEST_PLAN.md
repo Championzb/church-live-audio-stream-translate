@@ -34,6 +34,17 @@ Expected:
 - Mode summary queue rises/falls and returns near zero
 - Cost summary increments from 0.00
 
+## 2b) File test mode
+
+1. Click `Test Audio File`.
+2. Choose a short sermon audio file (`.wav`, `.mp3`, or similar).
+3. Wait for processing to complete.
+
+Expected:
+- English and translated panels update
+- Transcript receives one new entry
+- Status shows successful file test completion
+
 ## 3) Operator control tests
 
 - `F7` Worship mode: translation pauses/resumes

@@ -18,6 +18,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Dedicated dual-screen output window for subtitle-only display
 - Operator lock mode to prevent accidental config changes (`F2`)
 - Live cost estimator (session and rough monthly estimate)
+- File test mode for quick validation without live microphone input
 
 ## Tech choices
 
@@ -60,6 +61,7 @@ npm run start
 11. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
 12. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
 13. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+14. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
