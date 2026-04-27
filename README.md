@@ -107,6 +107,7 @@ Tip: choose the cleanest source possible (usually mixer AUX out via USB interfac
 - CI distribution workflow: `.github/workflows/distribution.yml` (manual run or `v*` tags)
 - Full release playbook: `docs/DISTRIBUTION.md`
 - Signing/notarization setup: `docs/SIGNING.md`
+- QA checklist: `docs/TEST_PLAN.md`
 
 Packaging notes:
 - macOS bundling requires the full Xcode app (not only Command Line Tools).
