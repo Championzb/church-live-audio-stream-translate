@@ -210,6 +210,7 @@ const UI_TEXT = {
     'source.english': '{language} (direct transcription)',
     'source.japanese': '{language}',
     'source.chinese': '{language}',
+    'device.default': 'System Default',
     'device.input': 'Input {index}'
   },
   'zh-hans': {
@@ -329,6 +330,7 @@ const UI_TEXT = {
     'source.english': '{language}（直接转录）',
     'source.japanese': '{language}',
     'source.chinese': '{language}',
+    'device.default': '系统默认',
     'device.input': '输入 {index}'
   }
 };
@@ -654,6 +656,11 @@ function applyUiLanguage() {
   Array.from(uiLanguageSelect.options).forEach((option) => {
     option.textContent = t(`ui.${option.value}`);
   });
+  Array.from(audioInputSelect.options).forEach((option) => {
+    if (option.value === '') {
+      option.textContent = t('device.default');
+    }
+  });
 
   updateSourceLanguageOptionLabels();
   updateTargetLanguageOptionLabels();
@@ -853,22 +860,45 @@ async function drainSegmentQueue() {
 }
 
 async function loadDevices() {
+  const previousValue = audioInputSelect.value;
+  audioInputSelect.innerHTML = '';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = t('device.default');
+  audioInputSelect.appendChild(defaultOption);
+
+  let permissionError = null;
   try {
     const probe = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
     probe.getTracks().forEach((track) => track.stop());
+  } catch (err) {
+    permissionError = err;
+  }
 
+  try {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const audioInputs = devices.filter((d) => d.kind === 'audioinput');
 
-    audioInputSelect.innerHTML = '';
     audioInputs.forEach((device, idx) => {
       const option = document.createElement('option');
       option.value = device.deviceId;
       option.textContent = device.label || t('device.input', { index: idx + 1 });
       audioInputSelect.appendChild(option);
     });
+
+    if (previousValue) {
+      audioInputSelect.value = previousValue;
+      if (audioInputSelect.value !== previousValue) {
+        audioInputSelect.value = '';
+      }
+    }
   } catch (err) {
     setStatusKey('status.audioDeviceAccessError', { error: err.message || String(err) });
+    return;
+  }
+
+  if (permissionError) {
+    setStatusKey('status.audioDeviceAccessError', { error: permissionError.message || String(permissionError) });
   }
 }
 
