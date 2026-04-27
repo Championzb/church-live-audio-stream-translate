@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('churchTranslate', {
   setTranslationConfig: (config) => ipcRenderer.invoke('set-translation-config', config),
   getRunning: () => ipcRenderer.invoke('get-running'),
   setRunning: (running) => ipcRenderer.invoke('set-running', running),
+  exportTranscript: (payload) => ipcRenderer.invoke('export-transcript', payload),
   submitSegment: (payload) => ipcRenderer.send('segment-ready', payload),
   onSegmentResult: (handler) => {
     const wrapped = (_event, data) => handler(data);

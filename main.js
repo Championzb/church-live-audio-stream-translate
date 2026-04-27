@@ -1,5 +1,6 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
+const fs = require('fs/promises');
+const { app, BrowserWindow, ipcMain, globalShortcut, dialog } = require('electron');
 const OpenAI = require('openai');
 const { toFile } = require('openai/uploads');
 
@@ -186,4 +187,34 @@ ipcMain.on('segment-ready', (_event, payload) => {
     return;
   }
   processSegment(payload);
+});
+
+ipcMain.handle('export-transcript', async (_event, payload) => {
+  const entries = Array.isArray(payload?.entries) ? payload.entries : [];
+  if (!entries.length) {
+    return { ok: false, message: 'No transcript entries to export.' };
+  }
+
+  const defaultName = `church-translation-${new Date().toISOString().replace(/[:.]/g, '-')}.txt`;
+  const saveResult = await dialog.showSaveDialog({
+    title: 'Export Transcript',
+    defaultPath: defaultName,
+    filters: [{ name: 'Text files', extensions: ['txt'] }]
+  });
+
+  if (saveResult.canceled || !saveResult.filePath) {
+    return { ok: false, message: 'Export canceled.' };
+  }
+
+  const content = entries
+    .map((entry) => {
+      const stamp = entry.timestamp || '';
+      const english = entry.english || '';
+      const chinese = entry.chinese || '';
+      return `[${stamp}] EN: ${english}\n[${stamp}] ZH: ${chinese}`;
+    })
+    .join('\n\n');
+
+  await fs.writeFile(saveResult.filePath, content, 'utf8');
+  return { ok: true, path: saveResult.filePath };
 });

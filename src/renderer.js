@@ -3,6 +3,8 @@ const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
 const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
+const clearPanelsButton = document.getElementById('clearPanels');
+const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
@@ -26,6 +28,7 @@ let recording = false;
 
 const englishLines = [];
 const chineseLines = [];
+const transcriptEntries = [];
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -64,6 +67,13 @@ function appendChinese(text, warning = false) {
   if (!text) return;
   chineseLines.push({ text, warning });
   while (chineseLines.length > MAX_LINES) chineseLines.shift();
+  renderLines(chinesePanel, chineseLines);
+}
+
+function clearPanels() {
+  englishLines.length = 0;
+  chineseLines.length = 0;
+  renderLines(englishPanel, englishLines);
   renderLines(chinesePanel, chineseLines);
 }
 
@@ -274,6 +284,14 @@ window.churchTranslate.onSegmentResult((payload) => {
     appendChinese(payload.chinese);
   }
 
+  if (payload.english || payload.chinese) {
+    transcriptEntries.push({
+      timestamp: new Date().toLocaleTimeString(),
+      english: payload.english || '',
+      chinese: payload.chinese || ''
+    });
+  }
+
   if (payload.warning) {
     appendEnglish(`Warning: ${payload.warning}`, true);
   }
@@ -281,6 +299,20 @@ window.churchTranslate.onSegmentResult((payload) => {
 
 window.churchTranslate.onToggleFromHotkey(async ({ running: nextRunning }) => {
   await setRunning(nextRunning);
+});
+
+clearPanelsButton.addEventListener('click', () => {
+  clearPanels();
+  setStatus('Caption panels cleared');
+});
+
+exportTranscriptButton.addEventListener('click', async () => {
+  const result = await window.churchTranslate.exportTranscript({ entries: transcriptEntries });
+  if (result.ok) {
+    setStatus(`Transcript exported: ${result.path}`);
+  } else {
+    setStatus(result.message || 'Transcript export failed');
+  }
 });
 
 async function boot() {

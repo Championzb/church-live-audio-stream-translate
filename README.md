@@ -6,6 +6,7 @@ Desktop subtitle app for Windows and macOS.
 - English captions always shown
 - Simplified Chinese captions shown in parallel
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
+- Export transcript to a text file at any time
 
 ## Tech choices
 
@@ -33,6 +34,7 @@ npm run start
 3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary`.
 4. Adjust VAD threshold/silence hold if needed.
 5. Click `Start (F8)`.
+6. Use `Export Transcript` if you want a saved copy after service.
 
 ## Notes
 
