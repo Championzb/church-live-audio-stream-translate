@@ -12,6 +12,7 @@ use tauri::Manager;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
+use tauri_plugin_log::{Target, TargetKind};
 
 struct AppState {
     api_key: Mutex<Option<String>>,
@@ -130,7 +131,7 @@ const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
 const KEYRING_ACCOUNT: &str = "openai_api_key";
 
 fn log_api_key_storage(message: &str) {
-    eprintln!("[api-key-storage] {message}");
+    log::info!("[api-key-storage] {message}");
 }
 
 fn mask_api_key(value: &str) -> String {
@@ -946,6 +947,16 @@ fn push_output_caption(payload: OutputCaptionPayload, app: tauri::AppHandle) -> 
 
 pub fn run() {
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level(log::LevelFilter::Info)
+                .targets([
+                    Target::new(TargetKind::LogDir { file_name: Some("app".into()) }),
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::Stderr),
+                ])
+                .build(),
+        )
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .manage(AppState {
             api_key: Mutex::new(None),

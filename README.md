@@ -101,6 +101,13 @@ npm run typecheck
 - Segment processing retries automatically on transient API/network errors.
 - Cost summary estimates STT + translation spend from processed audio/text.
 
+## App logs (for distributed troubleshooting)
+
+- macOS log file: `~/Library/Logs/com.church.live.translate/app.log`
+- Quick tail command:
+  - `tail -f ~/Library/Logs/com.church.live.translate/app.log`
+- API key storage diagnostics are logged with prefix: `[api-key-storage]`
+
 ## Broadcast workflow
 
 Use this app on the subtitle display machine. The translator reads Chinese subtitles aloud into your existing broadcast system.
