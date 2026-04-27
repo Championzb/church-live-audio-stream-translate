@@ -20,6 +20,8 @@ const labelMainProjectIdEl = document.getElementById('labelMainProjectId');
 const mainApiKeyInput = document.getElementById('mainApiKeyInput');
 const mainAdminApiKeyInput = document.getElementById('mainAdminApiKeyInput');
 const mainProjectIdInput = document.getElementById('mainProjectIdInput');
+const copyMainApiKeyButton = document.getElementById('copyMainApiKey');
+const copyMainAdminApiKeyButton = document.getElementById('copyMainAdminApiKey');
 const saveMainApiKeyButton = document.getElementById('saveMainApiKey');
 const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey');
 const openSettingsPageButton = document.getElementById('openSettingsPage');
@@ -184,6 +186,7 @@ const UI_TEXT = {
         'tooltip.import': 'Import glossary content from a text file.',
         'tooltip.export': 'Export glossary content to a text file.',
         'tooltip.close': 'Close the help panel.',
+        'tooltip.copyKey': 'Copy this key value to clipboard.',
         'help.title': 'Quick Controls',
         'help.f8': '<strong>F8</strong>: Start/Stop translation',
         'help.f7': '<strong>F7</strong>: Toggle worship mode',
@@ -210,6 +213,8 @@ const UI_TEXT = {
         'status.autoSaveFailed': 'Stopped (auto-save failed: {error})',
         'status.apiKeySaved': 'API key configured and saved securely',
         'status.adminApiKeySaved': 'Admin key saved securely',
+        'status.apiKeyCopied': 'OpenAI API key copied',
+        'status.adminApiKeyCopied': 'OpenAI admin key copied',
         'status.projectIdSaved': 'Project ID saved',
         'status.apiKeyFailed': 'Failed to configure API key',
         'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
@@ -322,6 +327,7 @@ const UI_TEXT = {
         'tooltip.import': '从文本文件导入术语表。',
         'tooltip.export': '将术语表导出到文本文件。',
         'tooltip.close': '关闭帮助面板。',
+        'tooltip.copyKey': '复制该密钥到剪贴板。',
         'help.title': '快捷控制',
         'help.f8': '<strong>F8</strong>：开始/停止翻译',
         'help.f7': '<strong>F7</strong>：切换敬拜模式',
@@ -348,6 +354,8 @@ const UI_TEXT = {
         'status.autoSaveFailed': '已停止（自动保存失败：{error}）',
         'status.apiKeySaved': 'API 密钥已配置并安全保存',
         'status.adminApiKeySaved': '管理员密钥已安全保存',
+        'status.apiKeyCopied': '已复制 OpenAI API 密钥',
+        'status.adminApiKeyCopied': '已复制 OpenAI 管理员密钥',
         'status.projectIdSaved': 'Project ID 已保存',
         'status.apiKeyFailed': '配置 API 密钥失败',
         'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
@@ -573,10 +581,9 @@ function setApiKeyModalVisible(nextVisible) {
     const visible = Boolean(nextVisible);
     apiKeyModal.classList.toggle('hidden', !visible);
     if (visible) {
-        mainApiKeyInput.value = '';
-        mainAdminApiKeyInput.value = '';
         mainProjectIdInput.value = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
         mainApiKeyInput.focus();
+        void loadSavedKeysForUpdatePanel();
     }
     else {
         mainApiKeyInput.value = '';
@@ -713,6 +720,8 @@ function setStaticButtonTooltips() {
     importGlossaryButton.title = t('tooltip.import');
     exportGlossaryButton.title = t('tooltip.export');
     closeHelpButton.title = t('tooltip.close');
+    copyMainApiKeyButton.title = t('tooltip.copyKey');
+    copyMainAdminApiKeyButton.title = t('tooltip.copyKey');
 }
 function setPresentationMode(nextMode) {
     presentationMode = Boolean(nextMode);
@@ -1365,6 +1374,29 @@ async function persistAdminApiKey(adminApiKey) {
     }
     return false;
 }
+async function loadSavedKeysForUpdatePanel() {
+    try {
+        const payload = await invoke('load_saved_raw_keys_for_update_panel');
+        mainApiKeyInput.value = (payload && payload.apiKey) || '';
+        mainAdminApiKeyInput.value = (payload && payload.adminApiKey) || '';
+    }
+    catch {
+        // Keep current in-memory values if loading from secure storage fails.
+    }
+}
+async function copyTextToClipboard(text, successStatusKey) {
+    if (!text || !String(text).trim()) {
+        setStatusKey('status.apiKeyRequired');
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(String(text));
+        setStatusKey(successStatusKey);
+    }
+    catch {
+        setStatusKey('status.clipboardDenied');
+    }
+}
 saveKeyButton.addEventListener('click', async () => {
     const apiKey = apiKeyInput.value.trim();
     const adminApiKey = adminApiKeyInput.value.trim();
@@ -1430,6 +1462,12 @@ mainAdminApiKeyInput.addEventListener('keydown', async (event) => {
     if (event.key !== 'Enter')
         return;
     await saveApiKeyModalChanges();
+});
+copyMainApiKeyButton.addEventListener('click', async () => {
+    await copyTextToClipboard(mainApiKeyInput.value, 'status.apiKeyCopied');
+});
+copyMainAdminApiKeyButton.addEventListener('click', async () => {
+    await copyTextToClipboard(mainAdminApiKeyInput.value, 'status.adminApiKeyCopied');
 });
 mainProjectIdInput.addEventListener('keydown', async (event) => {
     if (event.key !== 'Enter')

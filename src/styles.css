@@ -492,6 +492,30 @@ button.stop:hover {
   flex: 1;
 }
 
+.inline-input-action {
+  width: min(420px, 100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-input-action input {
+  flex: 1;
+}
+
+.icon-copy {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1;
+}
+
 @media (max-width: 1180px) {
   .app-header {
     grid-template-columns: 1fr;
@@ -553,6 +577,10 @@ button.stop:hover {
   #mainProjectIdInput {
     width: 100%;
     min-width: 0;
+  }
+
+  .inline-input-action {
+    width: 100%;
   }
 
   .landing-card {

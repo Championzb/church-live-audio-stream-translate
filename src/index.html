@@ -183,11 +183,17 @@
         <p id="apiKeyModalSubtitle">Enter a new key and save it to secure storage.</p>
         <div class="row">
           <label id="labelMainApiKey" for="mainApiKeyInput">OpenAI API Key</label>
-          <input id="mainApiKeyInput" type="password" placeholder="sk-..." autocomplete="off" />
+          <div class="inline-input-action">
+            <input id="mainApiKeyInput" type="text" placeholder="sk-..." autocomplete="off" />
+            <button id="copyMainApiKey" type="button" class="icon-copy" aria-label="Copy OpenAI API key">⧉</button>
+          </div>
         </div>
         <div class="row">
           <label id="labelMainAdminApiKey" for="mainAdminApiKeyInput">OpenAI Admin Key</label>
-          <input id="mainAdminApiKeyInput" type="password" placeholder="sk-admin-..." autocomplete="off" />
+          <div class="inline-input-action">
+            <input id="mainAdminApiKeyInput" type="text" placeholder="sk-admin-..." autocomplete="off" />
+            <button id="copyMainAdminApiKey" type="button" class="icon-copy" aria-label="Copy OpenAI admin key">⧉</button>
+          </div>
         </div>
         <div class="row">
           <label id="labelMainProjectId" for="mainProjectIdInput">Project ID</label>

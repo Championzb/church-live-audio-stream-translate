@@ -81,6 +81,7 @@ npm run typecheck
 - OpenAI Project ID (`proj_...`) can be entered in the same API key panels (landing + key popup) and is stored locally for cost filtering/use.
 - The main page header shows a masked API key indicator (for quick verification without exposing the full key).
 - To change the API key after setup, click the masked API key box in the main page header to open the compact popup.
+- The compact key popup shows current saved API/Admin key values and includes copy buttons for quick clipboard copy.
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.

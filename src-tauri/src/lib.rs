@@ -64,6 +64,13 @@ struct SavedApiKeyResponse {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SavedRawKeysResponse {
+    api_key: String,
+    admin_api_key: String,
+}
+
+#[derive(Serialize)]
 struct RunningResponse {
     running: bool,
 }
@@ -460,6 +467,76 @@ fn load_saved_admin_api_key(
     Ok(SavedApiKeyResponse {
         found: false,
         masked_key: None,
+    })
+}
+
+#[tauri::command]
+fn load_saved_raw_keys_for_update_panel(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<SavedRawKeysResponse, String> {
+    let current_api_key = {
+        let guard = state
+            .api_key
+            .lock()
+            .map_err(|_| "Failed to lock API key state".to_string())?;
+        guard.clone()
+    };
+    let current_admin_api_key = {
+        let guard = state
+            .admin_api_key
+            .lock()
+            .map_err(|_| "Failed to lock admin API key state".to_string())?;
+        guard.clone()
+    };
+
+    let api_key = if let Some(value) = current_api_key {
+        value
+    } else {
+        let keyring_value = match keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
+            Ok(entry) => match entry.get_password() {
+                Ok(value) if !value.trim().is_empty() => Some(value.trim().to_string()),
+                _ => None,
+            },
+            Err(_) => None,
+        };
+        if let Some(value) = keyring_value {
+            let mut guard = state
+                .api_key
+                .lock()
+                .map_err(|_| "Failed to lock API key state".to_string())?;
+            *guard = Some(value.clone());
+            value
+        } else {
+            load_fallback_api_key(&app)?.unwrap_or_default()
+        }
+    };
+
+    let admin_api_key = if let Some(value) = current_admin_api_key {
+        value
+    } else {
+        let keyring_value = match keyring::Entry::new(KEYRING_SERVICE, KEYRING_ADMIN_ACCOUNT) {
+            Ok(entry) => match entry.get_password() {
+                Ok(value) if !value.trim().is_empty() => Some(value.trim().to_string()),
+                _ => None,
+            },
+            Err(_) => None,
+        };
+        if let Some(value) = keyring_value {
+            let mut guard = state
+                .admin_api_key
+                .lock()
+                .map_err(|_| "Failed to lock admin API key state".to_string())?;
+            *guard = Some(value.clone());
+            value
+        } else {
+            load_fallback_admin_api_key(&app)?.unwrap_or_default()
+        }
+    };
+
+    Ok(SavedRawKeysResponse {
+        api_key,
+        admin_api_key,
     })
 }
 
@@ -1321,6 +1398,7 @@ pub fn run() {
             load_saved_api_key,
             config_admin_api_key,
             load_saved_admin_api_key,
+            load_saved_raw_keys_for_update_panel,
             set_translation_config,
             get_running,
             set_running,
