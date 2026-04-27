@@ -112,3 +112,17 @@ Packaging notes:
 - GitHub Actions workflow creates draft releases and also uploads bundle artifacts for each OS.
 - `dist:collect` creates `dist/SHA256SUMS.txt` for release verification (macOS `.app` is zipped before hashing).
 - Validate signing env before release: `npm run release:check:mac` or `npm run release:check:all`.
+
+### Unsigned install steps
+
+#### macOS (`.app.zip`)
+
+1. Download release `.app.zip`.
+2. Unzip and drag `.app` into `Applications`.
+3. First run: right-click app -> `Open` -> confirm `Open`.
+
+#### Windows (`.msi`)
+
+1. Download release `.msi`.
+2. Double-click installer and complete setup.
+3. If SmartScreen appears: click `More info` -> `Run anyway`.

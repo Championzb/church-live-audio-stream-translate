@@ -48,6 +48,7 @@ CI behavior:
 - Builds macOS `.app` + Windows `.msi` bundles
 - Creates a **draft GitHub Release**
 - Uploads build bundles as workflow artifacts
+- Includes unsigned installation steps directly in release body
 
 ## 4) Suggested release checklist
 

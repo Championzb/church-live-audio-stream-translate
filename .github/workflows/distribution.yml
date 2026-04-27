@@ -51,7 +51,20 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Church Live Translate ${{ github.ref_name }}
-          releaseBody: Automated build for ${{ github.ref_name }}
+          releaseBody: |
+            Automated build for ${{ github.ref_name }}.
+
+            Unsigned install steps
+
+            macOS (`.app.zip`)
+            1. Download `.app.zip`.
+            2. Unzip and drag `.app` into `Applications`.
+            3. First run: right-click app -> `Open` -> confirm `Open`.
+
+            Windows (`.msi`)
+            1. Download `.msi`.
+            2. Run installer.
+            3. If SmartScreen appears: `More info` -> `Run anyway`.
           releaseDraft: true
           prerelease: false
           args: --bundles ${{ matrix.bundle }}
