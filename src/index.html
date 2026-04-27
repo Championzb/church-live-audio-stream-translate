@@ -10,22 +10,27 @@
     <main>
       <header class="controls">
         <div class="row">
-          <label for="apiKey">OpenAI API Key</label>
+          <label id="labelApiKey" for="apiKey">OpenAI API Key</label>
           <input id="apiKey" type="password" placeholder="sk-..." autocomplete="off" />
           <button id="saveKey">Save Key</button>
+          <label id="labelUiLanguage" for="uiLanguage">UI Language</label>
+          <select id="uiLanguage">
+            <option value="en">English</option>
+            <option value="zh-hans">简体中文</option>
+          </select>
         </div>
 
         <div class="row">
-          <label for="audioInput">Audio Input</label>
+          <label id="labelAudioInput" for="audioInput">Audio Input</label>
           <select id="audioInput"></select>
-          <label for="sourceLanguage">Source Language</label>
+          <label id="labelSourceLanguage" for="sourceLanguage">Source Language</label>
           <select id="sourceLanguage">
             <option value="korean" selected>Korean (translate to English)</option>
             <option value="english">English (direct transcription)</option>
             <option value="japanese">Japanese</option>
             <option value="chinese">Chinese</option>
           </select>
-          <label for="targetLanguage">Output Language</label>
+          <label id="labelTargetLanguage" for="targetLanguage">Output Language</label>
           <select id="targetLanguage">
             <option value="zh-hans" selected>Simplified Chinese</option>
             <option value="zh-hant">Traditional Chinese</option>
@@ -51,22 +56,22 @@
         </div>
 
         <div class="row">
-          <label for="vadThreshold">VAD Threshold</label>
+          <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
           <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
           <span id="vadValue">0.040</span>
-          <label for="silenceMs">Silence Hold (ms)</label>
+          <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
           <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
-          <label for="maxSegmentMs">Max Segment (ms)</label>
+          <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
           <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
         </div>
 
         <div class="row">
-          <label for="glossary">Glossary (one term per line, EN=ZH)</label>
+          <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
           <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
           <button id="saveGlossary">Save Glossary</button>
           <button id="importGlossary">Import</button>
           <button id="exportGlossary">Export</button>
-          <label for="autoSaveOnStop">Auto-save on stop</label>
+          <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
           <input id="autoSaveOnStop" type="checkbox" checked />
         </div>
 
@@ -77,7 +82,7 @@
 
       <section class="captions">
         <article>
-          <h2>English</h2>
+          <h2 id="englishHeading">English</h2>
           <div id="englishLive" class="live-line"></div>
           <div id="englishPanel" class="panel"></div>
         </article>
@@ -91,13 +96,13 @@
 
     <div id="helpOverlay" class="overlay hidden">
       <div class="overlay-card">
-        <h3>Quick Controls</h3>
-        <p><strong>F8</strong>: Start/Stop translation</p>
-        <p><strong>F7</strong>: Toggle worship mode</p>
-        <p><strong>F6</strong>: Toggle presentation mode</p>
-        <p><strong>F2</strong>: Lock/unlock config controls</p>
-        <p><strong>F4</strong>: Reset captions + transcript + queue</p>
-        <p><strong>F1</strong>: Toggle this help panel</p>
+        <h3 id="helpTitle">Quick Controls</h3>
+        <p id="helpF8"><strong>F8</strong>: Start/Stop translation</p>
+        <p id="helpF7"><strong>F7</strong>: Toggle worship mode</p>
+        <p id="helpF6"><strong>F6</strong>: Toggle presentation mode</p>
+        <p id="helpF2"><strong>F2</strong>: Lock/unlock config controls</p>
+        <p id="helpF4"><strong>F4</strong>: Reset captions + transcript + queue</p>
+        <p id="helpF1"><strong>F1</strong>: Toggle this help panel</p>
         <button id="closeHelp">Close</button>
       </div>
     </div>

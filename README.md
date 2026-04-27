@@ -6,6 +6,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - English captions always shown
 - Configurable output language captions shown in parallel
 - Source language switch supports Korean, English, Japanese, and Chinese sermons
+- Configurable UI language (English / Simplified Chinese)
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click presentation mode for full-screen subtitle display (`F6`)
@@ -50,23 +51,25 @@ npm run start
 
 1. Paste OpenAI API key and click `Save Key`.
 2. Select the desired audio input device, source language, and output language.
-3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
-4. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-5. Click `Start (F8)`.
-6. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
-7. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
-8. Use `Export Transcript` if you want a saved copy after service.
-9. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
-10. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
-11. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-12. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
-13. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-14. Use `Test Audio File` to run one audio file through the same translation pipeline.
+3. Set `UI Language` to English or Simplified Chinese for operator controls.
+4. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
+5. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
+6. Click `Start (F8)`.
+7. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
+8. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
+9. Use `Export Transcript` if you want a saved copy after service.
+10. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
+11. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+12. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+13. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+14. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+15. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
 - The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager).
 - The selected source language is also saved locally for future sessions.
+- The selected UI language is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/source/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
