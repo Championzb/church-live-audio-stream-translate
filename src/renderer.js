@@ -960,8 +960,8 @@ async function processTestAudioFile(file) {
     setStatusKey('status.testingFile', { name: file.name });
     const buffer = await file.arrayBuffer();
     const payload = {
-        audioBase64: arrayBufferToBase64(buffer),
-        mimeType: file.type || 'audio/wav',
+        audio_base64: arrayBufferToBase64(buffer),
+        mime_type: file.type || 'audio/wav',
         durationMs: 0
     };
     try {
@@ -1129,8 +1129,8 @@ async function setupAudioPipeline() {
         }
         const audioBuffer = await blob.arrayBuffer();
         pendingSegments.push({
-            audioBase64: arrayBufferToBase64(audioBuffer),
-            mimeType: blob.type,
+            audio_base64: arrayBufferToBase64(audioBuffer),
+            mime_type: blob.type,
             durationMs: pendingSegmentDurationMs
         });
         pendingSegmentDurationMs = 0;
