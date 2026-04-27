@@ -9,6 +9,7 @@ const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
 const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
 const togglePresentationButton = document.getElementById('togglePresentation');
+const toggleHelpButton = document.getElementById('toggleHelp');
 const clearPanelsButton = document.getElementById('clearPanels');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
@@ -25,6 +26,8 @@ const glossaryInput = document.getElementById('glossary');
 const saveGlossaryButton = document.getElementById('saveGlossary');
 const importGlossaryButton = document.getElementById('importGlossary');
 const exportGlossaryButton = document.getElementById('exportGlossary');
+const helpOverlay = document.getElementById('helpOverlay');
+const closeHelpButton = document.getElementById('closeHelp');
 
 const MAX_LINES = 6;
 let running = false;
@@ -40,6 +43,7 @@ let currentChunks = [];
 let recording = false;
 let presentationMode = false;
 let worshipMode = false;
+let helpVisible = false;
 
 const englishLines = [];
 const chineseLines = [];
@@ -64,6 +68,11 @@ function updateModeSummary() {
   modeSummaryEl.textContent = `Mode: ${running ? 'running' : 'stopped'} | Source: ${
     sourceLanguageSelect.value || 'korean'
   } | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${presentationMode ? 'on' : 'off'}`;
+}
+
+function setHelpVisible(nextVisible) {
+  helpVisible = Boolean(nextVisible);
+  helpOverlay.classList.toggle('hidden', !helpVisible);
 }
 
 function setRunningButtonState() {
@@ -459,6 +468,14 @@ togglePresentationButton.addEventListener('click', () => {
   setPresentationMode(!presentationMode);
 });
 
+toggleHelpButton.addEventListener('click', () => {
+  setHelpVisible(!helpVisible);
+});
+
+closeHelpButton.addEventListener('click', () => {
+  setHelpVisible(false);
+});
+
 vadThresholdInput.addEventListener('input', () => {
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
   localStorage.setItem('church-vad-threshold', vadThresholdInput.value);
@@ -537,6 +554,10 @@ async function boot() {
 
   await listen('toggle-worship-mode', () => {
     setWorshipMode(!worshipMode);
+  });
+
+  await listen('toggle-help-overlay', () => {
+    setHelpVisible(!helpVisible);
   });
 }
 

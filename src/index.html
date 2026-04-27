@@ -27,6 +27,7 @@
           <button id="toggleRun" class="run">Start (F8)</button>
           <button id="toggleWorshipMode">Worship Mode Off (F7)</button>
           <button id="togglePresentation">Presentation Mode (F6)</button>
+          <button id="toggleHelp">Help (F1)</button>
           <button id="clearPanels">Clear Captions</button>
           <button id="exportTranscript">Export Transcript</button>
         </div>
@@ -66,6 +67,17 @@
         </article>
       </section>
     </main>
+
+    <div id="helpOverlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h3>Quick Controls</h3>
+        <p><strong>F8</strong>: Start/Stop translation</p>
+        <p><strong>F7</strong>: Toggle worship mode</p>
+        <p><strong>F6</strong>: Toggle presentation mode</p>
+        <p><strong>F1</strong>: Toggle this help panel</p>
+        <button id="closeHelp">Close</button>
+      </div>
+    </div>
 
     <script src="renderer.js"></script>
   </body>

@@ -9,6 +9,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click presentation mode for full-screen subtitle display (`F6`)
+- Built-in help overlay for operators (`F1`)
 - Export transcript to a text file at any time
 
 ## Tech choices
@@ -59,6 +60,7 @@ npm run start
 - `F8` is registered as a global shortcut while the app is running.
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
+- `F1` toggles the on-screen hotkey help overlay.
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
