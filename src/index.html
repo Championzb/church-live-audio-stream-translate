@@ -32,6 +32,7 @@
           <div class="header-right">
             <div class="ui-language-slot">
               <p id="maskedApiKey">OpenAI Key: hidden</p>
+              <button id="openApiKeyModal" class="compact-button">Update Key</button>
               <label id="labelUiLanguage" for="uiLanguage">UI Language</label>
               <select id="uiLanguage">
                 <option value="en">English</option>
@@ -149,6 +150,21 @@
         <p id="helpF4"><strong>F4</strong>: Reset captions + transcript + queue</p>
         <p id="helpF1"><strong>F1</strong>: Toggle this help panel</p>
         <button id="closeHelp">Close</button>
+      </div>
+    </div>
+
+    <div id="apiKeyModal" class="overlay hidden">
+      <div class="overlay-card compact-overlay-card">
+        <h3 id="apiKeyModalTitle">Update OpenAI API Key</h3>
+        <p id="apiKeyModalSubtitle">Enter a new key and save it to secure storage.</p>
+        <div class="row">
+          <label id="labelMainApiKey" for="mainApiKeyInput">OpenAI API Key</label>
+          <input id="mainApiKeyInput" type="password" placeholder="sk-..." autocomplete="off" />
+        </div>
+        <div class="row">
+          <button id="saveMainApiKey">Save Key</button>
+          <button id="cancelMainApiKey">Cancel</button>
+        </div>
       </div>
     </div>
 

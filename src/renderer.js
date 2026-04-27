@@ -9,6 +9,14 @@ const landingStatusEl = document.getElementById('landingStatus');
 const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
 const maskedApiKeyEl = document.getElementById('maskedApiKey');
+const openApiKeyModalButton = document.getElementById('openApiKeyModal');
+const apiKeyModal = document.getElementById('apiKeyModal');
+const apiKeyModalTitleEl = document.getElementById('apiKeyModalTitle');
+const apiKeyModalSubtitleEl = document.getElementById('apiKeyModalSubtitle');
+const labelMainApiKeyEl = document.getElementById('labelMainApiKey');
+const mainApiKeyInput = document.getElementById('mainApiKeyInput');
+const saveMainApiKeyButton = document.getElementById('saveMainApiKey');
+const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
@@ -135,9 +143,14 @@ const UI_TEXT = {
     'button.import': 'Import',
     'button.export': 'Export',
     'button.close': 'Close',
+    'button.updateKey': 'Update Key',
+    'button.cancel': 'Cancel',
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
+    'modal.apiKeyTitle': 'Update OpenAI API Key',
+    'modal.apiKeySubtitle': 'Enter a new key and save it to secure storage.',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
+    'tooltip.updateKey': 'Open a compact dialog to replace the saved API key.',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
     'tooltip.stop': 'Stop live capture and translation (F8).',
@@ -260,9 +273,14 @@ const UI_TEXT = {
     'button.import': '导入',
     'button.export': '导出',
     'button.close': '关闭',
+    'button.updateKey': '更新密钥',
+    'button.cancel': '取消',
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
+    'modal.apiKeyTitle': '更新 OpenAI API 密钥',
+    'modal.apiKeySubtitle': '输入新密钥并保存到系统安全存储。',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
+    'tooltip.updateKey': '打开紧凑弹窗来替换已保存的 API 密钥。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
     'tooltip.stop': '停止实时采集和翻译（F8）。',
@@ -445,6 +463,17 @@ function showMainPage() {
   mainPage.classList.remove('hidden');
 }
 
+function setApiKeyModalVisible(nextVisible) {
+  const visible = Boolean(nextVisible);
+  apiKeyModal.classList.toggle('hidden', !visible);
+  if (visible) {
+    mainApiKeyInput.value = '';
+    mainApiKeyInput.focus();
+  } else {
+    mainApiKeyInput.value = '';
+  }
+}
+
 function sttRatePerMinute() {
   if (sourceLanguageSelect.value === 'korean') {
     return 0.006;
@@ -498,6 +527,7 @@ function setControlsLocked(nextLocked) {
   toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 
   const lockTargets = [
+    openApiKeyModalButton,
     audioInputSelect,
     sourceLanguageSelect,
     targetLanguageSelect,
@@ -548,6 +578,7 @@ function refreshToggleButtonLabels() {
 
 function setStaticButtonTooltips() {
   saveKeyButton.title = t('tooltip.saveKey');
+  openApiKeyModalButton.title = t('tooltip.updateKey');
   refreshDevicesButton.title = t('tooltip.refresh');
   toggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
@@ -679,6 +710,9 @@ function applyUiLanguage() {
 
   englishHeadingEl.textContent = t('heading.english');
   saveKeyButton.textContent = t('button.saveKey');
+  openApiKeyModalButton.textContent = t('button.updateKey');
+  saveMainApiKeyButton.textContent = t('button.saveKey');
+  cancelMainApiKeyButton.textContent = t('button.cancel');
   refreshDevicesButton.textContent = t('button.refresh');
   toggleHelpButton.textContent = t('button.help');
   toggleOutputWindowButton.textContent = t('button.outputWindow');
@@ -692,6 +726,9 @@ function applyUiLanguage() {
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');
   closeHelpButton.textContent = t('button.close');
+  apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
+  apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
+  labelMainApiKeyEl.textContent = t('label.apiKey');
 
   helpTitleEl.textContent = t('help.title');
   helpF8El.innerHTML = t('help.f8');
@@ -1223,11 +1260,11 @@ async function ensureMainInitialized() {
   mainInitialized = true;
 }
 
-saveKeyButton.addEventListener('click', async () => {
-  const apiKey = apiKeyInput.value.trim();
+async function persistApiKey(apiKey, options = {}) {
+  const shouldEnterMain = Boolean(options.enterMain);
   if (!apiKey) {
     setStatusKey('status.apiKeyRequired');
-    return;
+    return false;
   }
 
   try {
@@ -1237,12 +1274,52 @@ saveKeyButton.addEventListener('click', async () => {
       localStorage.setItem('church-masked-api-key', masked);
       setMaskedApiKey(masked);
       apiKeyInput.value = '';
-      await ensureMainInitialized();
-      showMainPage();
+      if (shouldEnterMain) {
+        await ensureMainInitialized();
+        showMainPage();
+      }
       setStatusKey('status.apiKeySaved');
+      return true;
     }
   } catch (err) {
     setStatus(err.message || t('status.apiKeyFailed'));
+  }
+  return false;
+}
+
+saveKeyButton.addEventListener('click', async () => {
+  const apiKey = apiKeyInput.value.trim();
+  await persistApiKey(apiKey, { enterMain: true });
+});
+
+openApiKeyModalButton.addEventListener('click', () => {
+  setApiKeyModalVisible(true);
+});
+
+saveMainApiKeyButton.addEventListener('click', async () => {
+  const apiKey = mainApiKeyInput.value.trim();
+  const saved = await persistApiKey(apiKey);
+  if (saved) {
+    setApiKeyModalVisible(false);
+  }
+});
+
+cancelMainApiKeyButton.addEventListener('click', () => {
+  setApiKeyModalVisible(false);
+});
+
+apiKeyModal.addEventListener('click', (event) => {
+  if (event.target === apiKeyModal) {
+    setApiKeyModalVisible(false);
+  }
+});
+
+mainApiKeyInput.addEventListener('keydown', async (event) => {
+  if (event.key !== 'Enter') return;
+  const apiKey = mainApiKeyInput.value.trim();
+  const saved = await persistApiKey(apiKey);
+  if (saved) {
+    setApiKeyModalVisible(false);
   }
 });
 
@@ -1430,6 +1507,10 @@ async function boot() {
 }
 
 window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !apiKeyModal.classList.contains('hidden')) {
+    setApiKeyModalVisible(false);
+    return;
+  }
   if (event.key === 'Escape' && presentationMode) {
     setPresentationMode(false);
   }

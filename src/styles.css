@@ -233,6 +233,12 @@ button:hover {
   background: #eef3fb;
 }
 
+.compact-button {
+  padding: 6px 9px;
+  font-size: 0.82rem;
+  min-height: 30px;
+}
+
 button.run {
   background: var(--accent);
   border-color: var(--accent);
@@ -360,6 +366,20 @@ button.stop:hover {
   margin: 0 0 10px;
 }
 
+.compact-overlay-card {
+  width: min(460px, 92vw);
+}
+
+.compact-overlay-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+#mainApiKeyInput {
+  width: min(420px, 100%);
+  flex: 1;
+}
+
 @media (max-width: 1180px) {
   .app-header {
     flex-direction: column;
@@ -374,6 +394,10 @@ button.stop:hover {
   .ui-language-slot {
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+
+  #maskedApiKey {
+    margin-right: 0;
   }
 
   .status-stack {
