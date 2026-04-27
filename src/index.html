@@ -46,13 +46,12 @@
           </div>
         </header>
 
-        <section class="controls">
-          <div class="control-page-tabs">
-            <button id="showOperatorPage" class="active">Operator</button>
-            <button id="showAdvancedPage">Advanced</button>
-          </div>
+        <div class="view-toolbar">
+          <button id="openSettingsPage">Settings</button>
+        </div>
 
-          <div id="operatorPage" class="control-page">
+        <section id="liveWorkspace">
+          <section class="controls">
             <details class="control-card" open>
               <summary>Session Setup</summary>
               <div class="card-body">
@@ -95,10 +94,8 @@
                 </div>
               </div>
             </details>
-          </div>
 
-          <div id="advancedPage" class="control-page hidden">
-            <details class="control-card" open>
+            <details class="control-card">
               <summary>Utility Actions</summary>
               <div class="card-body">
                 <div class="row actions-row">
@@ -112,8 +109,29 @@
                 </div>
               </div>
             </details>
+          </section>
 
-            <details class="control-card">
+          <section id="captionsSection" class="captions">
+            <article class="caption-card">
+              <h2 id="englishHeading">English</h2>
+              <div id="englishLive" class="live-line"></div>
+              <div id="englishPanel" class="panel"></div>
+            </article>
+            <article class="caption-card">
+              <h2 id="translatedHeading">Simplified Chinese</h2>
+              <div id="chineseLive" class="live-line"></div>
+              <div id="chinesePanel" class="panel"></div>
+            </article>
+          </section>
+        </section>
+
+        <section id="settingsPage" class="settings-page hidden">
+          <div class="settings-header">
+            <h2 id="settingsHeading">Settings</h2>
+            <button id="backToLivePage">Back</button>
+          </div>
+          <section class="controls">
+            <details class="control-card" open>
               <summary>Segmentation Tuning</summary>
               <div class="card-body">
                 <div class="row tuning-row">
@@ -128,7 +146,7 @@
               </div>
             </details>
 
-            <details class="control-card glossary-card">
+            <details class="control-card glossary-card" open>
               <summary>Glossary</summary>
               <div class="card-body">
                 <div class="row">
@@ -144,20 +162,7 @@
                 </div>
               </div>
             </details>
-          </div>
-        </section>
-
-        <section class="captions">
-          <article class="caption-card">
-            <h2 id="englishHeading">English</h2>
-            <div id="englishLive" class="live-line"></div>
-            <div id="englishPanel" class="panel"></div>
-          </article>
-          <article class="caption-card">
-            <h2 id="translatedHeading">Simplified Chinese</h2>
-            <div id="chineseLive" class="live-line"></div>
-            <div id="chinesePanel" class="panel"></div>
-          </article>
+          </section>
         </section>
       </section>
     </main>

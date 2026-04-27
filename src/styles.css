@@ -173,33 +173,32 @@ h1 {
   gap: 12px;
 }
 
-.control-page-tabs {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.86);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 5px;
-  width: fit-content;
+.view-toolbar {
+  margin: 12px 0 0;
+  display: flex;
+  justify-content: flex-end;
 }
 
-.control-page-tabs button {
-  border: none;
-  border-radius: 999px;
-  padding: 7px 12px;
-  background: transparent;
-  font-size: 0.86rem;
-}
-
-.control-page-tabs button.active {
-  background: #dbeafe;
-  color: #0c4a6e;
-}
-
-.control-page {
+#liveWorkspace {
   display: grid;
+  gap: 8px;
+}
+
+.settings-page {
+  margin-top: 14px;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  margin-bottom: 10px;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.04rem;
 }
 
 .control-card {

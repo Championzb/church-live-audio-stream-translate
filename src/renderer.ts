@@ -20,10 +20,11 @@ const labelMainApiKeyEl = document.getElementById('labelMainApiKey') as any;
 const mainApiKeyInput = document.getElementById('mainApiKeyInput') as any;
 const saveMainApiKeyButton = document.getElementById('saveMainApiKey') as any;
 const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey') as any;
-const showOperatorPageButton = document.getElementById('showOperatorPage') as any;
-const showAdvancedPageButton = document.getElementById('showAdvancedPage') as any;
-const operatorPageEl = document.getElementById('operatorPage') as any;
-const advancedPageEl = document.getElementById('advancedPage') as any;
+const openSettingsPageButton = document.getElementById('openSettingsPage') as any;
+const backToLivePageButton = document.getElementById('backToLivePage') as any;
+const settingsHeadingEl = document.getElementById('settingsHeading') as any;
+const liveWorkspaceEl = document.getElementById('liveWorkspace') as any;
+const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
 const audioInputSelect = document.getElementById('audioInput') as any;
 const sourceLanguageSelect = document.getElementById('sourceLanguage') as any;
@@ -151,8 +152,9 @@ const UI_TEXT = {
     'button.export': 'Export',
     'button.close': 'Close',
     'button.cancel': 'Cancel',
-    'page.operator': 'Operator',
-    'page.advanced': 'Advanced',
+    'button.settings': 'Settings',
+    'button.back': 'Back',
+    'heading.settings': 'Settings',
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
@@ -281,8 +283,9 @@ const UI_TEXT = {
     'button.export': '导出',
     'button.close': '关闭',
     'button.cancel': '取消',
-    'page.operator': '操作页',
-    'page.advanced': '高级页',
+    'button.settings': '设置',
+    'button.back': '返回',
+    'heading.settings': '设置',
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
@@ -398,7 +401,7 @@ const LANGUAGE_DISPLAY = {
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 let uiLanguage = 'en';
 let mainInitialized = false;
-let controlPage = 'operator';
+let mainView = 'live';
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -471,14 +474,11 @@ function showMainPage() {
   mainPage.classList.remove('hidden');
 }
 
-function setControlPage(nextPage) {
-  controlPage = nextPage === 'advanced' ? 'advanced' : 'operator';
-  const showOperator = controlPage === 'operator';
-  operatorPageEl.classList.toggle('hidden', !showOperator);
-  advancedPageEl.classList.toggle('hidden', showOperator);
-  showOperatorPageButton.classList.toggle('active', showOperator);
-  showAdvancedPageButton.classList.toggle('active', !showOperator);
-  localStorage.setItem('church-control-page', controlPage);
+function setMainView(nextView) {
+  mainView = nextView === 'settings' ? 'settings' : 'live';
+  const showLive = mainView === 'live';
+  liveWorkspaceEl.classList.toggle('hidden', !showLive);
+  settingsPageEl.classList.toggle('hidden', showLive);
 }
 
 function setApiKeyModalVisible(nextVisible) {
@@ -546,6 +546,8 @@ function setControlsLocked(nextLocked) {
 
   const lockTargets = [
     maskedApiKeyEl,
+    openSettingsPageButton,
+    backToLivePageButton,
     audioInputSelect,
     sourceLanguageSelect,
     targetLanguageSelect,
@@ -730,8 +732,9 @@ function applyUiLanguage() {
   saveKeyButton.textContent = t('button.saveKey');
   saveMainApiKeyButton.textContent = t('button.saveKey');
   cancelMainApiKeyButton.textContent = t('button.cancel');
-  showOperatorPageButton.textContent = t('page.operator');
-  showAdvancedPageButton.textContent = t('page.advanced');
+  openSettingsPageButton.textContent = t('button.settings');
+  backToLivePageButton.textContent = t('button.back');
+  settingsHeadingEl.textContent = t('heading.settings');
   refreshDevicesButton.textContent = t('button.refresh');
   toggleHelpButton.textContent = t('button.help');
   toggleOutputWindowButton.textContent = t('button.outputWindow');
@@ -1323,12 +1326,12 @@ saveMainApiKeyButton.addEventListener('click', async () => {
   }
 });
 
-showOperatorPageButton.addEventListener('click', () => {
-  setControlPage('operator');
+openSettingsPageButton.addEventListener('click', () => {
+  setMainView('settings');
 });
 
-showAdvancedPageButton.addEventListener('click', () => {
-  setControlPage('advanced');
+backToLivePageButton.addEventListener('click', () => {
+  setMainView('live');
 });
 
 cancelMainApiKeyButton.addEventListener('click', () => {
@@ -1510,8 +1513,7 @@ async function boot() {
   }
   uiLanguage = getUiLanguage();
   applyUiLanguage();
-  const savedControlPage = localStorage.getItem('church-control-page');
-  setControlPage(savedControlPage === 'advanced' ? 'advanced' : 'operator');
+  setMainView('live');
 
   try {
     const loaded = await invoke('load_saved_api_key');
