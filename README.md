@@ -12,6 +12,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Built-in help overlay for operators (`F1`)
 - Export transcript to a text file at any time
 - Clear transcript memory without clearing on-screen captions
+- One-tap session reset for queue + captions + transcript (`F4`)
 
 ## Tech choices
 
@@ -50,6 +51,7 @@ npm run start
 7. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
 8. Use `Export Transcript` if you want a saved copy after service.
 9. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
+10. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
 
 ## Notes
 
@@ -64,6 +66,7 @@ npm run start
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
 - `F1` toggles the on-screen hotkey help overlay.
+- `F4` resets current session state (queued segments, captions, transcript).
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.

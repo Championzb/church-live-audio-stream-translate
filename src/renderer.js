@@ -12,6 +12,7 @@ const togglePresentationButton = document.getElementById('togglePresentation');
 const toggleHelpButton = document.getElementById('toggleHelp');
 const clearPanelsButton = document.getElementById('clearPanels');
 const clearTranscriptButton = document.getElementById('clearTranscript');
+const resetSessionButton = document.getElementById('resetSession');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const modeSummaryEl = document.getElementById('modeSummary');
@@ -152,6 +153,14 @@ function clearPanels() {
   renderLines(chinesePanel, chineseLines);
   englishLiveEl.textContent = '';
   chineseLiveEl.textContent = '';
+}
+
+function resetSessionState() {
+  pendingSegments.length = 0;
+  transcriptEntries.length = 0;
+  clearPanels();
+  setStatus('Session reset: captions, transcript, and queue cleared');
+  updateModeSummary();
 }
 
 function arrayBufferToBase64(arrayBuffer) {
@@ -535,6 +544,10 @@ clearTranscriptButton.addEventListener('click', () => {
   updateModeSummary();
 });
 
+resetSessionButton.addEventListener('click', () => {
+  resetSessionState();
+});
+
 exportTranscriptButton.addEventListener('click', async () => {
   const result = await invoke('export_transcript', { entries: transcriptEntries });
   if (result.ok) {
@@ -599,6 +612,10 @@ async function boot() {
 
   await listen('toggle-help-overlay', () => {
     setHelpVisible(!helpVisible);
+  });
+
+  await listen('reset-session', () => {
+    resetSessionState();
   });
 }
 
