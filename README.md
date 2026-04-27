@@ -76,6 +76,7 @@ npm run start
 - `F8` is registered as a global shortcut while the app is running.
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
+- `Esc` exits presentation mode quickly.
 - `F1` toggles the on-screen hotkey help overlay.
 - `F4` resets current session state (queued segments, captions, transcript).
 - `F2` locks or unlocks configuration controls.

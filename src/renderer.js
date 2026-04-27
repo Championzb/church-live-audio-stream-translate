@@ -60,6 +60,7 @@ let presentationMode = false;
 let worshipMode = false;
 let helpVisible = false;
 let controlsLocked = false;
+let lastPresentationToggleAt = 0;
 
 const englishLines = [];
 const chineseLines = [];
@@ -188,6 +189,15 @@ function setPresentationMode(nextMode) {
     ? 'Exit Presentation (F6)'
     : 'Presentation Mode (F6)';
   updateModeSummary();
+}
+
+function togglePresentationModeDebounced() {
+  const now = Date.now();
+  if (now - lastPresentationToggleAt < 350) {
+    return;
+  }
+  lastPresentationToggleAt = now;
+  setPresentationMode(!presentationMode);
 }
 
 function setWorshipMode(nextMode) {
@@ -718,7 +728,7 @@ toggleWorshipModeButton.addEventListener('click', () => {
 });
 
 togglePresentationButton.addEventListener('click', () => {
-  setPresentationMode(!presentationMode);
+  togglePresentationModeDebounced();
 });
 
 toggleHelpButton.addEventListener('click', () => {
@@ -865,7 +875,7 @@ async function boot() {
   });
 
   await listen('toggle-presentation-mode', () => {
-    setPresentationMode(!presentationMode);
+    togglePresentationModeDebounced();
   });
 
   await listen('toggle-worship-mode', () => {
@@ -884,5 +894,11 @@ async function boot() {
     resetSessionState();
   });
 }
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && presentationMode) {
+    setPresentationMode(false);
+  }
+});
 
 boot();
