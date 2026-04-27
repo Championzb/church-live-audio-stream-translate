@@ -82,7 +82,7 @@ npm run typecheck
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
-- A live mode summary line shows current run/source/worship/presentation state.
+- A live mode summary line shows current run/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.

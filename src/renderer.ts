@@ -235,7 +235,7 @@ const UI_TEXT = {
     'mode.off': 'off',
     'mode.queueProcessing': 'processing',
     'mode.summary':
-      'Mode: {mode} | Source: {source} | Target: {target} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
+      'Mode: {mode} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
     'ui.en': 'English',
     'ui.zh-hans': 'Simplified Chinese',
@@ -366,7 +366,7 @@ const UI_TEXT = {
     'mode.off': '关',
     'mode.queueProcessing': '处理中',
     'mode.summary':
-      '模式：{mode} | 源语言：{source} | 目标语言：{target} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
+      '模式：{mode} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
     'ui.en': 'English',
     'ui.zh-hans': '简体中文',
@@ -525,8 +525,6 @@ function updateModeSummary() {
     : `${pendingSegments.length}`;
   modeSummaryEl.textContent = t('mode.summary', {
     mode: running ? t('mode.running') : t('mode.stopped'),
-    source: languageName(sourceLanguageSelect.value || 'korean'),
-    target: languageName(targetLanguageSelect.value || 'zh-hans'),
     worship: worshipMode ? t('mode.on') : t('mode.off'),
     presentation: presentationMode ? t('mode.on') : t('mode.off'),
     queue: queueText
