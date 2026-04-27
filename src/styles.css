@@ -117,6 +117,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .session-setup-slot {
@@ -490,7 +492,7 @@ button.stop:hover {
   }
 
   .ui-language-slot {
-    justify-content: flex-start;
+    justify-content: flex-end;
     flex-wrap: wrap;
   }
 
