@@ -151,11 +151,6 @@ struct WhisperResponse {
     text: Option<String>,
 }
 
-#[derive(Deserialize)]
-struct ResponsesResponse {
-    output_text: Option<String>,
-}
-
 fn build_audio_form(
     audio_bytes: &[u8],
     extension: &str,
@@ -320,6 +315,39 @@ fn fallback_translation_text(target_language: &str) -> String {
         "spanish" => "(La traduccion no esta disponible temporalmente)".to_string(),
         _ => "(Translation unavailable)".to_string(),
     }
+}
+
+fn extract_responses_text(payload: &serde_json::Value) -> String {
+    if let Some(text) = payload.get("output_text").and_then(|v| v.as_str()) {
+        let trimmed = text.trim();
+        if !trimmed.is_empty() {
+            return trimmed.to_string();
+        }
+    }
+
+    let mut parts: Vec<String> = Vec::new();
+    if let Some(outputs) = payload.get("output").and_then(|v| v.as_array()) {
+        for output in outputs {
+            if let Some(content_items) = output.get("content").and_then(|v| v.as_array()) {
+                for item in content_items {
+                    if let Some(text) = item.get("text").and_then(|v| v.as_str()) {
+                        let trimmed = text.trim();
+                        if !trimmed.is_empty() {
+                            parts.push(trimmed.to_string());
+                        }
+                    }
+                    if let Some(text) = item.get("output_text").and_then(|v| v.as_str()) {
+                        let trimmed = text.trim();
+                        if !trimmed.is_empty() {
+                            parts.push(trimmed.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    parts.join("\n").trim().to_string()
 }
 
 #[tauri::command]
@@ -911,10 +939,10 @@ async fn process_segment(
                         ));
                     }
                     let english_json = english_response
-                        .json::<ResponsesResponse>()
+                        .json::<serde_json::Value>()
                         .await
                         .map_err(|e| format!("Korean fallback EN decode failed: {e}"))?;
-                    english_json.output_text.unwrap_or_default().trim().to_string()
+                    extract_responses_text(&english_json)
                 }
             } else {
                 let transcribe_form =
@@ -985,10 +1013,10 @@ async fn process_segment(
                     ));
                 }
                 let english_json = english_response
-                    .json::<ResponsesResponse>()
+                    .json::<serde_json::Value>()
                     .await
                     .map_err(|e| format!("Korean fallback EN decode failed: {e}"))?;
-                english_json.output_text.unwrap_or_default().trim().to_string()
+                extract_responses_text(&english_json)
             }
         } else {
             return Err("Whisper request failed and fallback could not start.".to_string());
@@ -1060,10 +1088,10 @@ async fn process_segment(
             return Err(format!("{source_label} -> English translation failed ({status}): {body}"));
         }
         let english_json = english_response
-            .json::<ResponsesResponse>()
+            .json::<serde_json::Value>()
             .await
             .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
-        english_json.output_text.unwrap_or_default().trim().to_string()
+        extract_responses_text(&english_json)
     } else {
         english_text
     };
@@ -1143,10 +1171,10 @@ async fn process_segment(
             }
 
             let json = resp
-                .json::<ResponsesResponse>()
+                .json::<serde_json::Value>()
                 .await
                 .map_err(|e| format!("Chinese translation decode failed: {e}"))?;
-            let mut translated_text = json.output_text.unwrap_or_default().trim().to_string();
+            let mut translated_text = extract_responses_text(&json);
 
             if translated_text.is_empty()
                 || ((target_language == "zh-hans" || target_language == "zh-hant")
@@ -1186,8 +1214,8 @@ async fn process_segment(
                     .await
                 {
                     if retry_resp.status().is_success() {
-                        if let Ok(retry_json) = retry_resp.json::<ResponsesResponse>().await {
-                            let retried = retry_json.output_text.unwrap_or_default().trim().to_string();
+                        if let Ok(retry_json) = retry_resp.json::<serde_json::Value>().await {
+                            let retried = extract_responses_text(&retry_json);
                             if !retried.is_empty() {
                                 translated_text = retried;
                             }
