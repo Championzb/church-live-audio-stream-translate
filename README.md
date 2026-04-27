@@ -1,4 +1,4 @@
-# Church Live Audio Translate (Korean -> English -> Chinese)
+# Church Live Audio Translate (Multi-language Input -> English -> Multi-language Output)
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
