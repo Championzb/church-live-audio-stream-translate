@@ -58,3 +58,13 @@ Use this app on the subtitle display machine. The translator reads Chinese subti
 - Virtual loopback device for system audio capture (e.g. BlackHole/Loopback on macOS, VB-CABLE on Windows)
 
 Tip: choose the cleanest source possible (usually mixer AUX out via USB interface) for best Korean-to-English quality.
+
+## Packaging installers
+
+- macOS `.app` and `.dmg`: `npm run build:mac`
+- Windows `.msi`: `npm run build:win` (run from Windows machine or properly configured cross-compile toolchain)
+- General bundle: `npm run build`
+
+Packaging notes:
+- macOS bundling requires the full Xcode app (not only Command Line Tools).
+- Windows distribution may require code signing depending on deployment policy.

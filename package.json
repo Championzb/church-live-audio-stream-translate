@@ -7,7 +7,9 @@
     "tauri": "tauri",
     "dev": "tauri dev",
     "start": "tauri dev",
-    "build": "tauri build"
+    "build": "tauri build",
+    "build:mac": "tauri build --bundles app,dmg",
+    "build:win": "tauri build --target x86_64-pc-windows-msvc --bundles msi"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0"
