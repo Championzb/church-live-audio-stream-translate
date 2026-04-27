@@ -11,13 +11,16 @@ const landingTitleEl = document.getElementById('landingTitle') as any;
 const landingSubtitleEl = document.getElementById('landingSubtitle') as any;
 const landingStatusEl = document.getElementById('landingStatus') as any;
 const apiKeyInput = document.getElementById('apiKey') as any;
+const projectIdInput = document.getElementById('projectId') as any;
 const saveKeyButton = document.getElementById('saveKey') as any;
 const maskedApiKeyEl = document.getElementById('maskedApiKey') as any;
 const apiKeyModal = document.getElementById('apiKeyModal') as any;
 const apiKeyModalTitleEl = document.getElementById('apiKeyModalTitle') as any;
 const apiKeyModalSubtitleEl = document.getElementById('apiKeyModalSubtitle') as any;
 const labelMainApiKeyEl = document.getElementById('labelMainApiKey') as any;
+const labelMainProjectIdEl = document.getElementById('labelMainProjectId') as any;
 const mainApiKeyInput = document.getElementById('mainApiKeyInput') as any;
+const mainProjectIdInput = document.getElementById('mainProjectIdInput') as any;
 const saveMainApiKeyButton = document.getElementById('saveMainApiKey') as any;
 const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey') as any;
 const openSettingsPageButton = document.getElementById('openSettingsPage') as any;
@@ -63,6 +66,7 @@ const autoSaveOnStopInput = document.getElementById('autoSaveOnStop') as any;
 const helpOverlay = document.getElementById('helpOverlay') as any;
 const closeHelpButton = document.getElementById('closeHelp') as any;
 const labelApiKeyEl = document.getElementById('labelApiKey') as any;
+const labelProjectIdEl = document.getElementById('labelProjectId') as any;
 const labelUiLanguageEl = document.getElementById('labelUiLanguage') as any;
 const labelAudioInputEl = document.getElementById('labelAudioInput') as any;
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage') as any;
@@ -119,6 +123,7 @@ const UI_TEXT = {
     'landing.title': 'Connect OpenAI API Key',
     'landing.subtitle': 'Enter your key once to continue. It is stored securely in your OS keychain/credential manager.',
     'label.apiKey': 'OpenAI API Key',
+    'label.projectId': 'Project ID',
     'label.uiLanguage': 'UI Language',
     'label.audioInput': 'Audio Input',
     'label.sourceLanguage': 'Source Language',
@@ -158,7 +163,7 @@ const UI_TEXT = {
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
-    'modal.apiKeySubtitle': 'Enter a new key and save it to secure storage.',
+    'modal.apiKeySubtitle': 'Enter a new key or update project ID, then save.',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
@@ -206,6 +211,7 @@ const UI_TEXT = {
     'status.stopped': 'Stopped',
     'status.autoSaveFailed': 'Stopped (auto-save failed: {error})',
     'status.apiKeySaved': 'API key configured and saved securely',
+    'status.projectIdSaved': 'Project ID saved',
     'status.apiKeyFailed': 'Failed to configure API key',
     'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
     'status.glossarySaved': 'Glossary saved',
@@ -237,6 +243,7 @@ const UI_TEXT = {
     'mode.summary':
       'Mode: {mode} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
+    'cost.project': 'Project: {projectId}',
     'ui.en': 'English',
     'ui.zh-hans': 'Simplified Chinese',
     'source.korean': '{language} (translate to English)',
@@ -250,6 +257,7 @@ const UI_TEXT = {
     'landing.title': '连接 OpenAI API 密钥',
     'landing.subtitle': '请输入一次密钥后继续。密钥将安全存储在系统钥匙串/凭据管理器中。',
     'label.apiKey': 'OpenAI API 密钥',
+    'label.projectId': 'Project ID',
     'label.uiLanguage': '界面语言',
     'label.audioInput': '音频输入',
     'label.sourceLanguage': '源语言',
@@ -289,7 +297,7 @@ const UI_TEXT = {
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
-    'modal.apiKeySubtitle': '输入新密钥并保存到系统安全存储。',
+    'modal.apiKeySubtitle': '输入新密钥或更新 Project ID，然后保存。',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
@@ -337,6 +345,7 @@ const UI_TEXT = {
     'status.stopped': '已停止',
     'status.autoSaveFailed': '已停止（自动保存失败：{error}）',
     'status.apiKeySaved': 'API 密钥已配置并安全保存',
+    'status.projectIdSaved': 'Project ID 已保存',
     'status.apiKeyFailed': '配置 API 密钥失败',
     'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
     'status.glossarySaved': '术语表已保存',
@@ -368,6 +377,7 @@ const UI_TEXT = {
     'mode.summary':
       '模式：{mode} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
+    'cost.project': 'Project：{projectId}',
     'ui.en': 'English',
     'ui.zh-hans': '简体中文',
     'source.korean': '{language}（先翻译为英文）',
@@ -399,6 +409,7 @@ const LANGUAGE_DISPLAY = {
   }
 };
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
+const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
@@ -472,6 +483,28 @@ function setMaskedApiKey(masked) {
   maskedApiKeyEl.textContent = t('apiKey.masked', { masked });
 }
 
+function normalizeProjectId(rawProjectId: any) {
+  return (rawProjectId || '').trim();
+}
+
+function syncProjectIdInputs(rawProjectId: any) {
+  const projectId = normalizeProjectId(rawProjectId);
+  projectIdInput.value = projectId;
+  mainProjectIdInput.value = projectId;
+}
+
+function saveProjectId(rawProjectId: any) {
+  const projectId = normalizeProjectId(rawProjectId);
+  if (projectId) {
+    localStorage.setItem(PROJECT_ID_STORAGE_KEY, projectId);
+  } else {
+    localStorage.removeItem(PROJECT_ID_STORAGE_KEY);
+  }
+  syncProjectIdInputs(projectId);
+  updateCostSummary();
+  return projectId;
+}
+
 function showLandingPage() {
   landingPage.classList.remove('hidden');
   mainPage.classList.add('hidden');
@@ -494,6 +527,7 @@ function setApiKeyModalVisible(nextVisible) {
   apiKeyModal.classList.toggle('hidden', !visible);
   if (visible) {
     mainApiKeyInput.value = '';
+    mainProjectIdInput.value = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
     mainApiKeyInput.focus();
   } else {
     mainApiKeyInput.value = '';
@@ -525,6 +559,11 @@ function updateCostSummary() {
     session: sessionTotal.toFixed(2),
     month: estimatedMonth.toFixed(2)
   });
+  const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
+  if (projectId) {
+    maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.project', { projectId })}`;
+    return;
+  }
   maskedApiKeyEl.title = costSummaryText;
 }
 
@@ -725,6 +764,7 @@ function applyUiLanguage() {
   landingTitleEl.textContent = t('landing.title');
   landingSubtitleEl.textContent = t('landing.subtitle');
   labelApiKeyEl.textContent = t('label.apiKey');
+  labelProjectIdEl.textContent = t('label.projectId');
   labelUiLanguageEl.textContent = t('label.uiLanguage');
   labelAudioInputEl.textContent = t('label.audioInput');
   labelSourceLanguageEl.textContent = t('label.sourceLanguage');
@@ -758,6 +798,7 @@ function applyUiLanguage() {
   apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
   apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
   labelMainApiKeyEl.textContent = t('label.apiKey');
+  labelMainProjectIdEl.textContent = t('label.projectId');
 
   helpTitleEl.textContent = t('help.title');
   helpF8El.innerHTML = t('help.f8');
@@ -783,6 +824,7 @@ function applyUiLanguage() {
   refreshToggleButtonLabels();
   updateModeSummary();
   updateCostSummary();
+  syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
   setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
 
 }
@@ -1315,6 +1357,7 @@ async function persistApiKey(apiKey, options: any = {}) {
 
 saveKeyButton.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
+  saveProjectId(projectIdInput.value);
   await persistApiKey(apiKey, { enterMain: true });
 });
 
@@ -1322,12 +1365,22 @@ maskedApiKeyEl.addEventListener('click', () => {
   setApiKeyModalVisible(true);
 });
 
-saveMainApiKeyButton.addEventListener('click', async () => {
+async function saveApiKeyModalChanges() {
   const apiKey = mainApiKeyInput.value.trim();
+  saveProjectId(mainProjectIdInput.value);
+  if (!apiKey) {
+    setStatusKey('status.projectIdSaved');
+    setApiKeyModalVisible(false);
+    return;
+  }
   const saved = await persistApiKey(apiKey);
   if (saved) {
     setApiKeyModalVisible(false);
   }
+}
+
+saveMainApiKeyButton.addEventListener('click', async () => {
+  await saveApiKeyModalChanges();
 });
 
 openSettingsPageButton.addEventListener('click', () => {
@@ -1350,11 +1403,12 @@ apiKeyModal.addEventListener('click', (event) => {
 
 mainApiKeyInput.addEventListener('keydown', async (event) => {
   if (event.key !== 'Enter') return;
-  const apiKey = mainApiKeyInput.value.trim();
-  const saved = await persistApiKey(apiKey);
-  if (saved) {
-    setApiKeyModalVisible(false);
-  }
+  await saveApiKeyModalChanges();
+});
+
+mainProjectIdInput.addEventListener('keydown', async (event) => {
+  if (event.key !== 'Enter') return;
+  await saveApiKeyModalChanges();
 });
 
 saveGlossaryButton.addEventListener('click', async () => {

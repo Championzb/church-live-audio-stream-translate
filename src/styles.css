@@ -351,6 +351,11 @@ button.stop:hover {
   flex: 1;
 }
 
+#projectId {
+  min-width: min(360px, 100%);
+  flex: 1;
+}
+
 #audioInput,
 #sourceLanguage,
 #targetLanguage,
@@ -472,6 +477,11 @@ button.stop:hover {
   flex: 1;
 }
 
+#mainProjectIdInput {
+  width: min(420px, 100%);
+  flex: 1;
+}
+
 @media (max-width: 1180px) {
   .app-header {
     grid-template-columns: 1fr;
@@ -520,12 +530,15 @@ button.stop:hover {
   }
 
   #apiKey,
+  #projectId,
   #audioInput,
   #sourceLanguage,
   #targetLanguage,
   #uiLanguage,
   #glossary,
-  #vadThreshold {
+  #vadThreshold,
+  #mainApiKeyInput,
+  #mainProjectIdInput {
     width: 100%;
     min-width: 0;
   }
