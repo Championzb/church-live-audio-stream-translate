@@ -563,7 +563,7 @@ async function refreshRealProjectCosts(force = false) {
 
   realCostFetchInFlight = true;
   try {
-    const result = await invoke('fetch_project_costs', { project_id: projectId });
+    const result = await invoke('fetch_project_costs', { projectId });
     cachedRealCostProjectId = projectId;
     cachedRealCostToday = Number(result.todayCost || 0);
     cachedRealCostMonth = Number(result.monthCost || 0);
@@ -1389,7 +1389,7 @@ async function setRunning(nextRunning) {
 
   running = nextRunning;
   setRunningButtonState();
-  await invoke('set_running', { next_running: running });
+  await invoke('set_running', { nextRunning: running });
 
   if (running) {
     try {
@@ -1403,7 +1403,7 @@ async function setRunning(nextRunning) {
       setStatusKey('status.startFailed', { error: err.message || String(err) });
       running = false;
       setRunningButtonState();
-      await invoke('set_running', { next_running: false });
+      await invoke('set_running', { nextRunning: false });
     }
   } else {
     await stopAudioPipeline();
@@ -1519,7 +1519,7 @@ async function persistApiKey(apiKey, options: any = {}) {
   }
 
   try {
-    const result = await invoke('config_api_key', { api_key: apiKey });
+    const result = await invoke('config_api_key', { apiKey });
     if (result.ok) {
       const masked = result.maskedKey || maskApiKey(apiKey);
       hasConfiguredApiKey = true;
@@ -1545,7 +1545,7 @@ async function persistAdminApiKey(adminApiKey) {
     return true;
   }
   try {
-    const result = await invoke('config_admin_api_key', { admin_api_key: trimmed });
+    const result = await invoke('config_admin_api_key', { adminApiKey: trimmed });
     if (result.ok) {
       hasConfiguredAdminKey = true;
       adminApiKeyInput.value = '';
