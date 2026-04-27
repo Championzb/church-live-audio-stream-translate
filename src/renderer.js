@@ -11,9 +11,12 @@ const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
+const englishLiveEl = document.getElementById('englishLive');
+const chineseLiveEl = document.getElementById('chineseLive');
 const vadThresholdInput = document.getElementById('vadThreshold');
 const vadValueEl = document.getElementById('vadValue');
 const silenceMsInput = document.getElementById('silenceMs');
+const maxSegmentMsInput = document.getElementById('maxSegmentMs');
 const glossaryInput = document.getElementById('glossary');
 const saveGlossaryButton = document.getElementById('saveGlossary');
 
@@ -26,6 +29,7 @@ let analyser;
 let monitorId;
 let speechDetectedAt = 0;
 let silenceStartedAt = 0;
+let recordingStartedAt = 0;
 let currentChunks = [];
 let recording = false;
 
@@ -80,6 +84,8 @@ function clearPanels() {
   chineseLines.length = 0;
   renderLines(englishPanel, englishLines);
   renderLines(chinesePanel, chineseLines);
+  englishLiveEl.textContent = '';
+  chineseLiveEl.textContent = '';
 }
 
 function arrayBufferToBase64(arrayBuffer) {
@@ -125,6 +131,9 @@ async function drainSegmentQueue() {
       if (result.warning) {
         appendEnglish(`Warning: ${result.warning}`, true);
       }
+
+      englishLiveEl.textContent = '';
+      chineseLiveEl.textContent = '';
     }
   } catch (err) {
     appendEnglish(`Warning: ${err.message || String(err)}`, true);
@@ -222,6 +231,9 @@ async function setupAudioPipeline() {
 
       if (!recording) {
         recording = true;
+        recordingStartedAt = now;
+        englishLiveEl.textContent = 'Listening...';
+        chineseLiveEl.textContent = 'Translating...';
         if (mediaRecorder.state === 'inactive') {
           mediaRecorder.start(250);
         }
@@ -235,6 +247,17 @@ async function setupAudioPipeline() {
       const spokenLongEnough = now - speechDetectedAt > 350;
       if (now - silenceStartedAt > holdMs && spokenLongEnough) {
         recording = false;
+        recordingStartedAt = 0;
+        silenceStartedAt = 0;
+        flushRecorderChunk();
+      }
+    }
+
+    if (recording && recordingStartedAt) {
+      const maxSegmentMs = Number(maxSegmentMsInput.value);
+      if (now - recordingStartedAt >= maxSegmentMs) {
+        recording = false;
+        recordingStartedAt = 0;
         silenceStartedAt = 0;
         flushRecorderChunk();
       }
@@ -254,6 +277,7 @@ async function stopAudioPipeline() {
 
   if (recording) {
     recording = false;
+    recordingStartedAt = 0;
     flushRecorderChunk();
   }
 
@@ -292,6 +316,8 @@ async function setRunning(nextRunning) {
   } else {
     await stopAudioPipeline();
     pendingSegments.length = 0;
+    englishLiveEl.textContent = '';
+    chineseLiveEl.textContent = '';
     setStatus('Stopped');
   }
 }

@@ -34,7 +34,7 @@ npm run start
 1. Paste OpenAI API key and click `Save Key`.
 2. Select the desired audio input device.
 3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary`.
-4. Adjust VAD threshold/silence hold if needed.
+4. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
 5. Click `Start (F8)`.
 6. Use `Export Transcript` if you want a saved copy after service.
 
@@ -44,6 +44,7 @@ npm run start
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.
+- The live line under each caption panel shows recording/translation progress between segment updates.
 
 ## Broadcast workflow
 

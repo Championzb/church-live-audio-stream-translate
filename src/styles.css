@@ -89,6 +89,13 @@ h2 {
   gap: 8px;
 }
 
+.live-line {
+  min-height: 24px;
+  margin-bottom: 8px;
+  color: #93c5fd;
+  font-size: 0.95rem;
+}
+
 .line {
   background: #0b1220;
   border: 1px solid #1e293b;
