@@ -124,7 +124,7 @@ body {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 #maskedApiKey {
