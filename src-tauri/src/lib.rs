@@ -454,6 +454,17 @@ pub fn run() {
                 })
                 .map_err(|e| -> Box<dyn std::error::Error> { Box::new(e) })?;
 
+            let worship_shortcut = Shortcut::new(None, Code::F7);
+
+            handle
+                .global_shortcut()
+                .on_shortcut(worship_shortcut, move |app, _shortcut, _event| {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.emit("toggle-worship-mode", true);
+                    }
+                })
+                .map_err(|e| -> Box<dyn std::error::Error> { Box::new(e) })?;
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

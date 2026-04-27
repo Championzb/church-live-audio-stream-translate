@@ -6,6 +6,7 @@ const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
 const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
+const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
 const togglePresentationButton = document.getElementById('togglePresentation');
 const clearPanelsButton = document.getElementById('clearPanels');
 const exportTranscriptButton = document.getElementById('exportTranscript');
@@ -36,6 +37,7 @@ let recordingStartedAt = 0;
 let currentChunks = [];
 let recording = false;
 let presentationMode = false;
+let worshipMode = false;
 
 const englishLines = [];
 const chineseLines = [];
@@ -65,6 +67,25 @@ function setPresentationMode(nextMode) {
   togglePresentationButton.textContent = presentationMode
     ? 'Exit Presentation (F6)'
     : 'Presentation Mode (F6)';
+}
+
+function setWorshipMode(nextMode) {
+  worshipMode = Boolean(nextMode);
+  toggleWorshipModeButton.textContent = worshipMode
+    ? 'Worship Mode On (F7)'
+    : 'Worship Mode Off (F7)';
+
+  if (worshipMode) {
+    pendingSegments.length = 0;
+    englishLiveEl.textContent = '';
+    chineseLiveEl.textContent = '';
+    setStatus('Worship mode enabled: translation is paused');
+  } else if (running) {
+    setStatus('Worship mode disabled: translation resumed');
+    drainSegmentQueue();
+  } else {
+    setStatus('Worship mode disabled');
+  }
 }
 
 function renderLines(panel, lines) {
@@ -121,6 +142,11 @@ async function drainSegmentQueue() {
   segmentQueueRunning = true;
   try {
     while (running && pendingSegments.length) {
+      if (worshipMode) {
+        pendingSegments.length = 0;
+        break;
+      }
+
       const payload = pendingSegments.shift();
       const result = await invoke('process_segment', { payload });
 
@@ -212,6 +238,10 @@ async function setupAudioPipeline() {
 
     const blob = new Blob(currentChunks, { type: 'audio/webm' });
     currentChunks = [];
+
+    if (worshipMode) {
+      return;
+    }
 
     const audioBuffer = await blob.arrayBuffer();
     pendingSegments.push({
@@ -393,6 +423,10 @@ toggleRunButton.addEventListener('click', async () => {
   await setRunning(!running);
 });
 
+toggleWorshipModeButton.addEventListener('click', () => {
+  setWorshipMode(!worshipMode);
+});
+
 togglePresentationButton.addEventListener('click', () => {
   setPresentationMode(!presentationMode);
 });
@@ -447,6 +481,10 @@ async function boot() {
 
   await listen('toggle-presentation-mode', () => {
     setPresentationMode(!presentationMode);
+  });
+
+  await listen('toggle-worship-mode', () => {
+    setWorshipMode(!worshipMode);
   });
 }
 
