@@ -53,6 +53,7 @@ npm run start
 - The app stores the API key in local browser storage for convenience.
 - The selected source language is also saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
+- A live mode summary line shows current run/source/worship/presentation state.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.

@@ -65,6 +65,12 @@ button.stop {
   color: #fcd34d;
 }
 
+#modeSummary {
+  margin: 0;
+  color: #93c5fd;
+  font-size: 0.9rem;
+}
+
 .captions {
   display: grid;
   grid-template-columns: 1fr 1fr;

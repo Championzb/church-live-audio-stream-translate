@@ -12,6 +12,7 @@ const togglePresentationButton = document.getElementById('togglePresentation');
 const clearPanelsButton = document.getElementById('clearPanels');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
+const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const englishLiveEl = document.getElementById('englishLive');
@@ -59,6 +60,12 @@ function setStatus(text) {
   statusEl.textContent = text;
 }
 
+function updateModeSummary() {
+  modeSummaryEl.textContent = `Mode: ${running ? 'running' : 'stopped'} | Source: ${
+    sourceLanguageSelect.value || 'korean'
+  } | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${presentationMode ? 'on' : 'off'}`;
+}
+
 function setRunningButtonState() {
   if (running) {
     toggleRunButton.textContent = 'Stop (F8)';
@@ -77,6 +84,7 @@ function setPresentationMode(nextMode) {
   togglePresentationButton.textContent = presentationMode
     ? 'Exit Presentation (F6)'
     : 'Presentation Mode (F6)';
+  updateModeSummary();
 }
 
 function setWorshipMode(nextMode) {
@@ -96,6 +104,7 @@ function setWorshipMode(nextMode) {
   } else {
     setStatus('Worship mode disabled');
   }
+  updateModeSummary();
 }
 
 function renderLines(panel, lines) {
@@ -372,6 +381,7 @@ async function setRunning(nextRunning) {
     chineseLiveEl.textContent = '';
     setStatus('Stopped');
   }
+  updateModeSummary();
 }
 
 async function syncTranslationConfig() {
@@ -434,6 +444,7 @@ sourceLanguageSelect.addEventListener('change', async () => {
   await syncTranslationConfig();
   localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
   setStatus(`Source language set to ${sourceLanguageSelect.value}`);
+  updateModeSummary();
 });
 
 toggleRunButton.addEventListener('click', async () => {
@@ -513,6 +524,7 @@ async function boot() {
   }
 
   await syncTranslationConfig();
+  updateModeSummary();
 
   await listen('toggle-from-hotkey', async (event) => {
     const payload = event.payload || {};
