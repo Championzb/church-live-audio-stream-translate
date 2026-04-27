@@ -5,6 +5,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Korean speech in
 - English captions always shown
 - Simplified Chinese captions shown in parallel
+- Source language switch supports Korean or English sermons
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click presentation mode for full-screen subtitle display (`F6`)
@@ -39,7 +40,7 @@ npm run start
 ## First run
 
 1. Paste OpenAI API key and click `Save Key`.
-2. Select the desired audio input device.
+2. Select the desired audio input device and source language.
 3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 4. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
 5. Click `Start (F8)`.
@@ -50,12 +51,14 @@ npm run start
 ## Notes
 
 - The app stores the API key in local browser storage for convenience.
+- The selected source language is also saved locally for future sessions.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
 - The live line under each caption panel shows recording/translation progress between segment updates.
+- Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 
 ## Broadcast workflow
 

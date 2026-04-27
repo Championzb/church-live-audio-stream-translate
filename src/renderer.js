@@ -4,6 +4,7 @@ const { listen } = window.__TAURI__.event;
 const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
+const sourceLanguageSelect = document.getElementById('sourceLanguage');
 const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
 const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
@@ -369,7 +370,8 @@ async function syncTranslationConfig() {
   await invoke('set_translation_config', {
     config: {
       glossary,
-      chineseVariant: 'simplified'
+      chineseVariant: 'simplified',
+      sourceLanguage: sourceLanguageSelect.value || 'korean'
     }
   });
 }
@@ -417,6 +419,12 @@ exportGlossaryButton.addEventListener('click', async () => {
 
 refreshDevicesButton.addEventListener('click', () => {
   loadDevices();
+});
+
+sourceLanguageSelect.addEventListener('change', async () => {
+  await syncTranslationConfig();
+  localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
+  setStatus(`Source language set to ${sourceLanguageSelect.value}`);
 });
 
 toggleRunButton.addEventListener('click', async () => {
@@ -472,6 +480,12 @@ async function boot() {
   if (savedGlossary) {
     glossaryInput.value = savedGlossary;
   }
+
+  const savedSourceLanguage = localStorage.getItem('church-source-language');
+  if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean') {
+    sourceLanguageSelect.value = savedSourceLanguage;
+  }
+
   await syncTranslationConfig();
 
   await listen('toggle-from-hotkey', async (event) => {

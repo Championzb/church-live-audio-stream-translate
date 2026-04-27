@@ -14,6 +14,7 @@ struct AppState {
     api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
     chinese_variant: Mutex<String>,
+    source_language: Mutex<String>,
     running: AtomicBool,
 }
 
@@ -34,6 +35,7 @@ struct SegmentResult {
 struct TranslationConfig {
     glossary: Option<String>,
     chinese_variant: Option<String>,
+    source_language: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -108,6 +110,10 @@ fn set_translation_config(
         Some("traditional") => "traditional".to_string(),
         _ => "simplified".to_string(),
     };
+    let source_language = match config.source_language.as_deref() {
+        Some("english") => "english".to_string(),
+        _ => "korean".to_string(),
+    };
 
     {
         let mut glossary_guard = state
@@ -123,6 +129,14 @@ fn set_translation_config(
             .lock()
             .map_err(|_| "Failed to lock language variant state".to_string())?;
         *variant_guard = chinese_variant;
+    }
+
+    {
+        let mut source_language_guard = state
+            .source_language
+            .lock()
+            .map_err(|_| "Failed to lock source language state".to_string())?;
+        *source_language_guard = source_language;
     }
 
     Ok(OkResponse { ok: true })
@@ -174,6 +188,14 @@ async fn process_segment(
         variant_guard.clone()
     };
 
+    let source_language = {
+        let source_language_guard = state
+            .source_language
+            .lock()
+            .map_err(|_| "Failed to lock source language state".to_string())?;
+        source_language_guard.clone()
+    };
+
     let audio_bytes = base64::engine::general_purpose::STANDARD
         .decode(payload.audio_base64)
         .map_err(|e| format!("Failed to decode segment audio: {e}"))?;
@@ -199,33 +221,62 @@ async fn process_segment(
         .mime_str(&mime)
         .map_err(|e| format!("Failed to set audio mime type: {e}"))?;
 
-    let form = Form::new()
-        .part("file", file_part)
-        .text("model", "whisper-1");
+    let english_text = if source_language == "english" {
+        let form = Form::new()
+            .part("file", file_part)
+            .text("model", "gpt-4o-mini-transcribe");
 
-    let whisper_response = client
-        .post("https://api.openai.com/v1/audio/translations")
-        .bearer_auth(&api_key)
-        .multipart(form)
-        .send()
-        .await
-        .map_err(|e| format!("Whisper request failed: {e}"))?;
-
-    if !whisper_response.status().is_success() {
-        let status = whisper_response.status();
-        let body = whisper_response
-            .text()
+        let transcription_response = client
+            .post("https://api.openai.com/v1/audio/transcriptions")
+            .bearer_auth(&api_key)
+            .multipart(form)
+            .send()
             .await
-            .unwrap_or_else(|_| "Unable to read error body".to_string());
-        return Err(format!("Whisper request failed ({status}): {body}"));
-    }
+            .map_err(|e| format!("Transcription request failed: {e}"))?;
 
-    let whisper_json = whisper_response
-        .json::<WhisperResponse>()
-        .await
-        .map_err(|e| format!("Whisper response decode failed: {e}"))?;
+        if !transcription_response.status().is_success() {
+            let status = transcription_response.status();
+            let body = transcription_response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read error body".to_string());
+            return Err(format!("Transcription request failed ({status}): {body}"));
+        }
 
-    let english_text = whisper_json.text.unwrap_or_default().trim().to_string();
+        let transcription_json = transcription_response
+            .json::<WhisperResponse>()
+            .await
+            .map_err(|e| format!("Transcription response decode failed: {e}"))?;
+        transcription_json.text.unwrap_or_default().trim().to_string()
+    } else {
+        let form = Form::new()
+            .part("file", file_part)
+            .text("model", "whisper-1");
+
+        let whisper_response = client
+            .post("https://api.openai.com/v1/audio/translations")
+            .bearer_auth(&api_key)
+            .multipart(form)
+            .send()
+            .await
+            .map_err(|e| format!("Whisper request failed: {e}"))?;
+
+        if !whisper_response.status().is_success() {
+            let status = whisper_response.status();
+            let body = whisper_response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read error body".to_string());
+            return Err(format!("Whisper request failed ({status}): {body}"));
+        }
+
+        let whisper_json = whisper_response
+            .json::<WhisperResponse>()
+            .await
+            .map_err(|e| format!("Whisper response decode failed: {e}"))?;
+
+        whisper_json.text.unwrap_or_default().trim().to_string()
+    };
 
     if english_text.is_empty() {
         return Ok(SegmentResult {
@@ -419,6 +470,7 @@ pub fn run() {
             api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
             chinese_variant: Mutex::new("simplified".to_string()),
+            source_language: Mutex::new("korean".to_string()),
             running: AtomicBool::new(false),
         })
         .setup(|app| {
