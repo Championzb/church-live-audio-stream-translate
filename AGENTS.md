@@ -13,3 +13,6 @@ These project rules apply to every coding context window/session:
 3. Prefer small, traceable changes.
    - Stage only files related to that step.
    - Keep commits easy to review and rollback.
+
+Reference:
+- `AGENT_REFERENCE.md` contains imported Karpathy-inspired agent behavior guidance.
