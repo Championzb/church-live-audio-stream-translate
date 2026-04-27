@@ -1,0 +1,168 @@
+const path = require('path');
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron');
+const OpenAI = require('openai');
+const { toFile } = require('openai/uploads');
+
+let mainWindow;
+let openai;
+let running = false;
+let segmentCounter = 0;
+let nextSegmentToEmit = 0;
+const segmentResults = new Map();
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1500,
+    height: 920,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+
+  mainWindow.loadFile(path.join(__dirname, 'src/index.html'));
+}
+
+function pushSegmentResult(index, payload) {
+  segmentResults.set(index, payload);
+
+  while (segmentResults.has(nextSegmentToEmit)) {
+    const data = segmentResults.get(nextSegmentToEmit);
+    segmentResults.delete(nextSegmentToEmit);
+    mainWindow?.webContents.send('segment-result', data);
+    nextSegmentToEmit += 1;
+  }
+}
+
+function getOpenAIClient() {
+  if (!openai) {
+    throw new Error('OpenAI API key is not configured.');
+  }
+  return openai;
+}
+
+async function processSegment({ audioBuffer, mimeType }) {
+  const index = segmentCounter;
+  segmentCounter += 1;
+
+  try {
+    const client = getOpenAIClient();
+    const file = await toFile(Buffer.from(audioBuffer), `segment-${Date.now()}.webm`, {
+      type: mimeType || 'audio/webm'
+    });
+
+    const englishResult = await client.audio.translations.create({
+      file,
+      model: 'whisper-1'
+    });
+
+    const englishText = (englishResult.text || '').trim();
+
+    if (!englishText) {
+      pushSegmentResult(index, {
+        index,
+        english: '',
+        chinese: '',
+        warning: 'Empty transcription result for this segment.'
+      });
+      return;
+    }
+
+    let chineseText = '';
+    let chineseError = '';
+
+    try {
+      const chineseResult = await client.responses.create({
+        model: 'gpt-4o-mini',
+        input: [
+          {
+            role: 'system',
+            content: [
+              {
+                type: 'input_text',
+                text: 'Translate church sermon English into natural Simplified Chinese. Keep Bible references accurate, preserve names and church terms, and return only the translated text.'
+              }
+            ]
+          },
+          {
+            role: 'user',
+            content: [{ type: 'input_text', text: englishText }]
+          }
+        ]
+      });
+
+      chineseText = (chineseResult.output_text || '').trim();
+    } catch (err) {
+      chineseError = err instanceof Error ? err.message : 'Chinese translation failed';
+    }
+
+    pushSegmentResult(index, {
+      index,
+      english: englishText,
+      chinese: chineseText,
+      warning: chineseError
+    });
+  } catch (err) {
+    pushSegmentResult(index, {
+      index,
+      english: '',
+      chinese: '',
+      warning: err instanceof Error ? err.message : 'Segment processing failed'
+    });
+  }
+}
+
+app.whenReady().then(() => {
+  createWindow();
+
+  globalShortcut.register('F8', () => {
+    running = !running;
+    mainWindow?.webContents.send('toggle-from-hotkey', { running });
+  });
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+ipcMain.handle('config-api-key', async (_event, apiKey) => {
+  if (!apiKey || !apiKey.trim()) {
+    openai = undefined;
+    return { ok: false, message: 'API key is empty' };
+  }
+
+  openai = new OpenAI({ apiKey: apiKey.trim() });
+  return { ok: true };
+});
+
+ipcMain.handle('get-running', async () => ({ running }));
+
+ipcMain.handle('set-running', async (_event, nextRunning) => {
+  running = Boolean(nextRunning);
+  if (!running) {
+    segmentCounter = 0;
+    nextSegmentToEmit = 0;
+    segmentResults.clear();
+  }
+  return { running };
+});
+
+ipcMain.on('segment-ready', (_event, payload) => {
+  if (!running) {
+    return;
+  }
+  processSegment(payload);
+});

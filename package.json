@@ -1,0 +1,16 @@
+{
+  "name": "church-live-audio-stream-translate",
+  "version": "0.1.0",
+  "description": "Cross-platform live translation captions for church services",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "dependencies": {
+    "openai": "^4.104.0"
+  },
+  "devDependencies": {
+    "electron": "^36.3.2"
+  }
+}
