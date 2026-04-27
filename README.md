@@ -47,3 +47,12 @@ npm run start
 ## Broadcast workflow
 
 Use this app on the subtitle display machine. The translator reads Chinese subtitles aloud into your existing broadcast system.
+
+## Audio input options (Windows/macOS)
+
+- USB audio interface or mixer USB output (recommended)
+- Built-in microphone
+- 3.5mm/line-in capture device
+- Virtual loopback device for system audio capture (e.g. BlackHole/Loopback on macOS, VB-CABLE on Windows)
+
+Tip: choose the cleanest source possible (usually mixer AUX out via USB interface) for best Korean-to-English quality.
