@@ -13,8 +13,13 @@ npm run dist:collect
 Expected local outputs:
 
 - `src-tauri/target/release/bundle/macos/*.app`
-- `src-tauri/target/release/bundle/dmg/*.dmg`
-- `dist/*` + `dist/SHA256SUMS.txt`
+- `dist/*.app.zip` + `dist/SHA256SUMS.txt`
+
+Optional DMG build:
+
+```bash
+npm run build:mac:dmg
+```
 
 ## 2) Local Windows build
 
@@ -40,7 +45,7 @@ The workflow `.github/workflows/distribution.yml` can be triggered in two ways:
 
 CI behavior:
 
-- Builds macOS + Windows bundles
+- Builds macOS `.app` + Windows `.msi` bundles
 - Creates a **draft GitHub Release**
 - Uploads build bundles as workflow artifacts
 

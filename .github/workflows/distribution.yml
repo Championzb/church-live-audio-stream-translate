@@ -13,7 +13,7 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            bundle: app,dmg
+            bundle: app
             label: macos
           - os: windows-latest
             bundle: msi

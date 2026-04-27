@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 
 const projectRoot = process.cwd();
 const bundleRoot = path.join(projectRoot, 'src-tauri', 'target', 'release', 'bundle');
@@ -20,6 +21,22 @@ function walkFiles(dir) {
   return out;
 }
 
+function walkAppBundles(dir) {
+  const out = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name.toLowerCase().endsWith('.app')) {
+        out.push(full);
+      } else {
+        out.push(...walkAppBundles(full));
+      }
+    }
+  }
+  return out;
+}
+
 if (!fs.existsSync(bundleRoot)) {
   console.error(`No bundle output found at: ${bundleRoot}`);
   console.error('Run `npm run build` or platform-specific build first.');
@@ -33,8 +50,9 @@ const allFiles = walkFiles(bundleRoot).filter((file) => {
   const ext = path.extname(file).toLowerCase();
   return ['.dmg', '.app', '.msi', '.exe', '.deb', '.rpm'].includes(ext);
 });
+const appBundles = walkAppBundles(bundleRoot);
 
-if (!allFiles.length) {
+if (!allFiles.length && !appBundles.length) {
   console.error('No bundle artifacts found in bundle output directory.');
   process.exit(1);
 }
@@ -50,6 +68,35 @@ for (const file of allFiles) {
   checksums.push(`${hash}  ${path.basename(outFile)}`);
 
   console.log(`Copied: ${rel} -> dist/${path.basename(outFile)}`);
+}
+
+for (const appBundle of appBundles) {
+  const bundleName = path.basename(appBundle);
+  const zipName = `${path.basename(appBundle)}.zip`;
+  const zipPath = path.join(distRoot, zipName);
+  let result;
+
+  if (process.platform === 'darwin') {
+    // Preserve macOS bundle metadata and resource forks for .app packaging.
+    result = spawnSync('ditto', ['-c', '-k', '--sequesterRsrc', '--keepParent', appBundle, zipPath]);
+  } else {
+    const cwd = path.dirname(appBundle);
+    const bundleName = path.basename(appBundle);
+    result = spawnSync('zip', ['-r', zipPath, bundleName], { cwd });
+  }
+
+  if (result.status !== 0) {
+    if (result.error) {
+      console.error(`Failed to zip app bundle ${appBundle}: ${result.error.message}`);
+    }
+    const err = Buffer.from(result.stderr || '').toString('utf8');
+    console.error(`Failed to zip app bundle ${bundleName}: ${err}`);
+    process.exit(1);
+  }
+
+  const hash = crypto.createHash('sha256').update(fs.readFileSync(zipPath)).digest('hex');
+  checksums.push(`${hash}  ${path.basename(zipPath)}`);
+  console.log(`Packed: ${path.relative(bundleRoot, appBundle)} -> dist/${zipName}`);
 }
 
 const checksumsPath = path.join(distRoot, 'SHA256SUMS.txt');

@@ -97,7 +97,8 @@ Tip: choose the cleanest source possible (usually mixer AUX out via USB interfac
 
 ## Packaging installers
 
-- macOS `.app` and `.dmg`: `npm run build:mac`
+- macOS `.app` (stable): `npm run build:mac`
+- macOS `.app` + `.dmg` (optional): `npm run build:mac:dmg`
 - Windows `.msi`: `npm run build:win` (run from Windows machine or properly configured cross-compile toolchain)
 - General bundle: `npm run build`
 - Collect local artifacts + checksums into `dist/`: `npm run dist:collect`
@@ -108,4 +109,4 @@ Packaging notes:
 - macOS bundling requires the full Xcode app (not only Command Line Tools).
 - Windows distribution may require code signing depending on deployment policy.
 - GitHub Actions workflow creates draft releases and also uploads bundle artifacts for each OS.
-- `dist:collect` creates `dist/SHA256SUMS.txt` for release verification.
+- `dist:collect` creates `dist/SHA256SUMS.txt` for release verification (macOS `.app` is zipped before hashing).
