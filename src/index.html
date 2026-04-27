@@ -29,7 +29,6 @@
             <h1>Church Live Translate</h1>
             <p>Real-time captioning pipeline: source speech -> English -> target language.</p>
             <div class="status-stack">
-              <p id="status">Idle</p>
               <p id="modeSummary">Mode: stopped | Source: korean | Worship: off | Presentation: off</p>
               <p id="costSummary">Cost estimate: session 0.00 USD | month 0.00 USD</p>
             </div>
@@ -184,6 +183,10 @@
           <button id="cancelMainApiKey">Cancel</button>
         </div>
       </div>
+    </div>
+
+    <div id="statusToast" class="status-toast hidden">
+      <p id="status">Idle</p>
     </div>
 
     <script src="renderer.js"></script>

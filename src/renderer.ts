@@ -44,6 +44,7 @@ const resetSessionButton = document.getElementById('resetSession') as any;
 const copyLatestChineseButton = document.getElementById('copyLatestChinese') as any;
 const exportTranscriptButton = document.getElementById('exportTranscript') as any;
 const statusEl = document.getElementById('status') as any;
+const statusToastEl = document.getElementById('statusToast') as any;
 const modeSummaryEl = document.getElementById('modeSummary') as any;
 const costSummaryEl = document.getElementById('costSummary') as any;
 const englishPanel = document.getElementById('englishPanel') as any;
@@ -402,6 +403,7 @@ const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
+let statusHideTimer = 0;
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -437,6 +439,13 @@ function languageName(code) {
 
 function setStatus(text) {
   statusEl.textContent = text;
+  statusToastEl.classList.remove('hidden');
+  if (statusHideTimer) {
+    window.clearTimeout(statusHideTimer);
+  }
+  statusHideTimer = window.setTimeout(() => {
+    statusToastEl.classList.add('hidden');
+  }, 4200);
   if (landingStatusEl) {
     landingStatusEl.textContent = text;
   }
@@ -776,9 +785,6 @@ function applyUiLanguage() {
   updateCostSummary();
   setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
 
-  if (!statusEl.textContent || statusEl.textContent.trim() === '') {
-    setStatusKey('status.idle');
-  }
 }
 
 async function syncOutputWindow() {

@@ -162,7 +162,6 @@ h1 {
   gap: 8px;
 }
 
-#status,
 #modeSummary,
 #costSummary {
   margin: 0;
@@ -175,11 +174,6 @@ h1 {
   white-space: nowrap;
 }
 
-#status {
-  color: var(--status);
-  font-weight: 650;
-}
-
 #modeSummary {
   color: #0b4f6b;
   flex: 1 1 320px;
@@ -188,6 +182,29 @@ h1 {
 
 #costSummary {
   color: #166534;
+}
+
+.status-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  max-width: min(720px, calc(100vw - 24px));
+  z-index: 1400;
+  pointer-events: none;
+}
+
+.status-toast p {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.28);
+  color: #f8fafc;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-align: center;
 }
 
 .controls {

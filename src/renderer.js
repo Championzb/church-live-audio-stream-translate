@@ -40,6 +40,7 @@ const resetSessionButton = document.getElementById('resetSession');
 const copyLatestChineseButton = document.getElementById('copyLatestChinese');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
+const statusToastEl = document.getElementById('statusToast');
 const modeSummaryEl = document.getElementById('modeSummary');
 const costSummaryEl = document.getElementById('costSummary');
 const englishPanel = document.getElementById('englishPanel');
@@ -393,6 +394,7 @@ const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
+let statusHideTimer = 0;
 function loadNumericSetting(key, fallback, minValue, maxValue) {
     const raw = localStorage.getItem(key);
     if (!raw)
@@ -425,6 +427,13 @@ function languageName(code) {
 }
 function setStatus(text) {
     statusEl.textContent = text;
+    statusToastEl.classList.remove('hidden');
+    if (statusHideTimer) {
+        window.clearTimeout(statusHideTimer);
+    }
+    statusHideTimer = window.setTimeout(() => {
+        statusToastEl.classList.add('hidden');
+    }, 4200);
     if (landingStatusEl) {
         landingStatusEl.textContent = text;
     }
@@ -736,9 +745,6 @@ function applyUiLanguage() {
     updateModeSummary();
     updateCostSummary();
     setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
-    if (!statusEl.textContent || statusEl.textContent.trim() === '') {
-        setStatusKey('status.idle');
-    }
 }
 async function syncOutputWindow() {
     try {

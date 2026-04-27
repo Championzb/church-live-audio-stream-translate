@@ -87,6 +87,7 @@ npm run typecheck
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
 - Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the header for faster access.
+- Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
