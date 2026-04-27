@@ -1195,8 +1195,11 @@ async function drainSegmentQueue() {
       updateCostSummary();
 
       if (result.warning) {
-        appendEnglish(t('status.warning', { warning: result.warning }), true);
-        if (!result.translated && !result.chinese) {
+        const isEmptyTargetWarning = result.warning === 'Target translation returned empty text.';
+        if (!isEmptyTargetWarning) {
+          appendEnglish(t('status.warning', { warning: result.warning }), true);
+        }
+        if (isEmptyTargetWarning || (!result.translated && !result.chinese)) {
           appendChinese(t('status.warning', { warning: result.warning }), true);
         }
       }
