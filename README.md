@@ -13,6 +13,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Export transcript to a text file at any time
 - Clear transcript memory without clearing on-screen captions
 - One-tap session reset for queue + captions + transcript (`F4`)
+- One-click copy for the latest Chinese caption line
 
 ## Tech choices
 

@@ -13,6 +13,7 @@ const toggleHelpButton = document.getElementById('toggleHelp');
 const clearPanelsButton = document.getElementById('clearPanels');
 const clearTranscriptButton = document.getElementById('clearTranscript');
 const resetSessionButton = document.getElementById('resetSession');
+const copyLatestChineseButton = document.getElementById('copyLatestChinese');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const modeSummaryEl = document.getElementById('modeSummary');
@@ -144,6 +145,15 @@ function appendChinese(text, warning = false) {
   chineseLines.push({ text, warning });
   while (chineseLines.length > MAX_LINES) chineseLines.shift();
   renderLines(chinesePanel, chineseLines);
+}
+
+function getLatestChineseLine() {
+  for (let i = chineseLines.length - 1; i >= 0; i -= 1) {
+    if (!chineseLines[i].warning && chineseLines[i].text) {
+      return chineseLines[i].text;
+    }
+  }
+  return '';
 }
 
 function clearPanels() {
@@ -546,6 +556,21 @@ clearTranscriptButton.addEventListener('click', () => {
 
 resetSessionButton.addEventListener('click', () => {
   resetSessionState();
+});
+
+copyLatestChineseButton.addEventListener('click', async () => {
+  const latestChinese = getLatestChineseLine();
+  if (!latestChinese) {
+    setStatus('No Chinese caption available to copy');
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(latestChinese);
+    setStatus('Copied latest Chinese caption');
+  } catch {
+    setStatus('Clipboard permission denied');
+  }
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
