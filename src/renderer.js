@@ -118,6 +118,7 @@ let totalSegments = 0;
 let totalEnglishChars = 0;
 let totalTranslatedChars = 0;
 let pendingSegmentDurationMs = 0;
+let testStreamActive = false;
 const UI_TEXT = {
     en: {
         'landing.title': 'Connect OpenAI API Key',
@@ -1011,6 +1012,11 @@ async function processSegmentWithRetry(payload) {
 async function processTestAudioFile(file) {
     if (!file)
         return;
+    if (testStreamActive) {
+        setStatus('Test audio stream is already running.');
+        return;
+    }
+    testStreamActive = true;
     setStatusKey('status.testingFile', { name: file.name });
     const buffer = await file.arrayBuffer();
     try {
@@ -1030,26 +1036,15 @@ async function processTestAudioFile(file) {
                 mime_type: 'audio/wav',
                 durationMs
             };
-            const result = await processSegmentWithRetry(payload);
-            if (result.english) {
-                appendEnglish(result.english);
+            pendingSegments.push(payload);
+            updateModeSummary();
+            drainSegmentQueue();
+            if (i < totalSegmentsForFile - 1) {
+                await waitMs(Math.max(120, durationMs));
             }
-            if (result.translated || result.chinese) {
-                appendChinese(result.translated || result.chinese);
-            }
-            if (result.warning) {
-                appendEnglish(t('status.warning', { warning: result.warning }), true);
-            }
-            transcriptEntries.push({
-                timestamp: new Date().toLocaleTimeString(),
-                english: result.english || '',
-                chinese: result.translated || result.chinese || ''
-            });
-            totalSegments += 1;
-            totalAudioMs += durationMs;
-            totalEnglishChars += (result.english || '').length;
-            totalTranslatedChars += (result.translated || result.chinese || '').length;
-            updateCostSummary();
+        }
+        while (pendingSegments.length || segmentQueueRunning) {
+            await waitMs(120);
         }
         setStatusKey('status.fileTestFinished', { name: file.name });
         updateModeSummary();
@@ -1060,6 +1055,7 @@ async function processTestAudioFile(file) {
         appendEnglish(t('status.warning', { warning: error }), true);
     }
     finally {
+        testStreamActive = false;
         testAudioFileInput.value = '';
     }
 }
@@ -1069,7 +1065,7 @@ async function drainSegmentQueue() {
     }
     segmentQueueRunning = true;
     try {
-        while (running && pendingSegments.length) {
+        while ((running || testStreamActive) && pendingSegments.length) {
             if (worshipMode) {
                 pendingSegments.length = 0;
                 updateModeSummary();
