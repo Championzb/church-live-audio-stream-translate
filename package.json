@@ -11,7 +11,10 @@
     "build:mac": "tauri build --bundles app",
     "build:mac:dmg": "tauri build --bundles app,dmg",
     "build:win": "tauri build --target x86_64-pc-windows-msvc --bundles msi",
-    "dist:collect": "node scripts/package-artifacts.mjs"
+    "dist:collect": "node scripts/package-artifacts.mjs",
+    "release:check:mac": "node scripts/check-signing-env.mjs mac",
+    "release:check:win": "node scripts/check-signing-env.mjs win",
+    "release:check:all": "node scripts/check-signing-env.mjs all"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0"

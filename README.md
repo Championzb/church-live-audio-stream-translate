@@ -104,9 +104,11 @@ Tip: choose the cleanest source possible (usually mixer AUX out via USB interfac
 - Collect local artifacts + checksums into `dist/`: `npm run dist:collect`
 - CI distribution workflow: `.github/workflows/distribution.yml` (manual run or `v*` tags)
 - Full release playbook: `docs/DISTRIBUTION.md`
+- Signing/notarization setup: `docs/SIGNING.md`
 
 Packaging notes:
 - macOS bundling requires the full Xcode app (not only Command Line Tools).
 - Windows distribution may require code signing depending on deployment policy.
 - GitHub Actions workflow creates draft releases and also uploads bundle artifacts for each OS.
 - `dist:collect` creates `dist/SHA256SUMS.txt` for release verification (macOS `.app` is zipped before hashing).
+- Validate signing env before release: `npm run release:check:mac` or `npm run release:check:all`.

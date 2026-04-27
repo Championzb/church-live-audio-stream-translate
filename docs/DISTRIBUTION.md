@@ -62,3 +62,13 @@ CI behavior:
 
 - macOS: code signing and notarization are recommended for public distribution.
 - Windows: Authenticode signing is recommended to reduce SmartScreen warnings.
+- Detailed secret/setup instructions: `docs/SIGNING.md`.
+
+## 6) Preflight checks
+
+Before creating signed builds, validate environment variables:
+
+```bash
+npm run release:check:mac
+npm run release:check:all
+```
