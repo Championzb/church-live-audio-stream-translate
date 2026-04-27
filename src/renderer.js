@@ -1,3 +1,6 @@
+const { invoke } = window.__TAURI__.core;
+const { listen } = window.__TAURI__.event;
+
 const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
@@ -29,6 +32,8 @@ let recording = false;
 const englishLines = [];
 const chineseLines = [];
 const transcriptEntries = [];
+const pendingSegments = [];
+let segmentQueueRunning = false;
 
 function setStatus(text) {
   statusEl.textContent = text;
@@ -75,6 +80,57 @@ function clearPanels() {
   chineseLines.length = 0;
   renderLines(englishPanel, englishLines);
   renderLines(chinesePanel, chineseLines);
+}
+
+function arrayBufferToBase64(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+async function drainSegmentQueue() {
+  if (segmentQueueRunning || !pendingSegments.length) {
+    return;
+  }
+
+  segmentQueueRunning = true;
+  try {
+    while (running && pendingSegments.length) {
+      const payload = pendingSegments.shift();
+      const result = await invoke('process_segment', { payload });
+
+      if (result.english) {
+        appendEnglish(result.english);
+      }
+
+      if (result.chinese) {
+        appendChinese(result.chinese);
+      }
+
+      if (result.english || result.chinese) {
+        transcriptEntries.push({
+          timestamp: new Date().toLocaleTimeString(),
+          english: result.english || '',
+          chinese: result.chinese || ''
+        });
+      }
+
+      if (result.warning) {
+        appendEnglish(`Warning: ${result.warning}`, true);
+      }
+    }
+  } catch (err) {
+    appendEnglish(`Warning: ${err.message || String(err)}`, true);
+  } finally {
+    segmentQueueRunning = false;
+  }
 }
 
 async function loadDevices() {
@@ -125,7 +181,7 @@ async function setupAudioPipeline() {
   });
 
   mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm;codecs=opus' });
-  mediaRecorder.ondataavailable = async (event) => {
+  mediaRecorder.ondataavailable = (event) => {
     if (!event.data || event.data.size === 0) return;
     currentChunks.push(event.data);
   };
@@ -137,11 +193,11 @@ async function setupAudioPipeline() {
     currentChunks = [];
 
     const audioBuffer = await blob.arrayBuffer();
-
-    window.churchTranslate.submitSegment({
-      audioBuffer,
+    pendingSegments.push({
+      audioBase64: arrayBufferToBase64(audioBuffer),
       mimeType: blob.type
     });
+    drainSegmentQueue();
   };
 
   audioContext = new AudioContext();
@@ -220,40 +276,47 @@ async function setRunning(nextRunning) {
 
   running = nextRunning;
   setRunningButtonState();
-  await window.churchTranslate.setRunning(running);
+  await invoke('set_running', { nextRunning: running });
 
   if (running) {
     try {
       await setupAudioPipeline();
       setStatus('Running: capturing Korean audio and generating English + Chinese captions');
+      drainSegmentQueue();
     } catch (err) {
       setStatus(`Start failed: ${err.message}`);
       running = false;
       setRunningButtonState();
-      await window.churchTranslate.setRunning(false);
+      await invoke('set_running', { nextRunning: false });
     }
   } else {
     await stopAudioPipeline();
+    pendingSegments.length = 0;
     setStatus('Stopped');
   }
 }
 
 async function syncTranslationConfig() {
   const glossary = glossaryInput.value || '';
-  await window.churchTranslate.setTranslationConfig({
-    glossary,
-    chineseVariant: 'simplified'
+  await invoke('set_translation_config', {
+    config: {
+      glossary,
+      chineseVariant: 'simplified'
+    }
   });
 }
 
 saveKeyButton.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
-  const result = await window.churchTranslate.configApiKey(apiKey);
-  if (result.ok) {
-    localStorage.setItem('church-openai-key', apiKey);
-    setStatus('API key configured');
-  } else {
-    setStatus(result.message || 'Failed to configure API key');
+
+  try {
+    const result = await invoke('config_api_key', { apiKey });
+    if (result.ok) {
+      localStorage.setItem('church-openai-key', apiKey);
+      setStatus('API key configured');
+    }
+  } catch (err) {
+    setStatus(err.message || 'Failed to configure API key');
   }
 });
 
@@ -275,39 +338,13 @@ vadThresholdInput.addEventListener('input', () => {
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
 });
 
-window.churchTranslate.onSegmentResult((payload) => {
-  if (payload.english) {
-    appendEnglish(payload.english);
-  }
-
-  if (payload.chinese) {
-    appendChinese(payload.chinese);
-  }
-
-  if (payload.english || payload.chinese) {
-    transcriptEntries.push({
-      timestamp: new Date().toLocaleTimeString(),
-      english: payload.english || '',
-      chinese: payload.chinese || ''
-    });
-  }
-
-  if (payload.warning) {
-    appendEnglish(`Warning: ${payload.warning}`, true);
-  }
-});
-
-window.churchTranslate.onToggleFromHotkey(async ({ running: nextRunning }) => {
-  await setRunning(nextRunning);
-});
-
 clearPanelsButton.addEventListener('click', () => {
   clearPanels();
   setStatus('Caption panels cleared');
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
-  const result = await window.churchTranslate.exportTranscript({ entries: transcriptEntries });
+  const result = await invoke('export_transcript', { entries: transcriptEntries });
   if (result.ok) {
     setStatus(`Transcript exported: ${result.path}`);
   } else {
@@ -319,15 +356,17 @@ async function boot() {
   const savedKey = localStorage.getItem('church-openai-key');
   if (savedKey) {
     apiKeyInput.value = savedKey;
-    const result = await window.churchTranslate.configApiKey(savedKey);
-    if (result.ok) {
+    try {
+      await invoke('config_api_key', { apiKey: savedKey });
       setStatus('API key loaded from local settings');
+    } catch {
+      setStatus('Saved API key could not be loaded');
     }
   }
 
   await loadDevices();
 
-  const runState = await window.churchTranslate.getRunning();
+  const runState = await invoke('get_running');
   running = Boolean(runState.running);
   setRunningButtonState();
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
@@ -337,6 +376,11 @@ async function boot() {
     glossaryInput.value = savedGlossary;
   }
   await syncTranslationConfig();
+
+  await listen('toggle-from-hotkey', async (event) => {
+    const payload = event.payload || {};
+    await setRunning(Boolean(payload.running));
+  });
 }
 
 boot();
