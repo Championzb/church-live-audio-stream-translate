@@ -9,7 +9,6 @@ const landingStatusEl = document.getElementById('landingStatus');
 const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
 const maskedApiKeyEl = document.getElementById('maskedApiKey');
-const openApiKeyModalButton = document.getElementById('openApiKeyModal');
 const apiKeyModal = document.getElementById('apiKeyModal');
 const apiKeyModalTitleEl = document.getElementById('apiKeyModalTitle');
 const apiKeyModalSubtitleEl = document.getElementById('apiKeyModalSubtitle');
@@ -143,14 +142,12 @@ const UI_TEXT = {
     'button.import': 'Import',
     'button.export': 'Export',
     'button.close': 'Close',
-    'button.updateKey': 'Update Key',
     'button.cancel': 'Cancel',
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
     'modal.apiKeySubtitle': 'Enter a new key and save it to secure storage.',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
-    'tooltip.updateKey': 'Open a compact dialog to replace the saved API key.',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
     'tooltip.stop': 'Stop live capture and translation (F8).',
@@ -273,14 +270,12 @@ const UI_TEXT = {
     'button.import': '导入',
     'button.export': '导出',
     'button.close': '关闭',
-    'button.updateKey': '更新密钥',
     'button.cancel': '取消',
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
     'modal.apiKeySubtitle': '输入新密钥并保存到系统安全存储。',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
-    'tooltip.updateKey': '打开紧凑弹窗来替换已保存的 API 密钥。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
     'tooltip.stop': '停止实时采集和翻译（F8）。',
@@ -527,7 +522,7 @@ function setControlsLocked(nextLocked) {
   toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 
   const lockTargets = [
-    openApiKeyModalButton,
+    maskedApiKeyEl,
     audioInputSelect,
     sourceLanguageSelect,
     targetLanguageSelect,
@@ -578,7 +573,6 @@ function refreshToggleButtonLabels() {
 
 function setStaticButtonTooltips() {
   saveKeyButton.title = t('tooltip.saveKey');
-  openApiKeyModalButton.title = t('tooltip.updateKey');
   refreshDevicesButton.title = t('tooltip.refresh');
   toggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
@@ -710,7 +704,6 @@ function applyUiLanguage() {
 
   englishHeadingEl.textContent = t('heading.english');
   saveKeyButton.textContent = t('button.saveKey');
-  openApiKeyModalButton.textContent = t('button.updateKey');
   saveMainApiKeyButton.textContent = t('button.saveKey');
   cancelMainApiKeyButton.textContent = t('button.cancel');
   refreshDevicesButton.textContent = t('button.refresh');
@@ -1292,7 +1285,7 @@ saveKeyButton.addEventListener('click', async () => {
   await persistApiKey(apiKey, { enterMain: true });
 });
 
-openApiKeyModalButton.addEventListener('click', () => {
+maskedApiKeyEl.addEventListener('click', () => {
   setApiKeyModalVisible(true);
 });
 

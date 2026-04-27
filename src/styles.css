@@ -118,6 +118,11 @@ body {
   font-size: 0.85rem;
   color: #0f4f67;
   font-weight: 600;
+  cursor: pointer;
+}
+
+#maskedApiKey:hover {
+  background: #eef3fb;
 }
 
 h1 {
@@ -231,12 +236,6 @@ button {
 
 button:hover {
   background: #eef3fb;
-}
-
-.compact-button {
-  padding: 6px 9px;
-  font-size: 0.82rem;
-  min-height: 30px;
 }
 
 button.run {

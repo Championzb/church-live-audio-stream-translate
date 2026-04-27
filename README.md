@@ -72,7 +72,7 @@ npm run start
 
 - The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager).
 - The main page header shows a masked API key indicator (for quick verification without exposing the full key).
-- To change the API key after setup, use the compact `Update Key` popup in the main page header.
+- To change the API key after setup, click the masked API key box in the main page header to open the compact popup.
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
