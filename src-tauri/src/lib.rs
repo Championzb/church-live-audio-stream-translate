@@ -292,6 +292,23 @@ fn target_language_label(code: &str) -> &'static str {
     }
 }
 
+fn looks_english_heavy(text: &str) -> bool {
+    let mut ascii_letters = 0usize;
+    let mut cjk_chars = 0usize;
+
+    for ch in text.chars() {
+        if ch.is_ascii_alphabetic() {
+            ascii_letters += 1;
+            continue;
+        }
+        if ('\u{4E00}'..='\u{9FFF}').contains(&ch) || ('\u{3400}'..='\u{4DBF}').contains(&ch) {
+            cjk_chars += 1;
+        }
+    }
+
+    ascii_letters >= 24 && ascii_letters > cjk_chars * 3
+}
+
 #[tauri::command]
 fn config_api_key(
     api_key: String,
@@ -1116,10 +1133,58 @@ async fn process_segment(
                 .json::<ResponsesResponse>()
                 .await
                 .map_err(|e| format!("Chinese translation decode failed: {e}"))?;
+            let mut translated_text = json.output_text.unwrap_or_default().trim().to_string();
+
+            if (target_language == "zh-hans" || target_language == "zh-hant")
+                && looks_english_heavy(&translated_text)
+            {
+                let strict_body = serde_json::json!({
+                    "model": "gpt-4o-mini",
+                    "input": [
+                        {
+                            "role": "system",
+                            "content": [
+                                {
+                                    "type": "input_text",
+                                    "text": format!(
+                                        "Translate the user's English sermon text into {target_label}. Output in {target_label} only (except proper names and Bible references)."
+                                    )
+                                }
+                            ]
+                        },
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "input_text",
+                                    "text": english_text
+                                }
+                            ]
+                        }
+                    ]
+                });
+
+                if let Ok(retry_resp) = client
+                    .post("https://api.openai.com/v1/responses")
+                    .bearer_auth(&api_key)
+                    .json(&strict_body)
+                    .send()
+                    .await
+                {
+                    if retry_resp.status().is_success() {
+                        if let Ok(retry_json) = retry_resp.json::<ResponsesResponse>().await {
+                            let retried = retry_json.output_text.unwrap_or_default().trim().to_string();
+                            if !retried.is_empty() {
+                                translated_text = retried;
+                            }
+                        }
+                    }
+                }
+            }
 
             Ok(SegmentResult {
                 english: english_text,
-                translated: json.output_text.unwrap_or_default().trim().to_string(),
+                translated: translated_text,
                 warning: String::new(),
             })
         }

@@ -89,6 +89,7 @@ const helpF1El = document.getElementById('helpF1');
 const MAX_LINES = 200;
 const SEGMENT_MAX_RETRIES = 2;
 const RETRY_DELAYS_MS = [300, 700];
+const TEST_FILE_SEGMENT_MS = 12000;
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
 const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
 let running = false;
@@ -931,6 +932,59 @@ function arrayBufferToBase64(arrayBuffer) {
     }
     return btoa(binary);
 }
+function bytesToBase64(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+    return btoa(binary);
+}
+function encodeMonoPcm16Wav(decodedBuffer, startSample, endSample) {
+    const safeStart = Math.max(0, Math.min(startSample, decodedBuffer.length));
+    const safeEnd = Math.max(safeStart, Math.min(endSample, decodedBuffer.length));
+    const sampleCount = Math.max(1, safeEnd - safeStart);
+    const sampleRate = decodedBuffer.sampleRate;
+    const channelCount = decodedBuffer.numberOfChannels || 1;
+    const bytesPerSample = 2;
+    const dataLength = sampleCount * bytesPerSample;
+    const buffer = new ArrayBuffer(44 + dataLength);
+    const view = new DataView(buffer);
+    const pcm = new Int16Array(buffer, 44, sampleCount);
+    const writeAscii = (offset, text) => {
+        for (let i = 0; i < text.length; i += 1) {
+            view.setUint8(offset + i, text.charCodeAt(i));
+        }
+    };
+    writeAscii(0, 'RIFF');
+    view.setUint32(4, 36 + dataLength, true);
+    writeAscii(8, 'WAVE');
+    writeAscii(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * bytesPerSample, true);
+    view.setUint16(32, bytesPerSample, true);
+    view.setUint16(34, 16, true);
+    writeAscii(36, 'data');
+    view.setUint32(40, dataLength, true);
+    const channels = [];
+    for (let ch = 0; ch < channelCount; ch += 1) {
+        channels.push(decodedBuffer.getChannelData(ch));
+    }
+    for (let i = 0; i < sampleCount; i += 1) {
+        let mixed = 0;
+        for (let ch = 0; ch < channelCount; ch += 1) {
+            mixed += channels[ch][safeStart + i] || 0;
+        }
+        mixed /= channelCount;
+        const clipped = Math.max(-1, Math.min(1, mixed));
+        pcm[i] = clipped < 0 ? clipped * 0x8000 : clipped * 0x7fff;
+    }
+    return new Uint8Array(buffer);
+}
 function waitMs(ms) {
     return new Promise((resolve) => {
         window.setTimeout(resolve, ms);
@@ -959,31 +1013,44 @@ async function processTestAudioFile(file) {
         return;
     setStatusKey('status.testingFile', { name: file.name });
     const buffer = await file.arrayBuffer();
-    const payload = {
-        audio_base64: arrayBufferToBase64(buffer),
-        mime_type: file.type || 'audio/wav',
-        durationMs: 0
-    };
     try {
-        const result = await processSegmentWithRetry(payload);
-        if (result.english) {
-            appendEnglish(result.english);
+        const audioContextForTest = new AudioContext();
+        const decoded = await audioContextForTest.decodeAudioData(buffer.slice(0));
+        await audioContextForTest.close();
+        const totalSamples = decoded.length;
+        const segmentSamples = Math.max(1, Math.floor((TEST_FILE_SEGMENT_MS / 1000) * decoded.sampleRate));
+        const totalSegmentsForFile = Math.max(1, Math.ceil(totalSamples / segmentSamples));
+        for (let i = 0; i < totalSegmentsForFile; i += 1) {
+            const startSample = i * segmentSamples;
+            const endSample = Math.min(totalSamples, startSample + segmentSamples);
+            const durationMs = Math.round(((endSample - startSample) / decoded.sampleRate) * 1000);
+            const wavBytes = encodeMonoPcm16Wav(decoded, startSample, endSample);
+            const payload = {
+                audio_base64: bytesToBase64(wavBytes),
+                mime_type: 'audio/wav',
+                durationMs
+            };
+            const result = await processSegmentWithRetry(payload);
+            if (result.english) {
+                appendEnglish(result.english);
+            }
+            if (result.translated || result.chinese) {
+                appendChinese(result.translated || result.chinese);
+            }
+            if (result.warning) {
+                appendEnglish(t('status.warning', { warning: result.warning }), true);
+            }
+            transcriptEntries.push({
+                timestamp: new Date().toLocaleTimeString(),
+                english: result.english || '',
+                chinese: result.translated || result.chinese || ''
+            });
+            totalSegments += 1;
+            totalAudioMs += durationMs;
+            totalEnglishChars += (result.english || '').length;
+            totalTranslatedChars += (result.translated || result.chinese || '').length;
+            updateCostSummary();
         }
-        if (result.translated || result.chinese) {
-            appendChinese(result.translated || result.chinese);
-        }
-        if (result.warning) {
-            appendEnglish(t('status.warning', { warning: result.warning }), true);
-        }
-        transcriptEntries.push({
-            timestamp: new Date().toLocaleTimeString(),
-            english: result.english || '',
-            chinese: result.translated || result.chinese || ''
-        });
-        totalSegments += 1;
-        totalEnglishChars += (result.english || '').length;
-        totalTranslatedChars += (result.translated || result.chinese || '').length;
-        updateCostSummary();
         setStatusKey('status.fileTestFinished', { name: file.name });
         updateModeSummary();
     }
