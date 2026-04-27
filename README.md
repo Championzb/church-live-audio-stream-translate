@@ -14,6 +14,7 @@ Desktop subtitle app for Windows and macOS.
 - Browser audio capture + simple VAD segmentation
 - OpenAI Whisper translation endpoint for Korean -> English
 - OpenAI text model for English -> Simplified Chinese
+- Sequential segment queue to avoid API burst issues during fast speech
 
 ## Requirements
 

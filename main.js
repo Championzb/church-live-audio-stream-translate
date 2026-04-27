@@ -14,6 +14,8 @@ let translationConfig = {
 let segmentCounter = 0;
 let nextSegmentToEmit = 0;
 const segmentResults = new Map();
+const pendingSegments = [];
+let processingSegment = false;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -168,6 +170,7 @@ ipcMain.handle('set-running', async (_event, nextRunning) => {
     segmentCounter = 0;
     nextSegmentToEmit = 0;
     segmentResults.clear();
+    pendingSegments.length = 0;
   }
   return { running };
 });
@@ -186,8 +189,25 @@ ipcMain.on('segment-ready', (_event, payload) => {
   if (!running) {
     return;
   }
-  processSegment(payload);
+  pendingSegments.push(payload);
+  drainSegmentQueue();
 });
+
+async function drainSegmentQueue() {
+  if (processingSegment || !pendingSegments.length) {
+    return;
+  }
+
+  processingSegment = true;
+  try {
+    while (running && pendingSegments.length) {
+      const payload = pendingSegments.shift();
+      await processSegment(payload);
+    }
+  } finally {
+    processingSegment = false;
+  }
+}
 
 ipcMain.handle('export-transcript', async (_event, payload) => {
   const entries = Array.isArray(payload?.entries) ? payload.entries : [];
