@@ -1368,7 +1368,7 @@ async function boot() {
             setMaskedApiKey(masked);
             await ensureMainInitialized();
             showMainPage();
-            setStatusKey('status.apiKeyLoaded');
+            console.info('[api-key-storage] API key loaded from saved storage');
         }
         else {
             showLandingPage();
