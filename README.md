@@ -57,6 +57,7 @@ npm run start
 - The selected source language is also saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/source/worship/presentation state.
+- The mode summary also shows current queue size so operators can watch backlog.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.

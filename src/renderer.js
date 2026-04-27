@@ -68,7 +68,9 @@ function setStatus(text) {
 function updateModeSummary() {
   modeSummaryEl.textContent = `Mode: ${running ? 'running' : 'stopped'} | Source: ${
     sourceLanguageSelect.value || 'korean'
-  } | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${presentationMode ? 'on' : 'off'}`;
+  } | Worship: ${worshipMode ? 'on' : 'off'} | Presentation: ${
+    presentationMode ? 'on' : 'off'
+  } | Queue: ${pendingSegments.length}${segmentQueueRunning ? ' (processing)' : ''}`;
 }
 
 function setHelpVisible(nextVisible) {
@@ -173,6 +175,7 @@ async function drainSegmentQueue() {
     while (running && pendingSegments.length) {
       if (worshipMode) {
         pendingSegments.length = 0;
+        updateModeSummary();
         break;
       }
 
@@ -201,11 +204,13 @@ async function drainSegmentQueue() {
 
       englishLiveEl.textContent = '';
       chineseLiveEl.textContent = '';
+      updateModeSummary();
     }
   } catch (err) {
     appendEnglish(`Warning: ${err.message || String(err)}`, true);
   } finally {
     segmentQueueRunning = false;
+    updateModeSummary();
   }
 }
 
@@ -277,6 +282,7 @@ async function setupAudioPipeline() {
       audioBase64: arrayBufferToBase64(audioBuffer),
       mimeType: blob.type
     });
+    updateModeSummary();
     drainSegmentQueue();
   };
 
@@ -498,6 +504,7 @@ clearPanelsButton.addEventListener('click', () => {
 clearTranscriptButton.addEventListener('click', () => {
   transcriptEntries.length = 0;
   setStatus('Transcript memory cleared');
+  updateModeSummary();
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
