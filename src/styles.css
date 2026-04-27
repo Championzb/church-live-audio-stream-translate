@@ -677,6 +677,9 @@ body.presentation-mode .line {
 
 body.presentation-mode .panel {
   max-height: none;
-  padding-top: 30vh;
-  padding-bottom: 30vh;
+}
+
+body.presentation-mode .line-spacer {
+  flex: 0 0 auto;
+  pointer-events: none;
 }

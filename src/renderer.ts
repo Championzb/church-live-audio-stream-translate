@@ -760,6 +760,11 @@ function setPresentationMode(nextMode) {
   document.body.classList.toggle('presentation-mode', presentationMode);
   togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
   togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
+  if (presentationMode) {
+    renderLines(englishPanel, englishLines, activeEnglishLineId);
+    renderLines(chinesePanel, chineseLines, activeChineseLineId);
+    alignPresentationPanels();
+  }
   updateModeSummary();
 }
 
@@ -792,6 +797,12 @@ function setWorshipMode(nextMode) {
 
 function renderLines(panel, lines, activeLineId = 0) {
   panel.innerHTML = '';
+  if (presentationMode) {
+    const topSpacer = document.createElement('div');
+    topSpacer.className = 'line-spacer';
+    topSpacer.style.height = `${Math.max(panel.clientHeight * 0.45, 140)}px`;
+    panel.appendChild(topSpacer);
+  }
   let activeElement = null;
   lines.forEach((line) => {
     const div = document.createElement('div');
@@ -802,12 +813,40 @@ function renderLines(panel, lines, activeLineId = 0) {
       activeElement = div;
     }
   });
-  if (activeElement) {
+  if (presentationMode) {
+    const bottomSpacer = document.createElement('div');
+    bottomSpacer.className = 'line-spacer';
+    bottomSpacer.style.height = `${Math.max(panel.clientHeight * 0.45, 140)}px`;
+    panel.appendChild(bottomSpacer);
+  }
+  if (activeElement && !presentationMode) {
     const blockMode = document.body.classList.contains('presentation-mode') ? 'center' : 'nearest';
     activeElement.scrollIntoView({ block: blockMode });
-  } else {
+  } else if (!presentationMode) {
     panel.scrollTop = panel.scrollHeight;
   }
+}
+
+function alignPresentationPanels() {
+  if (!presentationMode) return;
+  const englishActive = englishPanel.querySelector('.active-current');
+  const chineseActive = chinesePanel.querySelector('.active-current');
+  if (!(englishActive instanceof HTMLElement) || !(chineseActive instanceof HTMLElement)) {
+    return;
+  }
+
+  const targetRatio = 0.56;
+  const targetYEnglish = englishPanel.clientHeight * targetRatio;
+  const targetYChinese = chinesePanel.clientHeight * targetRatio;
+
+  const englishCenter = englishActive.offsetTop + englishActive.offsetHeight / 2;
+  const chineseCenter = chineseActive.offsetTop + chineseActive.offsetHeight / 2;
+
+  const nextEnglishScroll = englishCenter - targetYEnglish;
+  const nextChineseScroll = chineseCenter - targetYChinese;
+
+  englishPanel.scrollTop = Math.max(0, Math.min(nextEnglishScroll, englishPanel.scrollHeight - englishPanel.clientHeight));
+  chinesePanel.scrollTop = Math.max(0, Math.min(nextChineseScroll, chinesePanel.scrollHeight - chinesePanel.clientHeight));
 }
 
 function appendEnglish(text, warning = false) {
@@ -819,6 +858,7 @@ function appendEnglish(text, warning = false) {
     activeEnglishLineId = entry.id;
   }
   renderLines(englishPanel, englishLines, activeEnglishLineId);
+  alignPresentationPanels();
   syncOutputWindow();
 }
 
@@ -831,6 +871,7 @@ function appendChinese(text, warning = false) {
     activeChineseLineId = entry.id;
   }
   renderLines(chinesePanel, chineseLines, activeChineseLineId);
+  alignPresentationPanels();
   syncOutputWindow();
 }
 
@@ -983,6 +1024,7 @@ function clearPanels() {
   activeChineseLineId = 0;
   renderLines(englishPanel, englishLines, activeEnglishLineId);
   renderLines(chinesePanel, chineseLines, activeChineseLineId);
+  alignPresentationPanels();
   clearCurrentLiveTranslation();
   syncOutputWindow();
 }
