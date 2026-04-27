@@ -182,7 +182,7 @@ const UI_TEXT = {
     'mode.summary':
       'Mode: {mode} | Source: {source} | Target: {target} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
-    'ui.english': 'English',
+    'ui.en': 'English',
     'ui.zh-hans': 'Simplified Chinese',
     'source.korean': '{language} (translate to English)',
     'source.english': '{language} (direct transcription)',
@@ -279,7 +279,7 @@ const UI_TEXT = {
     'mode.summary':
       '模式：{mode} | 源语言：{source} | 目标语言：{target} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
-    'ui.english': 'English',
+    'ui.en': 'English',
     'ui.zh-hans': '简体中文',
     'source.korean': '{language}（先翻译为英文）',
     'source.english': '{language}（直接转录）',
