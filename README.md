@@ -16,6 +16,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - One-click copy for the latest Chinese caption line
 - Optional auto-save transcript when stopping a session
 - Dedicated dual-screen output window for subtitle-only display
+- Operator lock mode to prevent accidental config changes (`F2`)
 
 ## Tech choices
 
@@ -57,6 +58,7 @@ npm run start
 10. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
 11. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
 12. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+13. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
 
 ## Notes
 
@@ -73,6 +75,7 @@ npm run start
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
 - `F1` toggles the on-screen hotkey help overlay.
 - `F4` resets current session state (queued segments, captions, transcript).
+- `F2` locks or unlocks configuration controls.
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.

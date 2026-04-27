@@ -10,6 +10,7 @@ const toggleRunButton = document.getElementById('toggleRun');
 const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
 const togglePresentationButton = document.getElementById('togglePresentation');
 const toggleHelpButton = document.getElementById('toggleHelp');
+const toggleLockControlsButton = document.getElementById('toggleLockControls');
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow');
 const clearPanelsButton = document.getElementById('clearPanels');
 const clearTranscriptButton = document.getElementById('clearTranscript');
@@ -51,6 +52,7 @@ let recording = false;
 let presentationMode = false;
 let worshipMode = false;
 let helpVisible = false;
+let controlsLocked = false;
 
 const englishLines = [];
 const chineseLines = [];
@@ -83,6 +85,37 @@ function updateModeSummary() {
 function setHelpVisible(nextVisible) {
   helpVisible = Boolean(nextVisible);
   helpOverlay.classList.toggle('hidden', !helpVisible);
+}
+
+function setControlsLocked(nextLocked) {
+  controlsLocked = Boolean(nextLocked);
+  toggleLockControlsButton.textContent = controlsLocked
+    ? 'Unlock Controls (F2)'
+    : 'Lock Controls (F2)';
+
+  const lockTargets = [
+    apiKeyInput,
+    saveKeyButton,
+    audioInputSelect,
+    sourceLanguageSelect,
+    refreshDevicesButton,
+    vadThresholdInput,
+    silenceMsInput,
+    maxSegmentMsInput,
+    glossaryInput,
+    saveGlossaryButton,
+    importGlossaryButton,
+    exportGlossaryButton,
+    autoSaveOnStopInput
+  ];
+
+  lockTargets.forEach((element) => {
+    element.disabled = controlsLocked;
+  });
+
+  localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
+  setStatus(controlsLocked ? 'Config controls locked' : 'Config controls unlocked');
+  updateModeSummary();
 }
 
 function setRunningButtonState() {
@@ -565,6 +598,10 @@ toggleHelpButton.addEventListener('click', () => {
   setHelpVisible(!helpVisible);
 });
 
+toggleLockControlsButton.addEventListener('click', () => {
+  setControlsLocked(!controlsLocked);
+});
+
 toggleOutputWindowButton.addEventListener('click', async () => {
   try {
     await invoke('toggle_output_window');
@@ -675,6 +712,9 @@ async function boot() {
   const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
   autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
 
+  const savedControlsLocked = localStorage.getItem('church-controls-locked');
+  setControlsLocked(savedControlsLocked === '1');
+
   await syncTranslationConfig();
   updateModeSummary();
 
@@ -693,6 +733,10 @@ async function boot() {
 
   await listen('toggle-help-overlay', () => {
     setHelpVisible(!helpVisible);
+  });
+
+  await listen('toggle-lock-controls', () => {
+    setControlsLocked(!controlsLocked);
   });
 
   await listen('reset-session', () => {
