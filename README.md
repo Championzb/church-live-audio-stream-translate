@@ -11,6 +11,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - One-click presentation mode for full-screen subtitle display (`F6`)
 - Built-in help overlay for operators (`F1`)
 - Export transcript to a text file at any time
+- Clear transcript memory without clearing on-screen captions
 
 ## Tech choices
 
@@ -48,6 +49,7 @@ npm run start
 6. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 7. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
 8. Use `Export Transcript` if you want a saved copy after service.
+9. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
 
 ## Notes
 

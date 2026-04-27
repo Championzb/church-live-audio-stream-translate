@@ -11,6 +11,7 @@ const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
 const togglePresentationButton = document.getElementById('togglePresentation');
 const toggleHelpButton = document.getElementById('toggleHelp');
 const clearPanelsButton = document.getElementById('clearPanels');
+const clearTranscriptButton = document.getElementById('clearTranscript');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const modeSummaryEl = document.getElementById('modeSummary');
@@ -492,6 +493,11 @@ maxSegmentMsInput.addEventListener('change', () => {
 clearPanelsButton.addEventListener('click', () => {
   clearPanels();
   setStatus('Caption panels cleared');
+});
+
+clearTranscriptButton.addEventListener('click', () => {
+  transcriptEntries.length = 0;
+  setStatus('Transcript memory cleared');
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
