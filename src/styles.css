@@ -109,6 +109,14 @@ body {
   gap: 8px;
 }
 
+.session-setup-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 #maskedApiKey {
   margin: 0 8px 0 0;
   padding: 7px 9px;
@@ -171,12 +179,6 @@ h1 {
   margin: 14px 0 18px;
   display: grid;
   gap: 12px;
-}
-
-.view-toolbar {
-  margin: 12px 0 0;
-  display: flex;
-  justify-content: flex-end;
 }
 
 #liveWorkspace {
@@ -455,6 +457,10 @@ button.stop:hover {
   .ui-language-slot {
     justify-content: flex-start;
     flex-wrap: wrap;
+  }
+
+  .session-setup-slot {
+    justify-content: flex-start;
   }
 
   #maskedApiKey {
