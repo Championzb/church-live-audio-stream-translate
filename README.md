@@ -11,6 +11,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click presentation mode for full-screen subtitle display (`F6`)
 - Built-in help overlay for operators (`F1`)
+- Hover hints on each button to explain what it does
 - Export transcript to a text file at any time
 - Clear transcript memory without clearing on-screen captions
 - One-tap session reset for queue + captions + transcript (`F4`)

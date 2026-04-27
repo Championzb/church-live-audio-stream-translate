@@ -127,6 +127,28 @@ const UI_TEXT = {
     'button.import': 'Import',
     'button.export': 'Export',
     'button.close': 'Close',
+    'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
+    'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
+    'tooltip.start': 'Start live capture and translation (F8).',
+    'tooltip.stop': 'Stop live capture and translation (F8).',
+    'tooltip.worshipOn': 'Worship mode is ON: translation is paused for songs. Click to resume translation (F7).',
+    'tooltip.worshipOff': 'Worship mode is OFF: translation is active. Click to pause translation for songs (F7).',
+    'tooltip.presentationOn': 'Exit presentation mode and show operator controls (F6).',
+    'tooltip.presentationOff': 'Enter presentation mode for large subtitle display (F6).',
+    'tooltip.help': 'Show or hide the hotkey/help overlay (F1).',
+    'tooltip.lockOn': 'Unlock configuration controls to allow editing (F2).',
+    'tooltip.lockOff': 'Lock configuration controls to avoid accidental changes (F2).',
+    'tooltip.outputWindow': 'Open or close the subtitle-only output window for a second screen.',
+    'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
+    'tooltip.clearCaptions': 'Clear current English and output caption panels only.',
+    'tooltip.clearTranscript': 'Clear transcript memory without clearing current caption panels.',
+    'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
+    'tooltip.copyLatestOutput': 'Copy the latest translated output caption line to clipboard.',
+    'tooltip.exportTranscript': 'Export the current transcript entries to a text file.',
+    'tooltip.saveGlossary': 'Save current glossary text for translation prompts.',
+    'tooltip.import': 'Import glossary content from a text file.',
+    'tooltip.export': 'Export glossary content to a text file.',
+    'tooltip.close': 'Close the help panel.',
     'help.title': 'Quick Controls',
     'help.f8': '<strong>F8</strong>: Start/Stop translation',
     'help.f7': '<strong>F7</strong>: Toggle worship mode',
@@ -224,6 +246,28 @@ const UI_TEXT = {
     'button.import': '导入',
     'button.export': '导出',
     'button.close': '关闭',
+    'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
+    'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
+    'tooltip.start': '开始实时采集和翻译（F8）。',
+    'tooltip.stop': '停止实时采集和翻译（F8）。',
+    'tooltip.worshipOn': '敬拜模式已开启：翻译暂停（适合诗歌时段）。点击可恢复翻译（F7）。',
+    'tooltip.worshipOff': '敬拜模式已关闭：翻译进行中。点击可在诗歌时段暂停翻译（F7）。',
+    'tooltip.presentationOn': '退出投屏模式并显示操作控制（F6）。',
+    'tooltip.presentationOff': '进入投屏模式以显示大字幕（F6）。',
+    'tooltip.help': '显示或隐藏快捷键帮助面板（F1）。',
+    'tooltip.lockOn': '解锁配置控件以允许修改（F2）。',
+    'tooltip.lockOff': '锁定配置控件，避免误操作（F2）。',
+    'tooltip.outputWindow': '打开或关闭仅字幕输出窗口（用于第二屏）。',
+    'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
+    'tooltip.clearCaptions': '仅清空当前英文和输出字幕面板。',
+    'tooltip.clearTranscript': '清空转录内存，但不清空当前字幕面板。',
+    'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
+    'tooltip.copyLatestOutput': '复制最新一行输出字幕到剪贴板。',
+    'tooltip.exportTranscript': '将当前转录条目导出为文本文件。',
+    'tooltip.saveGlossary': '保存当前术语表内容用于翻译提示。',
+    'tooltip.import': '从文本文件导入术语表。',
+    'tooltip.export': '将术语表导出到文本文件。',
+    'tooltip.close': '关闭帮助面板。',
     'help.title': '快捷控制',
     'help.f8': '<strong>F8</strong>：开始/停止翻译',
     'help.f7': '<strong>F7</strong>：切换敬拜模式',
@@ -401,6 +445,7 @@ function setHelpVisible(nextVisible) {
 function setControlsLocked(nextLocked) {
   controlsLocked = Boolean(nextLocked);
   toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
+  toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 
   const lockTargets = [
     apiKeyInput,
@@ -439,6 +484,7 @@ function setRunningButtonState() {
     toggleRunButton.classList.add('run');
     toggleRunButton.classList.remove('stop');
   }
+  toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
 }
 
 function refreshToggleButtonLabels() {
@@ -446,12 +492,34 @@ function refreshToggleButtonLabels() {
   toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
   togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
   toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
+  toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+  toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+  togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
+  toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+}
+
+function setStaticButtonTooltips() {
+  saveKeyButton.title = t('tooltip.saveKey');
+  refreshDevicesButton.title = t('tooltip.refresh');
+  toggleHelpButton.title = t('tooltip.help');
+  toggleOutputWindowButton.title = t('tooltip.outputWindow');
+  testAudioFileButton.title = t('tooltip.testAudioFile');
+  clearPanelsButton.title = t('tooltip.clearCaptions');
+  clearTranscriptButton.title = t('tooltip.clearTranscript');
+  resetSessionButton.title = t('tooltip.resetSession');
+  copyLatestChineseButton.title = t('tooltip.copyLatestOutput');
+  exportTranscriptButton.title = t('tooltip.exportTranscript');
+  saveGlossaryButton.title = t('tooltip.saveGlossary');
+  importGlossaryButton.title = t('tooltip.import');
+  exportGlossaryButton.title = t('tooltip.export');
+  closeHelpButton.title = t('tooltip.close');
 }
 
 function setPresentationMode(nextMode) {
   presentationMode = Boolean(nextMode);
   document.body.classList.toggle('presentation-mode', presentationMode);
   togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
+  togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
   updateModeSummary();
 }
 
@@ -467,6 +535,7 @@ function togglePresentationModeDebounced() {
 function setWorshipMode(nextMode) {
   worshipMode = Boolean(nextMode);
   toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+  toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
 
   if (worshipMode) {
     pendingSegments.length = 0;
@@ -589,6 +658,7 @@ function applyUiLanguage() {
   updateSourceLanguageOptionLabels();
   updateTargetLanguageOptionLabels();
   updateTranslatedHeading();
+  setStaticButtonTooltips();
   refreshToggleButtonLabels();
   updateModeSummary();
   updateCostSummary();
