@@ -65,7 +65,7 @@ npm run start
 
 ## Notes
 
-- The app stores the API key in local browser storage for convenience.
+- The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager).
 - The selected source language is also saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/source/worship/presentation state.

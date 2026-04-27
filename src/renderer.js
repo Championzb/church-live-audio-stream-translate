@@ -655,8 +655,7 @@ saveKeyButton.addEventListener('click', async () => {
   try {
     const result = await invoke('config_api_key', { apiKey });
     if (result.ok) {
-      localStorage.setItem('church-openai-key', apiKey);
-      setStatus('API key configured');
+      setStatus('API key configured and saved securely');
     }
   } catch (err) {
     setStatus(err.message || 'Failed to configure API key');
@@ -810,15 +809,13 @@ exportTranscriptButton.addEventListener('click', async () => {
 });
 
 async function boot() {
-  const savedKey = localStorage.getItem('church-openai-key');
-  if (savedKey) {
-    apiKeyInput.value = savedKey;
-    try {
-      await invoke('config_api_key', { apiKey: savedKey });
-      setStatus('API key loaded from local settings');
-    } catch {
-      setStatus('Saved API key could not be loaded');
+  try {
+    const loaded = await invoke('load_saved_api_key');
+    if (loaded.found) {
+      setStatus('API key loaded from secure storage');
     }
+  } catch {
+    setStatus('Saved API key could not be loaded from secure storage');
   }
 
   await loadDevices();

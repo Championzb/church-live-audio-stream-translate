@@ -46,6 +46,11 @@ struct OkResponse {
 }
 
 #[derive(Serialize)]
+struct SavedApiKeyResponse {
+    found: bool,
+}
+
+#[derive(Serialize)]
 struct RunningResponse {
     running: bool,
 }
@@ -111,6 +116,9 @@ fn build_audio_form(
     Ok(Form::new().part("file", file_part).text("model", model.to_string()))
 }
 
+const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
+const KEYRING_ACCOUNT: &str = "openai_api_key";
+
 fn source_language_label(code: &str) -> &'static str {
     match code {
         "korean" => "Korean",
@@ -137,6 +145,7 @@ fn config_api_key(api_key: String, state: tauri::State<'_, AppState>) -> Result<
     if trimmed.is_empty() {
         return Err("API key is empty".to_string());
     }
+    let secure_value = trimmed.clone();
 
     let mut key_guard = state
         .api_key
@@ -144,7 +153,35 @@ fn config_api_key(api_key: String, state: tauri::State<'_, AppState>) -> Result<
         .map_err(|_| "Failed to lock API key state".to_string())?;
     *key_guard = Some(trimmed);
 
+    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT)
+        .map_err(|e| format!("Failed to access secure key storage: {e}"))?;
+    entry
+        .set_password(&secure_value)
+        .map_err(|e| format!("Failed to save API key in secure storage: {e}"))?;
+
     Ok(OkResponse { ok: true })
+}
+
+#[tauri::command]
+fn load_saved_api_key(state: tauri::State<'_, AppState>) -> Result<SavedApiKeyResponse, String> {
+    let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT)
+        .map_err(|e| format!("Failed to access secure key storage: {e}"))?;
+
+    match entry.get_password() {
+        Ok(value) => {
+            if value.trim().is_empty() {
+                return Ok(SavedApiKeyResponse { found: false });
+            }
+            let mut key_guard = state
+                .api_key
+                .lock()
+                .map_err(|_| "Failed to lock API key state".to_string())?;
+            *key_guard = Some(value);
+            Ok(SavedApiKeyResponse { found: true })
+        }
+        Err(keyring::Error::NoEntry) => Ok(SavedApiKeyResponse { found: false }),
+        Err(e) => Err(format!("Failed to load API key from secure storage: {e}")),
+    }
 }
 
 #[tauri::command]
@@ -885,6 +922,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             config_api_key,
+            load_saved_api_key,
             set_translation_config,
             get_running,
             set_running,
