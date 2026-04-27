@@ -51,25 +51,27 @@ npm run start
 
 ## First run
 
-1. Paste OpenAI API key and click `Save Key`.
-2. Select the desired audio input device, source language, and output language.
-3. Set `UI Language` to English or Simplified Chinese for operator controls.
-4. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
-5. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-6. Click `Start (F8)`.
-7. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
-8. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
-9. Use `Export Transcript` if you want a saved copy after service.
-10. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
-11. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
-12. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-13. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
-14. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-15. Use `Test Audio File` to run one audio file through the same translation pipeline.
+1. On the landing page, paste OpenAI API key and click `Save Key`.
+2. If a key is already saved in secure storage, the app opens directly to the main page.
+3. Select the desired audio input device, source language, and output language.
+4. Set `UI Language` to English or Simplified Chinese for operator controls.
+5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
+6. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
+7. Click `Start (F8)`.
+8. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
+9. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
+10. Use `Export Transcript` if you want a saved copy after service.
+11. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
+12. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+13. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+14. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+15. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+16. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
 - The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager).
+- The main page header shows a masked API key indicator (for quick verification without exposing the full key).
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.

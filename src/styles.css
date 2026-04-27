@@ -19,6 +19,10 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 body {
   margin: 0;
   color: var(--text);
@@ -32,6 +36,51 @@ body {
   max-width: 1460px;
   margin: 0 auto;
   padding: 20px 18px 28px;
+}
+
+.landing-page {
+  min-height: calc(100vh - 48px);
+  display: grid;
+  place-items: center;
+}
+
+.landing-card {
+  width: min(620px, 94vw);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+#landingTitle {
+  margin: 0;
+  font-size: clamp(1.32rem, 2.4vw, 1.72rem);
+}
+
+#landingSubtitle {
+  margin: 0;
+  color: var(--muted);
+}
+
+.landing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#landingStatus {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  color: var(--status);
+  font-size: 0.9rem;
+  font-weight: 650;
 }
 
 .app-header {
@@ -58,6 +107,17 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+#maskedApiKey {
+  margin: 0 8px 0 0;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid #c9d2e2;
+  background: rgba(255, 255, 255, 0.86);
+  font-size: 0.85rem;
+  color: #0f4f67;
+  font-weight: 600;
 }
 
 h1 {
@@ -313,6 +373,7 @@ button.stop:hover {
 
   .ui-language-slot {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .status-stack {
@@ -344,6 +405,14 @@ button.stop:hover {
   #vadThreshold {
     width: 100%;
     min-width: 0;
+  }
+
+  .landing-card {
+    padding: 16px;
+  }
+
+  .landing-page {
+    min-height: calc(100vh - 32px);
   }
 }
 

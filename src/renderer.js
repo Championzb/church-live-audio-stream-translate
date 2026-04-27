@@ -1,8 +1,14 @@
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 
+const landingPage = document.getElementById('landingPage');
+const mainPage = document.getElementById('mainPage');
+const landingTitleEl = document.getElementById('landingTitle');
+const landingSubtitleEl = document.getElementById('landingSubtitle');
+const landingStatusEl = document.getElementById('landingStatus');
 const apiKeyInput = document.getElementById('apiKey');
 const saveKeyButton = document.getElementById('saveKey');
+const maskedApiKeyEl = document.getElementById('maskedApiKey');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
@@ -94,6 +100,8 @@ let pendingSegmentDurationMs = 0;
 
 const UI_TEXT = {
   en: {
+    'landing.title': 'Connect OpenAI API Key',
+    'landing.subtitle': 'Enter your key once to continue. It is stored securely in your OS keychain/credential manager.',
     'label.apiKey': 'OpenAI API Key',
     'label.uiLanguage': 'UI Language',
     'label.audioInput': 'Audio Input',
@@ -127,6 +135,8 @@ const UI_TEXT = {
     'button.import': 'Import',
     'button.export': 'Export',
     'button.close': 'Close',
+    'apiKey.masked': 'OpenAI Key: {masked}',
+    'apiKey.hidden': 'OpenAI Key: hidden',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
@@ -175,6 +185,7 @@ const UI_TEXT = {
     'status.autoSaveFailed': 'Stopped (auto-save failed: {error})',
     'status.apiKeySaved': 'API key configured and saved securely',
     'status.apiKeyFailed': 'Failed to configure API key',
+    'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
     'status.glossarySaved': 'Glossary saved',
     'status.glossaryImported': 'Glossary imported',
     'status.glossaryImportCanceled': 'Glossary import canceled',
@@ -214,6 +225,8 @@ const UI_TEXT = {
     'device.input': 'Input {index}'
   },
   'zh-hans': {
+    'landing.title': '连接 OpenAI API 密钥',
+    'landing.subtitle': '请输入一次密钥后继续。密钥将安全存储在系统钥匙串/凭据管理器中。',
     'label.apiKey': 'OpenAI API 密钥',
     'label.uiLanguage': '界面语言',
     'label.audioInput': '音频输入',
@@ -247,6 +260,8 @@ const UI_TEXT = {
     'button.import': '导入',
     'button.export': '导出',
     'button.close': '关闭',
+    'apiKey.masked': 'OpenAI 密钥：{masked}',
+    'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
@@ -295,6 +310,7 @@ const UI_TEXT = {
     'status.autoSaveFailed': '已停止（自动保存失败：{error}）',
     'status.apiKeySaved': 'API 密钥已配置并安全保存',
     'status.apiKeyFailed': '配置 API 密钥失败',
+    'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
     'status.glossarySaved': '术语表已保存',
     'status.glossaryImported': '术语表已导入',
     'status.glossaryImportCanceled': '已取消术语表导入',
@@ -356,6 +372,7 @@ const LANGUAGE_DISPLAY = {
 };
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 let uiLanguage = 'en';
+let mainInitialized = false;
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -391,10 +408,41 @@ function languageName(code) {
 
 function setStatus(text) {
   statusEl.textContent = text;
+  if (landingStatusEl) {
+    landingStatusEl.textContent = text;
+  }
 }
 
 function setStatusKey(key, values = {}) {
   setStatus(t(key, values));
+}
+
+function maskApiKey(rawApiKey) {
+  const trimmed = (rawApiKey || '').trim();
+  if (!trimmed) return 'hidden';
+  if (trimmed.length <= 8) {
+    return `${trimmed.slice(0, 2)}***`;
+  }
+  return `${trimmed.slice(0, 3)}***${trimmed.slice(-4)}`;
+}
+
+function setMaskedApiKey(masked) {
+  if (!maskedApiKeyEl) return;
+  if (!masked || masked === 'hidden') {
+    maskedApiKeyEl.textContent = t('apiKey.hidden');
+    return;
+  }
+  maskedApiKeyEl.textContent = t('apiKey.masked', { masked });
+}
+
+function showLandingPage() {
+  landingPage.classList.remove('hidden');
+  mainPage.classList.add('hidden');
+}
+
+function showMainPage() {
+  landingPage.classList.add('hidden');
+  mainPage.classList.remove('hidden');
 }
 
 function sttRatePerMinute() {
@@ -450,8 +498,6 @@ function setControlsLocked(nextLocked) {
   toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 
   const lockTargets = [
-    apiKeyInput,
-    saveKeyButton,
     audioInputSelect,
     sourceLanguageSelect,
     targetLanguageSelect,
@@ -618,6 +664,8 @@ function applyUiLanguage() {
   localStorage.setItem('church-ui-language', uiLanguage);
   document.documentElement.lang = uiLanguage === 'zh-hans' ? 'zh-CN' : 'en';
 
+  landingTitleEl.textContent = t('landing.title');
+  landingSubtitleEl.textContent = t('landing.subtitle');
   labelApiKeyEl.textContent = t('label.apiKey');
   labelUiLanguageEl.textContent = t('label.uiLanguage');
   labelAudioInputEl.textContent = t('label.audioInput');
@@ -669,6 +717,7 @@ function applyUiLanguage() {
   refreshToggleButtonLabels();
   updateModeSummary();
   updateCostSummary();
+  setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
 
   if (!statusEl.textContent || statusEl.textContent.trim() === '') {
     setStatusKey('status.idle');
@@ -1102,12 +1151,94 @@ async function syncTranslationConfig() {
   });
 }
 
+async function ensureMainInitialized() {
+  if (mainInitialized) return;
+
+  await loadDevices();
+
+  const runState = await invoke('get_running');
+  running = Boolean(runState.running);
+  setRunningButtonState();
+
+  const savedVadThreshold = loadNumericSetting('church-vad-threshold', 0.04, 0.01, 0.12);
+  const savedSilenceMs = loadNumericSetting('church-silence-ms', 600, 200, 3000);
+  const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 2500, 1200, 10000);
+
+  vadThresholdInput.value = savedVadThreshold.toString();
+  silenceMsInput.value = savedSilenceMs.toString();
+  maxSegmentMsInput.value = savedMaxSegmentMs.toString();
+  vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
+
+  const savedGlossary = localStorage.getItem('church-glossary');
+  if (savedGlossary) {
+    glossaryInput.value = savedGlossary;
+  }
+
+  const savedSourceLanguage = localStorage.getItem('church-source-language');
+  if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean' || savedSourceLanguage === 'japanese' || savedSourceLanguage === 'chinese') {
+    sourceLanguageSelect.value = savedSourceLanguage;
+  }
+
+  const savedTargetLanguage = localStorage.getItem('church-target-language');
+  if (savedTargetLanguage && LANGUAGE_DISPLAY.en[savedTargetLanguage]) {
+    targetLanguageSelect.value = savedTargetLanguage;
+  }
+
+  const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
+  autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
+
+  const savedControlsLocked = localStorage.getItem('church-controls-locked');
+  setControlsLocked(savedControlsLocked === '1');
+  updateTranslatedHeading();
+
+  await syncTranslationConfig();
+  updateModeSummary();
+  updateCostSummary();
+
+  await listen('toggle-from-hotkey', async (event) => {
+    const payload = event.payload || {};
+    await setRunning(Boolean(payload.running));
+  });
+
+  await listen('toggle-presentation-mode', () => {
+    togglePresentationModeDebounced();
+  });
+
+  await listen('toggle-worship-mode', () => {
+    setWorshipMode(!worshipMode);
+  });
+
+  await listen('toggle-help-overlay', () => {
+    setHelpVisible(!helpVisible);
+  });
+
+  await listen('toggle-lock-controls', () => {
+    setControlsLocked(!controlsLocked);
+  });
+
+  await listen('reset-session', () => {
+    resetSessionState();
+  });
+
+  mainInitialized = true;
+}
+
 saveKeyButton.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
+  if (!apiKey) {
+    setStatusKey('status.apiKeyRequired');
+    return;
+  }
 
   try {
     const result = await invoke('config_api_key', { apiKey });
     if (result.ok) {
+      const masked = result.maskedKey || maskApiKey(apiKey);
+      localStorage.setItem('church-masked-api-key', masked);
+      setMaskedApiKey(masked);
+      apiKeyInput.value = '';
+      await ensureMainInitialized();
+      showMainPage();
       setStatusKey('status.apiKeySaved');
     }
   } catch (err) {
@@ -1278,77 +1409,24 @@ async function boot() {
   try {
     const loaded = await invoke('load_saved_api_key');
     if (loaded.found) {
+      const masked = loaded.maskedKey || localStorage.getItem('church-masked-api-key') || 'hidden';
+      localStorage.setItem('church-masked-api-key', masked);
+      setMaskedApiKey(masked);
+      await ensureMainInitialized();
+      showMainPage();
       setStatusKey('status.apiKeyLoaded');
+    } else {
+      showLandingPage();
+      localStorage.removeItem('church-masked-api-key');
+      setMaskedApiKey('hidden');
+      setStatusKey('status.apiKeyRequired');
     }
   } catch {
+    showLandingPage();
+    localStorage.removeItem('church-masked-api-key');
+    setMaskedApiKey('hidden');
     setStatusKey('status.apiKeyLoadFailed');
   }
-
-  await loadDevices();
-
-  const runState = await invoke('get_running');
-  running = Boolean(runState.running);
-  setRunningButtonState();
-
-  const savedVadThreshold = loadNumericSetting('church-vad-threshold', 0.04, 0.01, 0.12);
-  const savedSilenceMs = loadNumericSetting('church-silence-ms', 600, 200, 3000);
-  const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 2500, 1200, 10000);
-
-  vadThresholdInput.value = savedVadThreshold.toString();
-  silenceMsInput.value = savedSilenceMs.toString();
-  maxSegmentMsInput.value = savedMaxSegmentMs.toString();
-  vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
-
-  const savedGlossary = localStorage.getItem('church-glossary');
-  if (savedGlossary) {
-    glossaryInput.value = savedGlossary;
-  }
-
-  const savedSourceLanguage = localStorage.getItem('church-source-language');
-  if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean' || savedSourceLanguage === 'japanese' || savedSourceLanguage === 'chinese') {
-    sourceLanguageSelect.value = savedSourceLanguage;
-  }
-
-  const savedTargetLanguage = localStorage.getItem('church-target-language');
-  if (savedTargetLanguage && LANGUAGE_DISPLAY.en[savedTargetLanguage]) {
-    targetLanguageSelect.value = savedTargetLanguage;
-  }
-
-  const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
-  autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
-
-  const savedControlsLocked = localStorage.getItem('church-controls-locked');
-  setControlsLocked(savedControlsLocked === '1');
-  updateTranslatedHeading();
-
-  await syncTranslationConfig();
-  updateModeSummary();
-  updateCostSummary();
-
-  await listen('toggle-from-hotkey', async (event) => {
-    const payload = event.payload || {};
-    await setRunning(Boolean(payload.running));
-  });
-
-  await listen('toggle-presentation-mode', () => {
-    togglePresentationModeDebounced();
-  });
-
-  await listen('toggle-worship-mode', () => {
-    setWorshipMode(!worshipMode);
-  });
-
-  await listen('toggle-help-overlay', () => {
-    setHelpVisible(!helpVisible);
-  });
-
-  await listen('toggle-lock-controls', () => {
-    setControlsLocked(!controlsLocked);
-  });
-
-  await listen('reset-session', () => {
-    resetSessionState();
-  });
 }
 
 window.addEventListener('keydown', (event) => {

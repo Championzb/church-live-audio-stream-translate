@@ -46,8 +46,17 @@ struct OkResponse {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ApiKeyConfigResponse {
+    ok: bool,
+    masked_key: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct SavedApiKeyResponse {
     found: bool,
+    masked_key: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -119,6 +128,21 @@ fn build_audio_form(
 const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
 const KEYRING_ACCOUNT: &str = "openai_api_key";
 
+fn mask_api_key(value: &str) -> String {
+    let trimmed = value.trim();
+    let chars: Vec<char> = trimmed.chars().collect();
+    if chars.is_empty() {
+        return "hidden".to_string();
+    }
+    if chars.len() <= 8 {
+        let prefix: String = chars.iter().take(2).collect();
+        return format!("{prefix}***");
+    }
+    let prefix: String = chars.iter().take(3).collect();
+    let suffix: String = chars[chars.len() - 4..].iter().collect();
+    format!("{prefix}***{suffix}")
+}
+
 fn source_language_label(code: &str) -> &'static str {
     match code {
         "korean" => "Korean",
@@ -140,7 +164,10 @@ fn target_language_label(code: &str) -> &'static str {
 }
 
 #[tauri::command]
-fn config_api_key(api_key: String, state: tauri::State<'_, AppState>) -> Result<OkResponse, String> {
+fn config_api_key(
+    api_key: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<ApiKeyConfigResponse, String> {
     let trimmed = api_key.trim().to_string();
     if trimmed.is_empty() {
         return Err("API key is empty".to_string());
@@ -159,7 +186,10 @@ fn config_api_key(api_key: String, state: tauri::State<'_, AppState>) -> Result<
         .set_password(&secure_value)
         .map_err(|e| format!("Failed to save API key in secure storage: {e}"))?;
 
-    Ok(OkResponse { ok: true })
+    Ok(ApiKeyConfigResponse {
+        ok: true,
+        masked_key: mask_api_key(&secure_value),
+    })
 }
 
 #[tauri::command]
@@ -170,16 +200,29 @@ fn load_saved_api_key(state: tauri::State<'_, AppState>) -> Result<SavedApiKeyRe
     match entry.get_password() {
         Ok(value) => {
             if value.trim().is_empty() {
-                return Ok(SavedApiKeyResponse { found: false });
+                return Ok(SavedApiKeyResponse {
+                    found: false,
+                    masked_key: None,
+                });
             }
             let mut key_guard = state
                 .api_key
                 .lock()
                 .map_err(|_| "Failed to lock API key state".to_string())?;
             *key_guard = Some(value);
-            Ok(SavedApiKeyResponse { found: true })
+            let masked = key_guard
+                .as_ref()
+                .map(|key| mask_api_key(key))
+                .unwrap_or_else(|| "hidden".to_string());
+            Ok(SavedApiKeyResponse {
+                found: true,
+                masked_key: Some(masked),
+            })
         }
-        Err(keyring::Error::NoEntry) => Ok(SavedApiKeyResponse { found: false }),
+        Err(keyring::Error::NoEntry) => Ok(SavedApiKeyResponse {
+            found: false,
+            masked_key: None,
+        }),
         Err(e) => Err(format!("Failed to load API key from secure storage: {e}")),
     }
 }
