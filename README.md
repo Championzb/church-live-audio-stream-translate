@@ -15,6 +15,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - One-tap session reset for queue + captions + transcript (`F4`)
 - One-click copy for the latest Chinese caption line
 - Optional auto-save transcript when stopping a session
+- Dedicated dual-screen output window for subtitle-only display
 
 ## Tech choices
 
@@ -55,6 +56,7 @@ npm run start
 9. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
 10. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
 11. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+12. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
 
 ## Notes
 

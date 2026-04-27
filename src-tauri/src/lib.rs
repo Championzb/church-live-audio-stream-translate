@@ -8,6 +8,8 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 use tauri::Manager;
+use tauri::WebviewUrl;
+use tauri::WebviewWindowBuilder;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
 
 struct AppState {
@@ -65,6 +67,15 @@ struct GlossaryReadResponse {
     ok: bool,
     content: Option<String>,
     message: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
+struct OutputCaptionPayload {
+    english_lines: Vec<String>,
+    chinese_lines: Vec<String>,
+    english_live: String,
+    chinese_live: String,
+    mode_summary: String,
 }
 
 #[derive(Deserialize)]
@@ -652,6 +663,33 @@ fn export_glossary(content: String) -> Result<ExportResponse, String> {
     })
 }
 
+#[tauri::command]
+fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
+    if let Some(window) = app.get_webview_window("output") {
+        let _ = window.close();
+        return Ok(OkResponse { ok: true });
+    }
+
+    let builder = WebviewWindowBuilder::new(&app, "output", WebviewUrl::App("output.html".into()))
+        .title("Church Subtitle Output")
+        .inner_size(1600.0, 900.0)
+        .resizable(true);
+
+    builder
+        .build()
+        .map_err(|e| format!("Failed to open output window: {e}"))?;
+
+    Ok(OkResponse { ok: true })
+}
+
+#[tauri::command]
+fn push_output_caption(payload: OutputCaptionPayload, app: tauri::AppHandle) -> Result<OkResponse, String> {
+    if let Some(window) = app.get_webview_window("output") {
+        let _ = window.emit("output-caption", payload);
+    }
+    Ok(OkResponse { ok: true })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -739,7 +777,9 @@ pub fn run() {
             export_transcript,
             auto_save_transcript,
             import_glossary,
-            export_glossary
+            export_glossary,
+            toggle_output_window,
+            push_output_caption
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
