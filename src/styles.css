@@ -71,6 +71,12 @@ button.stop {
   font-size: 0.9rem;
 }
 
+#costSummary {
+  margin: 0;
+  color: #86efac;
+  font-size: 0.9rem;
+}
+
 .captions {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -20,6 +20,7 @@ const copyLatestChineseButton = document.getElementById('copyLatestChinese');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const modeSummaryEl = document.getElementById('modeSummary');
+const costSummaryEl = document.getElementById('costSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
@@ -40,6 +41,8 @@ const closeHelpButton = document.getElementById('closeHelp');
 const MAX_LINES = 6;
 const SEGMENT_MAX_RETRIES = 2;
 const RETRY_DELAYS_MS = [300, 700];
+const TRANSLATION_INPUT_COST_PER_1M = 0.15;
+const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
 let running = false;
 let mediaStream;
 let mediaRecorder;
@@ -61,6 +64,11 @@ const chineseLines = [];
 const transcriptEntries = [];
 const pendingSegments = [];
 let segmentQueueRunning = false;
+let totalAudioMs = 0;
+let totalSegments = 0;
+let totalEnglishChars = 0;
+let totalTranslatedChars = 0;
+let pendingSegmentDurationMs = 0;
 
 const TARGET_LANGUAGE_LABELS = {
   'zh-hans': 'Simplified Chinese',
@@ -82,6 +90,32 @@ function loadNumericSetting(key, fallback, minValue, maxValue) {
 
 function setStatus(text) {
   statusEl.textContent = text;
+}
+
+function sttRatePerMinute() {
+  if (sourceLanguageSelect.value === 'korean') {
+    return 0.006;
+  }
+  return 0.003;
+}
+
+function estimateTranslationCostUsd() {
+  const estimatedInputTokens = Math.ceil(totalEnglishChars / 4) + totalSegments * 120;
+  const estimatedOutputTokens = Math.ceil(totalTranslatedChars / 4);
+  const inputCost = (estimatedInputTokens / 1_000_000) * TRANSLATION_INPUT_COST_PER_1M;
+  const outputCost = (estimatedOutputTokens / 1_000_000) * TRANSLATION_OUTPUT_COST_PER_1M;
+  return inputCost + outputCost;
+}
+
+function updateCostSummary() {
+  const minutes = totalAudioMs / 60000;
+  const sessionSttCost = minutes * sttRatePerMinute();
+  const sessionTranslationCost = estimateTranslationCostUsd();
+  const sessionTotal = sessionSttCost + sessionTranslationCost;
+  const estimatedMonth = sessionTotal * 4;
+  costSummaryEl.textContent = `Cost estimate: session ${sessionTotal.toFixed(
+    2
+  )} USD | month ${estimatedMonth.toFixed(2)} USD`;
 }
 
 function updateModeSummary() {
@@ -242,9 +276,15 @@ function clearPanels() {
 function resetSessionState() {
   pendingSegments.length = 0;
   transcriptEntries.length = 0;
+  totalAudioMs = 0;
+  totalSegments = 0;
+  totalEnglishChars = 0;
+  totalTranslatedChars = 0;
+  pendingSegmentDurationMs = 0;
   clearPanels();
   setStatus('Session reset: captions, transcript, and queue cleared');
   updateModeSummary();
+  updateCostSummary();
 }
 
 function arrayBufferToBase64(arrayBuffer) {
@@ -321,6 +361,11 @@ async function drainSegmentQueue() {
           chinese: result.translated || result.chinese || ''
         });
       }
+      totalSegments += 1;
+      totalAudioMs += Number(payload.durationMs || 0);
+      totalEnglishChars += (result.english || '').length;
+      totalTranslatedChars += (result.translated || result.chinese || '').length;
+      updateCostSummary();
 
       if (result.warning) {
         appendEnglish(`Warning: ${result.warning}`, true);
@@ -406,8 +451,10 @@ async function setupAudioPipeline() {
     const audioBuffer = await blob.arrayBuffer();
     pendingSegments.push({
       audioBase64: arrayBufferToBase64(audioBuffer),
-      mimeType: blob.type
+      mimeType: blob.type,
+      durationMs: pendingSegmentDurationMs
     });
+    pendingSegmentDurationMs = 0;
     updateModeSummary();
     drainSegmentQueue();
   };
@@ -450,6 +497,7 @@ async function setupAudioPipeline() {
       const holdMs = Number(silenceMsInput.value);
       const spokenLongEnough = now - speechDetectedAt > 350;
       if (now - silenceStartedAt > holdMs && spokenLongEnough) {
+        pendingSegmentDurationMs = Math.max(0, now - recordingStartedAt);
         recording = false;
         recordingStartedAt = 0;
         silenceStartedAt = 0;
@@ -460,6 +508,7 @@ async function setupAudioPipeline() {
     if (recording && recordingStartedAt) {
       const maxSegmentMs = Number(maxSegmentMsInput.value);
       if (now - recordingStartedAt >= maxSegmentMs) {
+        pendingSegmentDurationMs = Math.max(0, now - recordingStartedAt);
         recording = false;
         recordingStartedAt = 0;
         silenceStartedAt = 0;
@@ -480,6 +529,7 @@ async function stopAudioPipeline() {
   }
 
   if (recording) {
+    pendingSegmentDurationMs = Math.max(0, Date.now() - recordingStartedAt);
     recording = false;
     recordingStartedAt = 0;
     flushRecorderChunk();
@@ -602,6 +652,7 @@ sourceLanguageSelect.addEventListener('change', async () => {
   localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
   setStatus(`Source language set to ${sourceLanguageSelect.value}`);
   updateModeSummary();
+  updateCostSummary();
 });
 
 targetLanguageSelect.addEventListener('change', async () => {
@@ -753,6 +804,7 @@ async function boot() {
 
   await syncTranslationConfig();
   updateModeSummary();
+  updateCostSummary();
 
   await listen('toggle-from-hotkey', async (event) => {
     const payload = event.payload || {};

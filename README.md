@@ -17,6 +17,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Optional auto-save transcript when stopping a session
 - Dedicated dual-screen output window for subtitle-only display
 - Operator lock mode to prevent accidental config changes (`F2`)
+- Live cost estimator (session and rough monthly estimate)
 
 ## Tech choices
 
@@ -81,6 +82,7 @@ npm run start
 - Japanese/Chinese input first transcribes source speech, then converts to English before final output translation.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
 - Segment processing retries automatically on transient API/network errors.
+- Cost summary estimates STT + translation spend from processed audio/text.
 
 ## Broadcast workflow
 

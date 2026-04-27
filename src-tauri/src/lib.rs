@@ -70,6 +70,7 @@ struct GlossaryReadResponse {
 }
 
 #[derive(Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 struct OutputCaptionPayload {
     english_lines: Vec<String>,
     chinese_lines: Vec<String>,
