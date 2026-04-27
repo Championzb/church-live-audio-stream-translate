@@ -452,9 +452,24 @@ button.stop:hover {
 }
 
 .line.active-current {
-  border-color: #14b8a6;
-  background: linear-gradient(90deg, #e6fffa, #ecfeff);
-  box-shadow: 0 8px 20px rgba(20, 184, 166, 0.16);
+  border-color: #0d9488;
+  border-left: 5px solid #0f766e;
+  background: linear-gradient(90deg, #d1fae5, #e0f2fe);
+  box-shadow: 0 10px 22px rgba(15, 118, 110, 0.2);
+  transform: translateX(1px);
+  animation: active-line-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes active-line-pulse {
+  0% {
+    box-shadow: 0 10px 22px rgba(15, 118, 110, 0.16);
+  }
+  50% {
+    box-shadow: 0 12px 26px rgba(15, 118, 110, 0.28);
+  }
+  100% {
+    box-shadow: 0 10px 22px rgba(15, 118, 110, 0.16);
+  }
 }
 
 .line.warning {
