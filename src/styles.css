@@ -451,6 +451,12 @@ button.stop:hover {
   line-height: 1.56;
 }
 
+.line.active-current {
+  border-color: #14b8a6;
+  background: linear-gradient(90deg, #e6fffa, #ecfeff);
+  box-shadow: 0 8px 20px rgba(20, 184, 166, 0.16);
+}
+
 .line.warning {
   border-color: #d97706;
   color: #92400e;

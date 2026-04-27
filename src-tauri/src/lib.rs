@@ -1137,8 +1137,9 @@ async fn process_segment(
                 .map_err(|e| format!("Chinese translation decode failed: {e}"))?;
             let mut translated_text = json.output_text.unwrap_or_default().trim().to_string();
 
-            if (target_language == "zh-hans" || target_language == "zh-hant")
-                && looks_english_heavy(&translated_text)
+            if translated_text.is_empty()
+                || ((target_language == "zh-hans" || target_language == "zh-hant")
+                    && looks_english_heavy(&translated_text))
             {
                 let strict_body = serde_json::json!({
                     "model": "gpt-4o-mini",
@@ -1182,6 +1183,14 @@ async fn process_segment(
                         }
                     }
                 }
+            }
+
+            if translated_text.trim().is_empty() {
+                return Ok(SegmentResult {
+                    english: english_text,
+                    translated: String::new(),
+                    warning: "Target translation returned empty text.".to_string(),
+                });
             }
 
             Ok(SegmentResult {

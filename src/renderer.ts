@@ -125,6 +125,9 @@ let totalEnglishChars = 0;
 let totalTranslatedChars = 0;
 let pendingSegmentDurationMs = 0;
 let testStreamActive = false;
+let lineSequence = 0;
+let activeEnglishLineId = 0;
+let activeChineseLineId = 0;
 
 const UI_TEXT = {
   en: {
@@ -787,30 +790,46 @@ function setWorshipMode(nextMode) {
   updateModeSummary();
 }
 
-function renderLines(panel, lines) {
+function renderLines(panel, lines, activeLineId = 0) {
   panel.innerHTML = '';
+  let activeElement = null;
   lines.forEach((line) => {
     const div = document.createElement('div');
-    div.className = `line ${line.warning ? 'warning' : ''}`;
+    div.className = `line ${line.warning ? 'warning' : ''} ${line.id === activeLineId ? 'active-current' : ''}`;
     div.textContent = line.text;
     panel.appendChild(div);
+    if (line.id === activeLineId) {
+      activeElement = div;
+    }
   });
-  panel.scrollTop = panel.scrollHeight;
+  if (activeElement) {
+    activeElement.scrollIntoView({ block: 'nearest' });
+  } else {
+    panel.scrollTop = panel.scrollHeight;
+  }
 }
 
 function appendEnglish(text, warning = false) {
   if (!text) return;
-  englishLines.push({ text, warning });
+  const entry = { id: ++lineSequence, text, warning };
+  englishLines.push(entry);
   while (englishLines.length > MAX_LINES) englishLines.shift();
-  renderLines(englishPanel, englishLines);
+  if (!warning) {
+    activeEnglishLineId = entry.id;
+  }
+  renderLines(englishPanel, englishLines, activeEnglishLineId);
   syncOutputWindow();
 }
 
 function appendChinese(text, warning = false) {
   if (!text) return;
-  chineseLines.push({ text, warning });
+  const entry = { id: ++lineSequence, text, warning };
+  chineseLines.push(entry);
   while (chineseLines.length > MAX_LINES) chineseLines.shift();
-  renderLines(chinesePanel, chineseLines);
+  if (!warning) {
+    activeChineseLineId = entry.id;
+  }
+  renderLines(chinesePanel, chineseLines, activeChineseLineId);
   syncOutputWindow();
 }
 
@@ -818,11 +837,6 @@ function setLiveLine(element, text, mode = 'idle') {
   element.textContent = text || '';
   element.classList.toggle('active', mode === 'active' && Boolean(text));
   element.classList.toggle('status', mode === 'status' && Boolean(text));
-}
-
-function setCurrentLiveTranslation(englishText, translatedText) {
-  setLiveLine(englishLiveEl, englishText, 'active');
-  setLiveLine(chineseLiveEl, translatedText, 'active');
 }
 
 function setCurrentLiveStatus(englishText, translatedText) {
@@ -964,8 +978,10 @@ async function syncOutputWindow() {
 function clearPanels() {
   englishLines.length = 0;
   chineseLines.length = 0;
-  renderLines(englishPanel, englishLines);
-  renderLines(chinesePanel, chineseLines);
+  activeEnglishLineId = 0;
+  activeChineseLineId = 0;
+  renderLines(englishPanel, englishLines, activeEnglishLineId);
+  renderLines(chinesePanel, chineseLines, activeChineseLineId);
   clearCurrentLiveTranslation();
   syncOutputWindow();
 }
@@ -1164,10 +1180,6 @@ async function drainSegmentQueue() {
       if (result.translated) {
         appendChinese(result.translated);
       }
-      const translatedCurrent = result.translated || result.chinese || '';
-      if (result.english || translatedCurrent) {
-        setCurrentLiveTranslation(result.english || '', translatedCurrent);
-      }
 
       if (result.english || result.chinese) {
         transcriptEntries.push({
@@ -1184,8 +1196,12 @@ async function drainSegmentQueue() {
 
       if (result.warning) {
         appendEnglish(t('status.warning', { warning: result.warning }), true);
+        if (!result.translated && !result.chinese) {
+          appendChinese(t('status.warning', { warning: result.warning }), true);
+        }
       }
 
+      clearCurrentLiveTranslation();
       syncOutputWindow();
       updateModeSummary();
     }
