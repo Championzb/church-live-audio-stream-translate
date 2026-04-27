@@ -47,6 +47,19 @@ body {
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
 }
 
+.header-right {
+  min-width: min(560px, 100%);
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.ui-language-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 h1 {
   margin: 0;
   font-size: clamp(1.3rem, 2vw, 1.65rem);
@@ -60,7 +73,7 @@ h1 {
 }
 
 .status-stack {
-  min-width: min(560px, 100%);
+  width: min(560px, 100%);
   display: grid;
   gap: 8px;
 }
@@ -293,8 +306,17 @@ button.stop:hover {
     align-items: stretch;
   }
 
-  .status-stack {
+  .header-right {
     min-width: 0;
+    justify-items: stretch;
+  }
+
+  .ui-language-slot {
+    justify-content: flex-start;
+  }
+
+  .status-stack {
+    width: 100%;
   }
 
   .captions {
