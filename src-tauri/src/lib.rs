@@ -129,6 +129,10 @@ fn build_audio_form(
 const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
 const KEYRING_ACCOUNT: &str = "openai_api_key";
 
+fn log_api_key_storage(message: &str) {
+    eprintln!("[api-key-storage] {message}");
+}
+
 fn mask_api_key(value: &str) -> String {
     let trimmed = value.trim();
     let chars: Vec<char> = trimmed.chars().collect();
@@ -154,6 +158,7 @@ fn fallback_api_key_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
 
 fn save_fallback_api_key(app: &tauri::AppHandle, api_key: &str) -> Result<(), String> {
     let path = fallback_api_key_path(app)?;
+    log_api_key_storage(&format!("fallback path resolved: {}", path.display()));
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .map_err(|e| format!("Failed to create app config directory: {e}"))?;
@@ -164,15 +169,22 @@ fn save_fallback_api_key(app: &tauri::AppHandle, api_key: &str) -> Result<(), St
 
 fn load_fallback_api_key(app: &tauri::AppHandle) -> Result<Option<String>, String> {
     let path = fallback_api_key_path(app)?;
+    log_api_key_storage(&format!("checking fallback path: {}", path.display()));
     if !path.exists() {
+        log_api_key_storage("fallback key file not found");
         return Ok(None);
     }
     let value = fs::read_to_string(path)
         .map_err(|e| format!("Failed to read fallback API key: {e}"))?;
     let trimmed = value.trim().to_string();
     if trimmed.is_empty() {
+        log_api_key_storage("fallback key file exists but is empty");
         return Ok(None);
     }
+    log_api_key_storage(&format!(
+        "loaded API key from fallback file (masked: {})",
+        mask_api_key(&trimmed)
+    ));
     Ok(Some(trimmed))
 }
 
@@ -214,10 +226,21 @@ fn config_api_key(
         .map_err(|_| "Failed to lock API key state".to_string())?;
     *key_guard = Some(trimmed);
 
-    if let Ok(entry) = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
-        let _ = entry.set_password(&secure_value);
+    log_api_key_storage(&format!(
+        "saving API key (masked: {})",
+        mask_api_key(&secure_value)
+    ));
+
+    match keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
+        Ok(entry) => match entry.set_password(&secure_value) {
+            Ok(_) => log_api_key_storage("saved API key to keyring"),
+            Err(e) => log_api_key_storage(&format!("keyring save failed: {e}")),
+        },
+        Err(e) => log_api_key_storage(&format!("keyring init failed: {e}")),
     }
+
     save_fallback_api_key(&app, &secure_value)?;
+    log_api_key_storage("saved API key to fallback file");
 
     Ok(ApiKeyConfigResponse {
         ok: true,
@@ -230,19 +253,24 @@ fn load_saved_api_key(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
 ) -> Result<SavedApiKeyResponse, String> {
+    log_api_key_storage("loading saved API key");
     let mut value_from_storage: Option<String> = None;
 
-    if let Ok(entry) = keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
-        match entry.get_password() {
+    match keyring::Entry::new(KEYRING_SERVICE, KEYRING_ACCOUNT) {
+        Ok(entry) => match entry.get_password() {
             Ok(value) if !value.trim().is_empty() => {
+                log_api_key_storage("loaded API key from keyring");
                 value_from_storage = Some(value.trim().to_string());
             }
-            Ok(_) | Err(keyring::Error::NoEntry) => {}
-            Err(_) => {}
-        }
+            Ok(_) => log_api_key_storage("keyring entry is empty"),
+            Err(keyring::Error::NoEntry) => log_api_key_storage("no keyring entry found"),
+            Err(e) => log_api_key_storage(&format!("keyring read failed: {e}")),
+        },
+        Err(e) => log_api_key_storage(&format!("keyring init failed: {e}")),
     }
 
     if value_from_storage.is_none() {
+        log_api_key_storage("falling back to local key file");
         value_from_storage = load_fallback_api_key(&app)?;
     }
 
@@ -252,12 +280,17 @@ fn load_saved_api_key(
             .lock()
             .map_err(|_| "Failed to lock API key state".to_string())?;
         *key_guard = Some(value.clone());
+        log_api_key_storage(&format!(
+            "API key loaded successfully (masked: {})",
+            mask_api_key(&value)
+        ));
         return Ok(SavedApiKeyResponse {
             found: true,
             masked_key: Some(mask_api_key(&value)),
         });
     }
 
+    log_api_key_storage("no saved API key found in keyring or fallback file");
     Ok(SavedApiKeyResponse {
         found: false,
         masked_key: None,
