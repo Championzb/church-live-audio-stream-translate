@@ -244,6 +244,9 @@ const UI_TEXT = {
       'Mode: {mode} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
     'cost.project': 'Project: {projectId}',
+    'cost.realSummary': 'Real cost: today {today} {currency} | month {month} {currency}',
+    'cost.realLoading': 'Loading real cost from OpenAI billing API...',
+    'cost.realUnavailable': 'Real cost unavailable: {reason}',
     'ui.en': 'English',
     'ui.zh-hans': 'Simplified Chinese',
     'source.korean': '{language} (translate to English)',
@@ -378,6 +381,9 @@ const UI_TEXT = {
       '模式：{mode} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
     'cost.project': 'Project：{projectId}',
+    'cost.realSummary': '真实费用：今日 {today} {currency} | 本月 {month} {currency}',
+    'cost.realLoading': '正在从 OpenAI 计费 API 获取真实费用...',
+    'cost.realUnavailable': '真实费用不可用：{reason}',
     'ui.en': 'English',
     'ui.zh-hans': '简体中文',
     'source.korean': '{language}（先翻译为英文）',
@@ -410,10 +416,19 @@ const LANGUAGE_DISPLAY = {
 };
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
+const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
 let statusHideTimer = 0;
+let realCostFetchInFlight = false;
+let lastRealCostFetchAt = 0;
+let cachedRealCostProjectId = '';
+let cachedRealCostToday = 0;
+let cachedRealCostMonth = 0;
+let cachedRealCostCurrency = 'USD';
+let cachedRealCostError = '';
+let hasConfiguredApiKey = false;
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -487,6 +502,12 @@ function normalizeProjectId(rawProjectId: any) {
   return (rawProjectId || '').trim();
 }
 
+function formatCostError(rawError: any) {
+  const text = String(rawError || 'unknown error').replace(/\s+/g, ' ').trim();
+  if (text.length <= 120) return text;
+  return `${text.slice(0, 117)}...`;
+}
+
 function syncProjectIdInputs(rawProjectId: any) {
   const projectId = normalizeProjectId(rawProjectId);
   projectIdInput.value = projectId;
@@ -501,8 +522,43 @@ function saveProjectId(rawProjectId: any) {
     localStorage.removeItem(PROJECT_ID_STORAGE_KEY);
   }
   syncProjectIdInputs(projectId);
+  cachedRealCostProjectId = '';
+  cachedRealCostError = '';
+  lastRealCostFetchAt = 0;
   updateCostSummary();
   return projectId;
+}
+
+async function refreshRealProjectCosts(force = false) {
+  if (!hasConfiguredApiKey) return;
+  const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
+  if (!projectId) return;
+  if (realCostFetchInFlight) return;
+  if (
+    !force &&
+    cachedRealCostProjectId === projectId &&
+    Date.now() - lastRealCostFetchAt < REAL_COST_REFRESH_MS
+  ) {
+    return;
+  }
+
+  realCostFetchInFlight = true;
+  try {
+    const result = await invoke('fetch_project_costs', { projectId });
+    cachedRealCostProjectId = projectId;
+    cachedRealCostToday = Number(result.todayCost || 0);
+    cachedRealCostMonth = Number(result.monthCost || 0);
+    cachedRealCostCurrency = String(result.currency || 'USD').toUpperCase();
+    cachedRealCostError = '';
+    lastRealCostFetchAt = Date.now();
+  } catch (error) {
+    cachedRealCostProjectId = projectId;
+    cachedRealCostError = formatCostError((error && error.message) || String(error) || 'unknown error');
+    lastRealCostFetchAt = Date.now();
+  } finally {
+    realCostFetchInFlight = false;
+    updateCostSummary();
+  }
 }
 
 function showLandingPage() {
@@ -561,7 +617,22 @@ function updateCostSummary() {
   });
   const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
   if (projectId) {
-    maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.project', { projectId })}`;
+    if (cachedRealCostProjectId === projectId && !cachedRealCostError) {
+      maskedApiKeyEl.title = `${t('cost.realSummary', {
+        today: cachedRealCostToday.toFixed(2),
+        month: cachedRealCostMonth.toFixed(2),
+        currency: cachedRealCostCurrency
+      })}\n${t('cost.project', { projectId })}`;
+    } else if (cachedRealCostProjectId === projectId && cachedRealCostError) {
+      maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realUnavailable', {
+        reason: cachedRealCostError
+      })}\n${t('cost.project', { projectId })}`;
+    } else {
+      maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realLoading')}\n${t('cost.project', {
+        projectId
+      })}`;
+    }
+    void refreshRealProjectCosts();
     return;
   }
   maskedApiKeyEl.title = costSummaryText;
@@ -1339,6 +1410,7 @@ async function persistApiKey(apiKey, options: any = {}) {
     const result = await invoke('config_api_key', { apiKey });
     if (result.ok) {
       const masked = result.maskedKey || maskApiKey(apiKey);
+      hasConfiguredApiKey = true;
       localStorage.setItem('church-masked-api-key', masked);
       setMaskedApiKey(masked);
       apiKeyInput.value = '';
@@ -1358,7 +1430,10 @@ async function persistApiKey(apiKey, options: any = {}) {
 saveKeyButton.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
   saveProjectId(projectIdInput.value);
-  await persistApiKey(apiKey, { enterMain: true });
+  const saved = await persistApiKey(apiKey, { enterMain: true });
+  if (saved) {
+    void refreshRealProjectCosts(true);
+  }
 });
 
 maskedApiKeyEl.addEventListener('click', () => {
@@ -1371,11 +1446,13 @@ async function saveApiKeyModalChanges() {
   if (!apiKey) {
     setStatusKey('status.projectIdSaved');
     setApiKeyModalVisible(false);
+    void refreshRealProjectCosts(true);
     return;
   }
   const saved = await persistApiKey(apiKey);
   if (saved) {
     setApiKeyModalVisible(false);
+    void refreshRealProjectCosts(true);
   }
 }
 
@@ -1576,19 +1653,23 @@ async function boot() {
   try {
     const loaded = await invoke('load_saved_api_key');
     if (loaded.found) {
+      hasConfiguredApiKey = true;
       const masked = loaded.maskedKey || localStorage.getItem('church-masked-api-key') || 'hidden';
       localStorage.setItem('church-masked-api-key', masked);
       setMaskedApiKey(masked);
       await ensureMainInitialized();
       showMainPage();
+      void refreshRealProjectCosts(true);
       console.info('[api-key-storage] API key loaded from saved storage');
     } else {
+      hasConfiguredApiKey = false;
       showLandingPage();
       localStorage.removeItem('church-masked-api-key');
       setMaskedApiKey('hidden');
       setStatusKey('status.apiKeyRequired');
     }
   } catch {
+    hasConfiguredApiKey = false;
     showLandingPage();
     localStorage.removeItem('church-masked-api-key');
     setMaskedApiKey('hidden');

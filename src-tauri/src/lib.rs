@@ -4,6 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 
 use base64::Engine;
+use chrono::{Datelike, TimeZone, Utc};
 use reqwest::multipart::{Form, Part};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -64,6 +65,38 @@ struct SavedApiKeyResponse {
 #[derive(Serialize)]
 struct RunningResponse {
     running: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ProjectCostsResponse {
+    ok: bool,
+    today_cost: f64,
+    month_cost: f64,
+    currency: String,
+}
+
+#[derive(Deserialize)]
+struct CostsPageResponse {
+    data: Vec<CostsBucket>,
+}
+
+#[derive(Deserialize)]
+struct CostsBucket {
+    start_time: i64,
+    results: Vec<CostsResult>,
+}
+
+#[derive(Deserialize)]
+struct CostsResult {
+    amount: CostsAmount,
+    project_id: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct CostsAmount {
+    value: f64,
+    currency: String,
 }
 
 #[derive(Clone, Serialize)]
@@ -359,6 +392,104 @@ fn set_running(next_running: bool, state: tauri::State<'_, AppState>) -> Running
     RunningResponse {
         running: next_running,
     }
+}
+
+#[tauri::command]
+async fn fetch_project_costs(
+    project_id: String,
+    state: tauri::State<'_, AppState>,
+) -> Result<ProjectCostsResponse, String> {
+    let project_id = project_id.trim().to_string();
+    if project_id.is_empty() {
+        return Err("Project ID is empty.".to_string());
+    }
+    if !project_id.starts_with("proj_") {
+        return Err("Project ID must start with 'proj_'.".to_string());
+    }
+
+    let api_key = {
+        let key_guard = state
+            .api_key
+            .lock()
+            .map_err(|_| "Failed to lock API key state".to_string())?;
+        key_guard
+            .clone()
+            .ok_or_else(|| "OpenAI API key is not configured.".to_string())?
+    };
+
+    let now = Utc::now();
+    let month_start = Utc
+        .with_ymd_and_hms(now.year(), now.month(), 1, 0, 0, 0)
+        .single()
+        .ok_or_else(|| "Failed to compute month start timestamp.".to_string())?;
+    let today_start = Utc
+        .with_ymd_and_hms(now.year(), now.month(), now.day(), 0, 0, 0)
+        .single()
+        .ok_or_else(|| "Failed to compute day start timestamp.".to_string())?;
+
+    let client = Client::new();
+    let response = client
+        .get("https://api.openai.com/v1/organization/costs")
+        .bearer_auth(api_key)
+        .query(&[
+            ("start_time", month_start.timestamp().to_string()),
+            ("end_time", now.timestamp().to_string()),
+            ("bucket_width", "1d".to_string()),
+            ("group_by", "project_id".to_string()),
+            ("project_ids", project_id.clone()),
+            ("limit", "180".to_string()),
+        ])
+        .send()
+        .await
+        .map_err(|e| format!("Project costs request failed: {e}"))?;
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let body = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unable to read error body".to_string());
+        return Err(format!(
+            "Project costs request failed ({status}): {body}"
+        ));
+    }
+
+    let costs_page = response
+        .json::<CostsPageResponse>()
+        .await
+        .map_err(|e| format!("Project costs response decode failed: {e}"))?;
+
+    let mut month_cost = 0.0_f64;
+    let mut today_cost = 0.0_f64;
+    let mut currency = "usd".to_string();
+    let today_start_ts = today_start.timestamp();
+
+    for bucket in costs_page.data {
+        let mut bucket_total = 0.0_f64;
+        for result in bucket.results {
+            if let Some(result_project_id) = result.project_id {
+                if result_project_id != project_id {
+                    continue;
+                }
+            }
+            bucket_total += result.amount.value;
+            if !result.amount.currency.trim().is_empty() {
+                currency = result.amount.currency.to_lowercase();
+            }
+        }
+
+        month_cost += bucket_total;
+        if bucket.start_time >= today_start_ts {
+            today_cost += bucket_total;
+        }
+    }
+
+    Ok(ProjectCostsResponse {
+        ok: true,
+        today_cost,
+        month_cost,
+        currency,
+    })
 }
 
 #[tauri::command]
@@ -1050,6 +1181,7 @@ pub fn run() {
             set_translation_config,
             get_running,
             set_running,
+            fetch_project_costs,
             process_segment,
             export_transcript,
             auto_save_transcript,

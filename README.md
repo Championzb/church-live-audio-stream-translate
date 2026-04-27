@@ -85,7 +85,7 @@ npm run typecheck
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
-- Cost estimate is shown as a tooltip on the masked OpenAI key button in the header.
+- Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
 - Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the header for faster access.
