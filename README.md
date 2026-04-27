@@ -94,6 +94,7 @@ npm run typecheck
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior.
 - The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll to the highlighted line.
+- If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.

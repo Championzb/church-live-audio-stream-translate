@@ -311,6 +311,17 @@ fn looks_english_heavy(text: &str) -> bool {
     ascii_letters >= 24 && ascii_letters > cjk_chars * 3
 }
 
+fn fallback_translation_text(target_language: &str) -> String {
+    match target_language {
+        "zh-hans" => "（翻译暂时不可用）".to_string(),
+        "zh-hant" => "（翻譯暫時不可用）".to_string(),
+        "korean" => "(번역을 일시적으로 사용할 수 없습니다)".to_string(),
+        "japanese" => "（翻訳を一時的に利用できません）".to_string(),
+        "spanish" => "(La traduccion no esta disponible temporalmente)".to_string(),
+        _ => "(Translation unavailable)".to_string(),
+    }
+}
+
 #[tauri::command]
 fn config_api_key(
     api_key: String,
@@ -1188,7 +1199,7 @@ async fn process_segment(
             if translated_text.trim().is_empty() {
                 return Ok(SegmentResult {
                     english: english_text,
-                    translated: String::new(),
+                    translated: fallback_translation_text(&target_language),
                     warning: "Target translation returned empty text.".to_string(),
                 });
             }
@@ -1489,4 +1500,15 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::fallback_translation_text;
+
+    #[test]
+    fn fallback_translation_is_non_empty_for_chinese_targets() {
+        assert!(!fallback_translation_text("zh-hans").trim().is_empty());
+        assert!(!fallback_translation_text("zh-hant").trim().is_empty());
+    }
 }

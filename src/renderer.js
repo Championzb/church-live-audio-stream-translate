@@ -1128,11 +1128,14 @@ async function drainSegmentQueue() {
             totalTranslatedChars += (result.translated || result.chinese || '').length;
             updateCostSummary();
             if (result.warning) {
-                const isEmptyTargetWarning = result.warning === 'Target translation returned empty text.';
-                if (!isEmptyTargetWarning) {
+                const isTargetTranslationWarning = String(result.warning).startsWith('Target translation');
+                if (!isTargetTranslationWarning) {
                     appendEnglish(t('status.warning', { warning: result.warning }), true);
                 }
-                if (isEmptyTargetWarning || (!result.translated && !result.chinese)) {
+                if (isTargetTranslationWarning && !result.translated && !result.chinese) {
+                    appendChinese(t('status.warning', { warning: result.warning }), true);
+                }
+                else if (!result.translated && !result.chinese) {
                     appendChinese(t('status.warning', { warning: result.warning }), true);
                 }
             }
