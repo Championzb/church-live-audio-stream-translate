@@ -102,6 +102,7 @@ Tip: choose the cleanest source possible (usually mixer AUX out via USB interfac
 - General bundle: `npm run build`
 - Collect local artifacts + checksums into `dist/`: `npm run dist:collect`
 - CI distribution workflow: `.github/workflows/distribution.yml` (manual run or `v*` tags)
+- Full release playbook: `docs/DISTRIBUTION.md`
 
 Packaging notes:
 - macOS bundling requires the full Xcode app (not only Command Line Tools).
