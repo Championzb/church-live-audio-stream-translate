@@ -670,6 +670,9 @@ body.presentation-mode .live-line {
 body.presentation-mode .line {
   font-size: 2.1rem;
   line-height: 1.65;
+  min-height: calc(2.1rem * 1.65);
+  display: flex;
+  align-items: center;
 }
 
 body.presentation-mode .panel {

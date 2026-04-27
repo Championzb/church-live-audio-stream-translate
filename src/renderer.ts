@@ -803,7 +803,8 @@ function renderLines(panel, lines, activeLineId = 0) {
     }
   });
   if (activeElement) {
-    activeElement.scrollIntoView({ block: 'nearest' });
+    const blockMode = document.body.classList.contains('presentation-mode') ? 'center' : 'nearest';
+    activeElement.scrollIntoView({ block: blockMode });
   } else {
     panel.scrollTop = panel.scrollHeight;
   }
