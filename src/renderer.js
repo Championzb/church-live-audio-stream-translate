@@ -6,6 +6,7 @@ const saveKeyButton = document.getElementById('saveKey');
 const audioInputSelect = document.getElementById('audioInput');
 const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
+const togglePresentationButton = document.getElementById('togglePresentation');
 const clearPanelsButton = document.getElementById('clearPanels');
 const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
@@ -34,6 +35,7 @@ let silenceStartedAt = 0;
 let recordingStartedAt = 0;
 let currentChunks = [];
 let recording = false;
+let presentationMode = false;
 
 const englishLines = [];
 const chineseLines = [];
@@ -55,6 +57,14 @@ function setRunningButtonState() {
     toggleRunButton.classList.add('run');
     toggleRunButton.classList.remove('stop');
   }
+}
+
+function setPresentationMode(nextMode) {
+  presentationMode = Boolean(nextMode);
+  document.body.classList.toggle('presentation-mode', presentationMode);
+  togglePresentationButton.textContent = presentationMode
+    ? 'Exit Presentation (F6)'
+    : 'Presentation Mode (F6)';
 }
 
 function renderLines(panel, lines) {
@@ -383,6 +393,10 @@ toggleRunButton.addEventListener('click', async () => {
   await setRunning(!running);
 });
 
+togglePresentationButton.addEventListener('click', () => {
+  setPresentationMode(!presentationMode);
+});
+
 vadThresholdInput.addEventListener('input', () => {
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
 });
@@ -429,6 +443,10 @@ async function boot() {
   await listen('toggle-from-hotkey', async (event) => {
     const payload = event.payload || {};
     await setRunning(Boolean(payload.running));
+  });
+
+  await listen('toggle-presentation-mode', () => {
+    setPresentationMode(!presentationMode);
   });
 }
 

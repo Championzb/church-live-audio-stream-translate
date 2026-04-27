@@ -116,3 +116,32 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+
+body.presentation-mode .controls {
+  display: none;
+}
+
+body.presentation-mode main {
+  padding: 10px;
+}
+
+body.presentation-mode .captions {
+  gap: 10px;
+}
+
+body.presentation-mode article {
+  min-height: calc(100vh - 40px);
+}
+
+body.presentation-mode h2 {
+  font-size: 2rem;
+}
+
+body.presentation-mode .live-line {
+  font-size: 1.1rem;
+}
+
+body.presentation-mode .line {
+  font-size: 2.1rem;
+  line-height: 1.65;
+}
