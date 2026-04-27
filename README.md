@@ -30,8 +30,9 @@ npm run start
 
 1. Paste OpenAI API key and click `Save Key`.
 2. Select the desired audio input device.
-3. Adjust VAD threshold/silence hold if needed.
-4. Click `Start (F8)`.
+3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary`.
+4. Adjust VAD threshold/silence hold if needed.
+5. Click `Start (F8)`.
 
 ## Notes
 

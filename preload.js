@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('churchTranslate', {
   configApiKey: (apiKey) => ipcRenderer.invoke('config-api-key', apiKey),
+  setTranslationConfig: (config) => ipcRenderer.invoke('set-translation-config', config),
   getRunning: () => ipcRenderer.invoke('get-running'),
   setRunning: (running) => ipcRenderer.invoke('set-running', running),
   submitSegment: (payload) => ipcRenderer.send('segment-ready', payload),

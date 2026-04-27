@@ -6,6 +6,10 @@ const { toFile } = require('openai/uploads');
 let mainWindow;
 let openai;
 let running = false;
+let translationConfig = {
+  glossary: '',
+  chineseVariant: 'simplified'
+};
 let segmentCounter = 0;
 let nextSegmentToEmit = 0;
 const segmentResults = new Map();
@@ -73,6 +77,10 @@ async function processSegment({ audioBuffer, mimeType }) {
     let chineseError = '';
 
     try {
+      const glossaryPrompt = translationConfig.glossary
+        ? `\nGlossary and preferred translations:\n${translationConfig.glossary}`
+        : '';
+
       const chineseResult = await client.responses.create({
         model: 'gpt-4o-mini',
         input: [
@@ -81,7 +89,10 @@ async function processSegment({ audioBuffer, mimeType }) {
             content: [
               {
                 type: 'input_text',
-                text: 'Translate church sermon English into natural Simplified Chinese. Keep Bible references accurate, preserve names and church terms, and return only the translated text.'
+                text: `Translate church sermon English into natural Simplified Chinese.
+Keep Bible references accurate.
+Preserve names and church terms.
+Return only the translated text.${glossaryPrompt}`
               }
             ]
           },
@@ -158,6 +169,16 @@ ipcMain.handle('set-running', async (_event, nextRunning) => {
     segmentResults.clear();
   }
   return { running };
+});
+
+ipcMain.handle('set-translation-config', async (_event, config) => {
+  const glossary = typeof config?.glossary === 'string' ? config.glossary.trim() : '';
+  const chineseVariant = config?.chineseVariant === 'traditional' ? 'traditional' : 'simplified';
+  translationConfig = {
+    glossary,
+    chineseVariant
+  };
+  return { ok: true };
 });
 
 ipcMain.on('segment-ready', (_event, payload) => {

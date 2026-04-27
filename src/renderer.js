@@ -9,6 +9,8 @@ const chinesePanel = document.getElementById('chinesePanel');
 const vadThresholdInput = document.getElementById('vadThreshold');
 const vadValueEl = document.getElementById('vadValue');
 const silenceMsInput = document.getElementById('silenceMs');
+const glossaryInput = document.getElementById('glossary');
+const saveGlossaryButton = document.getElementById('saveGlossary');
 
 const MAX_LINES = 6;
 let running = false;
@@ -226,6 +228,14 @@ async function setRunning(nextRunning) {
   }
 }
 
+async function syncTranslationConfig() {
+  const glossary = glossaryInput.value || '';
+  await window.churchTranslate.setTranslationConfig({
+    glossary,
+    chineseVariant: 'simplified'
+  });
+}
+
 saveKeyButton.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
   const result = await window.churchTranslate.configApiKey(apiKey);
@@ -235,6 +245,12 @@ saveKeyButton.addEventListener('click', async () => {
   } else {
     setStatus(result.message || 'Failed to configure API key');
   }
+});
+
+saveGlossaryButton.addEventListener('click', async () => {
+  await syncTranslationConfig();
+  localStorage.setItem('church-glossary', glossaryInput.value || '');
+  setStatus('Glossary saved');
 });
 
 refreshDevicesButton.addEventListener('click', () => {
@@ -283,6 +299,12 @@ async function boot() {
   running = Boolean(runState.running);
   setRunningButtonState();
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
+
+  const savedGlossary = localStorage.getItem('church-glossary');
+  if (savedGlossary) {
+    glossaryInput.value = savedGlossary;
+  }
+  await syncTranslationConfig();
 }
 
 boot();

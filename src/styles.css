@@ -33,6 +33,7 @@ label {
 }
 
 input,
+textarea,
 select,
 button {
   background: #1f2937;
@@ -44,6 +45,11 @@ button {
 
 input[type='password'] {
   min-width: 340px;
+}
+
+textarea {
+  min-width: 420px;
+  resize: vertical;
 }
 
 button.run {
