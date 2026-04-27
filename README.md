@@ -34,7 +34,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 
 - `src/`: frontend UI (HTML/CSS/JS), audio capture, VAD, caption rendering
 - `src-tauri/`: native Rust backend (Tauri commands, hotkey integration, file dialogs, app packaging)
-- `AGENTS.md`: repository-level agent instructions (commit-per-step + README maintenance workflow)
+- `AGENT.md`: repository-level agent instructions (commit-per-step + README maintenance workflow)
 - `AGENT_REFERENCE.md`: Karpathy-inspired external agent guidance reference
 
 ## Requirements
