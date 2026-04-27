@@ -16,6 +16,11 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - OpenAI text model for English -> Simplified Chinese
 - Sequential segment queue to avoid API burst issues during fast speech
 
+## Project structure
+
+- `src/`: frontend UI (HTML/CSS/JS), audio capture, VAD, caption rendering
+- `src-tauri/`: native Rust backend (Tauri commands, hotkey integration, file dialogs, app packaging)
+
 ## Requirements
 
 - Node.js 20+
