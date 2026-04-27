@@ -84,6 +84,7 @@ npm run typecheck
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/source/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
+- Control groups are collapsible to reduce visual crowding during operation.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
@@ -95,6 +96,7 @@ npm run typecheck
 - `F4` resets current session state (queued segments, captions, transcript).
 - `F2` locks or unlocks configuration controls.
 - The live line under each caption panel shows recording/translation progress between segment updates.
+- Caption panels keep a longer rolling history and auto-scroll to the latest line.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Japanese/Chinese input first transcribes source speech, then converts to English before final output translation.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.

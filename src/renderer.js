@@ -71,7 +71,7 @@ const helpF6El = document.getElementById('helpF6');
 const helpF2El = document.getElementById('helpF2');
 const helpF4El = document.getElementById('helpF4');
 const helpF1El = document.getElementById('helpF1');
-const MAX_LINES = 6;
+const MAX_LINES = 200;
 const SEGMENT_MAX_RETRIES = 2;
 const RETRY_DELAYS_MS = [300, 700];
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
@@ -607,6 +607,7 @@ function renderLines(panel, lines) {
         div.textContent = line.text;
         panel.appendChild(div);
     });
+    panel.scrollTop = panel.scrollHeight;
 }
 function appendEnglish(text, warning = false) {
     if (!text)
