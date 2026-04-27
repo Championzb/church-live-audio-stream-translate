@@ -58,6 +58,13 @@ struct ExportResponse {
     message: Option<String>,
 }
 
+#[derive(Serialize)]
+struct GlossaryReadResponse {
+    ok: bool,
+    content: Option<String>,
+    message: Option<String>,
+}
+
 #[derive(Deserialize)]
 struct TranscriptEntry {
     timestamp: Option<String>,
@@ -358,6 +365,53 @@ fn export_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse, St
     })
 }
 
+#[tauri::command]
+fn import_glossary() -> Result<GlossaryReadResponse, String> {
+    let open_path = rfd::FileDialog::new()
+        .add_filter("Text file", &["txt"])
+        .pick_file();
+
+    let Some(path) = open_path else {
+        return Ok(GlossaryReadResponse {
+            ok: false,
+            content: None,
+            message: Some("Import canceled.".to_string()),
+        });
+    };
+
+    let content = fs::read_to_string(&path).map_err(|e| format!("Failed to read glossary: {e}"))?;
+
+    Ok(GlossaryReadResponse {
+        ok: true,
+        content: Some(content),
+        message: None,
+    })
+}
+
+#[tauri::command]
+fn export_glossary(content: String) -> Result<ExportResponse, String> {
+    let save_path = rfd::FileDialog::new()
+        .add_filter("Text file", &["txt"])
+        .set_file_name("church-glossary.txt")
+        .save_file();
+
+    let Some(path) = save_path else {
+        return Ok(ExportResponse {
+            ok: false,
+            path: None,
+            message: Some("Export canceled.".to_string()),
+        });
+    };
+
+    fs::write(&path, content).map_err(|e| format!("Failed to write glossary: {e}"))?;
+
+    Ok(ExportResponse {
+        ok: true,
+        path: Some(path.display().to_string()),
+        message: None,
+    })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -397,7 +451,9 @@ pub fn run() {
             get_running,
             set_running,
             process_segment,
-            export_transcript
+            export_transcript,
+            import_glossary,
+            export_glossary
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

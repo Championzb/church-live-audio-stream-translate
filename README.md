@@ -33,7 +33,7 @@ npm run start
 
 1. Paste OpenAI API key and click `Save Key`.
 2. Select the desired audio input device.
-3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary`.
+3. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 4. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
 5. Click `Start (F8)`.
 6. Use `Export Transcript` if you want a saved copy after service.

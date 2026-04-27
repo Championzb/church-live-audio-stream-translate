@@ -19,6 +19,8 @@ const silenceMsInput = document.getElementById('silenceMs');
 const maxSegmentMsInput = document.getElementById('maxSegmentMs');
 const glossaryInput = document.getElementById('glossary');
 const saveGlossaryButton = document.getElementById('saveGlossary');
+const importGlossaryButton = document.getElementById('importGlossary');
+const exportGlossaryButton = document.getElementById('exportGlossary');
 
 const MAX_LINES = 6;
 let running = false;
@@ -350,6 +352,27 @@ saveGlossaryButton.addEventListener('click', async () => {
   await syncTranslationConfig();
   localStorage.setItem('church-glossary', glossaryInput.value || '');
   setStatus('Glossary saved');
+});
+
+importGlossaryButton.addEventListener('click', async () => {
+  const result = await invoke('import_glossary');
+  if (result.ok && typeof result.content === 'string') {
+    glossaryInput.value = result.content;
+    await syncTranslationConfig();
+    localStorage.setItem('church-glossary', glossaryInput.value || '');
+    setStatus('Glossary imported');
+  } else {
+    setStatus(result.message || 'Glossary import canceled');
+  }
+});
+
+exportGlossaryButton.addEventListener('click', async () => {
+  const result = await invoke('export_glossary', { content: glossaryInput.value || '' });
+  if (result.ok) {
+    setStatus(`Glossary exported: ${result.path}`);
+  } else {
+    setStatus(result.message || 'Glossary export canceled');
+  }
 });
 
 refreshDevicesButton.addEventListener('click', () => {
