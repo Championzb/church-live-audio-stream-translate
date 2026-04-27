@@ -59,6 +59,7 @@ npm run start
 - `F6` toggles presentation mode (hides controls and enlarges subtitle text).
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
+- Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
 
 ## Broadcast workflow
 
