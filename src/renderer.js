@@ -31,6 +31,8 @@ const helpOverlay = document.getElementById('helpOverlay');
 const closeHelpButton = document.getElementById('closeHelp');
 
 const MAX_LINES = 6;
+const SEGMENT_MAX_RETRIES = 2;
+const RETRY_DELAYS_MS = [300, 700];
 let running = false;
 let mediaStream;
 let mediaRecorder;
@@ -165,6 +167,32 @@ function arrayBufferToBase64(arrayBuffer) {
   return btoa(binary);
 }
 
+function waitMs(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function processSegmentWithRetry(payload) {
+  let lastError;
+
+  for (let attempt = 0; attempt <= SEGMENT_MAX_RETRIES; attempt += 1) {
+    try {
+      return await invoke('process_segment', { payload });
+    } catch (err) {
+      lastError = err;
+      if (attempt >= SEGMENT_MAX_RETRIES) {
+        break;
+      }
+      const delay = RETRY_DELAYS_MS[attempt] || 900;
+      setStatus(`Retrying segment (${attempt + 1}/${SEGMENT_MAX_RETRIES})...`);
+      await waitMs(delay);
+    }
+  }
+
+  throw lastError;
+}
+
 async function drainSegmentQueue() {
   if (segmentQueueRunning || !pendingSegments.length) {
     return;
@@ -180,7 +208,7 @@ async function drainSegmentQueue() {
       }
 
       const payload = pendingSegments.shift();
-      const result = await invoke('process_segment', { payload });
+      const result = await processSegmentWithRetry(payload);
 
       if (result.english) {
         appendEnglish(result.english);

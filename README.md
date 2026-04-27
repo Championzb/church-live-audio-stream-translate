@@ -67,6 +67,7 @@ npm run start
 - The live line under each caption panel shows recording/translation progress between segment updates.
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
+- Segment processing retries automatically on transient API/network errors.
 
 ## Broadcast workflow
 
