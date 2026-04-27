@@ -46,6 +46,15 @@ const transcriptEntries = [];
 const pendingSegments = [];
 let segmentQueueRunning = false;
 
+function loadNumericSetting(key, fallback, minValue, maxValue) {
+  const raw = localStorage.getItem(key);
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (Number.isNaN(value)) return fallback;
+  if (value < minValue || value > maxValue) return fallback;
+  return value;
+}
+
 function setStatus(text) {
   statusEl.textContent = text;
 }
@@ -441,6 +450,15 @@ togglePresentationButton.addEventListener('click', () => {
 
 vadThresholdInput.addEventListener('input', () => {
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
+  localStorage.setItem('church-vad-threshold', vadThresholdInput.value);
+});
+
+silenceMsInput.addEventListener('change', () => {
+  localStorage.setItem('church-silence-ms', silenceMsInput.value);
+});
+
+maxSegmentMsInput.addEventListener('change', () => {
+  localStorage.setItem('church-max-segment-ms', maxSegmentMsInput.value);
 });
 
 clearPanelsButton.addEventListener('click', () => {
@@ -474,6 +492,14 @@ async function boot() {
   const runState = await invoke('get_running');
   running = Boolean(runState.running);
   setRunningButtonState();
+
+  const savedVadThreshold = loadNumericSetting('church-vad-threshold', 0.04, 0.01, 0.12);
+  const savedSilenceMs = loadNumericSetting('church-silence-ms', 600, 200, 3000);
+  const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 2500, 1200, 10000);
+
+  vadThresholdInput.value = savedVadThreshold.toString();
+  silenceMsInput.value = savedSilenceMs.toString();
+  maxSegmentMsInput.value = savedMaxSegmentMs.toString();
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
 
   const savedGlossary = localStorage.getItem('church-glossary');
