@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Church Live Translate app icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E4A67" />
+      <stop offset="55%" stop-color="#0F766E" />
+      <stop offset="100%" stop-color="#1D9A76" />
+    </linearGradient>
+    <linearGradient id="bubble" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.98" />
+      <stop offset="100%" stop-color="#ECF7F3" stop-opacity="0.98" />
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#073447" flood-opacity="0.34" />
+    </filter>
+  </defs>
+
+  <rect x="72" y="72" width="880" height="880" rx="200" fill="url(#bg)" />
+  <circle cx="790" cy="250" r="220" fill="#FFFFFF" opacity="0.08" />
+  <circle cx="235" cy="840" r="150" fill="#FFFFFF" opacity="0.06" />
+
+  <g filter="url(#shadow)">
+    <polygon points="258,520 436,372 614,520" fill="#F8FFFD" />
+    <rect x="294" y="520" width="286" height="222" rx="24" fill="#F8FFFD" />
+    <rect x="410" y="590" width="56" height="152" rx="20" fill="#0E5A63" />
+
+    <rect x="412" y="300" width="48" height="100" rx="10" fill="#F8FFFD" />
+    <polygon points="392,372 436,322 480,372" fill="#F8FFFD" />
+    <rect x="430" y="254" width="12" height="58" fill="#F8FFFD" />
+    <rect x="408" y="276" width="56" height="12" fill="#F8FFFD" />
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="566" y="468" width="260" height="166" rx="38" fill="url(#bubble)" />
+    <polygon points="612,634 654,634 624,678" fill="url(#bubble)" />
+    <rect x="610" y="520" width="172" height="18" rx="9" fill="#0F766E" opacity="0.84" />
+    <rect x="610" y="556" width="128" height="18" rx="9" fill="#0F766E" opacity="0.64" />
+  </g>
+
+  <g opacity="0.9">
+    <rect x="280" y="810" width="36" height="50" rx="12" fill="#D9FFF2" />
+    <rect x="332" y="792" width="36" height="68" rx="12" fill="#D9FFF2" />
+    <rect x="384" y="768" width="36" height="92" rx="12" fill="#D9FFF2" />
+    <rect x="436" y="792" width="36" height="68" rx="12" fill="#D9FFF2" />
+    <rect x="488" y="810" width="36" height="50" rx="12" fill="#D9FFF2" />
+  </g>
+</svg>
