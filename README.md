@@ -1,6 +1,6 @@
 # Church Live Audio Translate (Korean -> English -> Chinese)
 
-Desktop subtitle app for Windows and macOS.
+Desktop subtitle app for Windows and macOS using Tauri.
 
 - Korean speech in
 - English captions always shown
@@ -10,7 +10,7 @@ Desktop subtitle app for Windows and macOS.
 
 ## Tech choices
 
-- Electron desktop app (cross-platform)
+- Tauri desktop app (cross-platform, lighter runtime)
 - Browser audio capture + simple VAD segmentation
 - OpenAI Whisper translation endpoint for Korean -> English
 - OpenAI text model for English -> Simplified Chinese
@@ -19,6 +19,7 @@ Desktop subtitle app for Windows and macOS.
 ## Requirements
 
 - Node.js 20+
+- Rust toolchain (stable)
 - OpenAI API key
 
 ## Setup
