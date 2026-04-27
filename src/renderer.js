@@ -29,6 +29,7 @@ const glossaryInput = document.getElementById('glossary');
 const saveGlossaryButton = document.getElementById('saveGlossary');
 const importGlossaryButton = document.getElementById('importGlossary');
 const exportGlossaryButton = document.getElementById('exportGlossary');
+const autoSaveOnStopInput = document.getElementById('autoSaveOnStop');
 const helpOverlay = document.getElementById('helpOverlay');
 const closeHelpButton = document.getElementById('closeHelp');
 
@@ -442,7 +443,20 @@ async function setRunning(nextRunning) {
     pendingSegments.length = 0;
     englishLiveEl.textContent = '';
     chineseLiveEl.textContent = '';
-    setStatus('Stopped');
+    if (autoSaveOnStopInput.checked && transcriptEntries.length) {
+      try {
+        const saveResult = await invoke('auto_save_transcript', { entries: transcriptEntries });
+        if (saveResult.ok) {
+          setStatus(`Stopped and auto-saved transcript: ${saveResult.path}`);
+        } else {
+          setStatus(saveResult.message || 'Stopped');
+        }
+      } catch (err) {
+        setStatus(`Stopped (auto-save failed: ${err.message || String(err)})`);
+      }
+    } else {
+      setStatus('Stopped');
+    }
   }
   updateModeSummary();
 }
@@ -543,6 +557,10 @@ maxSegmentMsInput.addEventListener('change', () => {
   localStorage.setItem('church-max-segment-ms', maxSegmentMsInput.value);
 });
 
+autoSaveOnStopInput.addEventListener('change', () => {
+  localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');
+});
+
 clearPanelsButton.addEventListener('click', () => {
   clearPanels();
   setStatus('Caption panels cleared');
@@ -618,6 +636,9 @@ async function boot() {
   if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean') {
     sourceLanguageSelect.value = savedSourceLanguage;
   }
+
+  const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
+  autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
 
   await syncTranslationConfig();
   updateModeSummary();

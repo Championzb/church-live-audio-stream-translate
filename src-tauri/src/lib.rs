@@ -566,6 +566,46 @@ fn export_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse, St
 }
 
 #[tauri::command]
+fn auto_save_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse, String> {
+    if entries.is_empty() {
+        return Ok(ExportResponse {
+            ok: false,
+            path: None,
+            message: Some("No transcript entries to auto-save.".to_string()),
+        });
+    }
+
+    let home_dir = std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
+    let sessions_dir = std::path::Path::new(&home_dir).join("Desktop").join("ChurchTranslateSessions");
+    fs::create_dir_all(&sessions_dir).map_err(|e| format!("Failed to create session folder: {e}"))?;
+
+    let file_name = format!(
+        "church-translation-{}.txt",
+        chrono::Local::now().format("%Y-%m-%d_%H-%M-%S")
+    );
+    let file_path = sessions_dir.join(file_name);
+
+    let content = entries
+        .iter()
+        .map(|entry| {
+            let stamp = entry.timestamp.clone().unwrap_or_default();
+            let english = entry.english.clone().unwrap_or_default();
+            let chinese = entry.chinese.clone().unwrap_or_default();
+            format!("[{stamp}] EN: {english}\n[{stamp}] ZH: {chinese}")
+        })
+        .collect::<Vec<_>>()
+        .join("\n\n");
+
+    fs::write(&file_path, content).map_err(|e| format!("Failed to auto-save transcript: {e}"))?;
+
+    Ok(ExportResponse {
+        ok: true,
+        path: Some(file_path.display().to_string()),
+        message: None,
+    })
+}
+
+#[tauri::command]
 fn import_glossary() -> Result<GlossaryReadResponse, String> {
     let open_path = rfd::FileDialog::new()
         .add_filter("Text file", &["txt"])
@@ -697,6 +737,7 @@ pub fn run() {
             set_running,
             process_segment,
             export_transcript,
+            auto_save_transcript,
             import_glossary,
             export_glossary
         ])

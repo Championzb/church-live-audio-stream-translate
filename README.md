@@ -14,6 +14,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Clear transcript memory without clearing on-screen captions
 - One-tap session reset for queue + captions + transcript (`F4`)
 - One-click copy for the latest Chinese caption line
+- Optional auto-save transcript when stopping a session
 
 ## Tech choices
 
@@ -53,6 +54,7 @@ npm run start
 8. Use `Export Transcript` if you want a saved copy after service.
 9. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
 10. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+11. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
 
 ## Notes
 
@@ -61,6 +63,7 @@ npm run start
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/source/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
+- Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.
