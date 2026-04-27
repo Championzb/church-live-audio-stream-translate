@@ -776,8 +776,7 @@ function setWorshipMode(nextMode) {
 
   if (worshipMode) {
     pendingSegments.length = 0;
-    englishLiveEl.textContent = '';
-    chineseLiveEl.textContent = '';
+    clearCurrentLiveTranslation();
     setStatusKey('status.worshipEnabled');
   } else if (running) {
     setStatusKey('status.worshipDisabledRunning');
@@ -813,6 +812,27 @@ function appendChinese(text, warning = false) {
   while (chineseLines.length > MAX_LINES) chineseLines.shift();
   renderLines(chinesePanel, chineseLines);
   syncOutputWindow();
+}
+
+function setLiveLine(element, text, mode = 'idle') {
+  element.textContent = text || '';
+  element.classList.toggle('active', mode === 'active' && Boolean(text));
+  element.classList.toggle('status', mode === 'status' && Boolean(text));
+}
+
+function setCurrentLiveTranslation(englishText, translatedText) {
+  setLiveLine(englishLiveEl, englishText, 'active');
+  setLiveLine(chineseLiveEl, translatedText, 'active');
+}
+
+function setCurrentLiveStatus(englishText, translatedText) {
+  setLiveLine(englishLiveEl, englishText, 'status');
+  setLiveLine(chineseLiveEl, translatedText, 'status');
+}
+
+function clearCurrentLiveTranslation() {
+  setLiveLine(englishLiveEl, '', 'idle');
+  setLiveLine(chineseLiveEl, '', 'idle');
 }
 
 function getLatestChineseLine() {
@@ -946,8 +966,7 @@ function clearPanels() {
   chineseLines.length = 0;
   renderLines(englishPanel, englishLines);
   renderLines(chinesePanel, chineseLines);
-  englishLiveEl.textContent = '';
-  chineseLiveEl.textContent = '';
+  clearCurrentLiveTranslation();
   syncOutputWindow();
 }
 
@@ -1145,6 +1164,10 @@ async function drainSegmentQueue() {
       if (result.translated) {
         appendChinese(result.translated);
       }
+      const translatedCurrent = result.translated || result.chinese || '';
+      if (result.english || translatedCurrent) {
+        setCurrentLiveTranslation(result.english || '', translatedCurrent);
+      }
 
       if (result.english || result.chinese) {
         transcriptEntries.push({
@@ -1163,8 +1186,6 @@ async function drainSegmentQueue() {
         appendEnglish(t('status.warning', { warning: result.warning }), true);
       }
 
-      englishLiveEl.textContent = '';
-      chineseLiveEl.textContent = '';
       syncOutputWindow();
       updateModeSummary();
     }
@@ -1297,8 +1318,7 @@ async function setupAudioPipeline() {
       if (!recording) {
         recording = true;
         recordingStartedAt = now;
-        englishLiveEl.textContent = t('status.listening');
-        chineseLiveEl.textContent = t('status.translating');
+        setCurrentLiveStatus(t('status.listening'), t('status.translating'));
         syncOutputWindow();
         if (mediaRecorder.state === 'inactive') {
           mediaRecorder.start(250);
@@ -1388,8 +1408,7 @@ async function setRunning(nextRunning) {
   } else {
     await stopAudioPipeline();
     pendingSegments.length = 0;
-    englishLiveEl.textContent = '';
-    chineseLiveEl.textContent = '';
+    clearCurrentLiveTranslation();
     if (autoSaveOnStopInput.checked && transcriptEntries.length) {
       try {
         const saveResult = await invoke('auto_save_transcript', { entries: transcriptEntries });
