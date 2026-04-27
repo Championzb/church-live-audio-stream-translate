@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "tauri": "tauri",
+    "build:ui": "tsc -p tsconfig.json",
+    "dev:ui": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "dev": "tauri dev",
     "start": "tauri dev",
     "build": "tauri build",
@@ -20,6 +23,7 @@
     "@tauri-apps/api": "^2.8.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.8.0"
+    "@tauri-apps/cli": "^2.8.0",
+    "typescript": "^6.0.3"
   }
 }

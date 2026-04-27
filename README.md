@@ -32,7 +32,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 
 ## Project structure
 
-- `src/`: frontend UI (HTML/CSS/JS), audio capture, VAD, caption rendering
+- `src/`: frontend UI (HTML/CSS/TypeScript), audio capture, VAD, caption rendering
 - `src-tauri/`: native Rust backend (Tauri commands, hotkey integration, file dialogs, app packaging)
 - `AGENTS.md`: repository-level agent instructions, including commit-per-step workflow and Karpathy-inspired guidance
 
@@ -47,6 +47,12 @@ Desktop subtitle app for Windows and macOS using Tauri.
 ```bash
 npm install
 npm run start
+```
+
+Frontend TypeScript:
+
+```bash
+npm run typecheck
 ```
 
 ## First run

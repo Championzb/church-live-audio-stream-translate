@@ -4,8 +4,8 @@
   "version": "0.2.0",
   "identifier": "com.church.live.translate",
   "build": {
-    "beforeDevCommand": "",
-    "beforeBuildCommand": "",
+    "beforeDevCommand": "npm run dev:ui",
+    "beforeBuildCommand": "npm run build:ui",
     "frontendDist": "../src"
   },
   "app": {
