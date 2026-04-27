@@ -38,10 +38,11 @@ struct SegmentResult {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
 struct TranslationConfig {
     glossary: Option<String>,
+    #[serde(alias = "targetLanguage")]
     target_language: Option<String>,
+    #[serde(alias = "sourceLanguage")]
     source_language: Option<String>,
 }
 
