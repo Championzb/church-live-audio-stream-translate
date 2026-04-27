@@ -42,7 +42,6 @@ const exportTranscriptButton = document.getElementById('exportTranscript');
 const statusEl = document.getElementById('status');
 const statusToastEl = document.getElementById('statusToast');
 const modeSummaryEl = document.getElementById('modeSummary');
-const costSummaryEl = document.getElementById('costSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
@@ -503,10 +502,11 @@ function updateCostSummary() {
     const sessionTranslationCost = estimateTranslationCostUsd();
     const sessionTotal = sessionSttCost + sessionTranslationCost;
     const estimatedMonth = sessionTotal * 4;
-    costSummaryEl.textContent = t('cost.summary', {
+    const costSummaryText = t('cost.summary', {
         session: sessionTotal.toFixed(2),
         month: estimatedMonth.toFixed(2)
     });
+    maskedApiKeyEl.title = costSummaryText;
 }
 function updateModeSummary() {
     const queueText = segmentQueueRunning

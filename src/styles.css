@@ -164,8 +164,7 @@ h1 {
   gap: 8px;
 }
 
-#modeSummary,
-#costSummary {
+#modeSummary {
   margin: 0;
   padding: 7px 10px;
   border-radius: 10px;
@@ -180,10 +179,6 @@ h1 {
   color: #0b4f6b;
   flex: 1 1 320px;
   white-space: normal;
-}
-
-#costSummary {
-  color: #166534;
 }
 
 .status-toast {
