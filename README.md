@@ -101,6 +101,7 @@ npm run typecheck
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
+- `Test Audio File` now shows a running state (`Testing Audio File...`) and disables itself while a file test is active.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - In translation mode, script panel scrolling is independent from caption panel scrolling.
 - The newest target-language lines are highlighted in the main panel, with auto-scroll pinned to the latest bottom lines during translation (including translation mode).

@@ -182,6 +182,7 @@ const UI_TEXT = {
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Projector Window',
     'button.testAudioFile': 'Test Audio File',
+    'button.testAudioFileRunning': 'Testing Audio File...',
     'button.scriptManager': 'Script',
     'button.uploadScript': 'Upload Script',
     'button.pasteScript': 'Paste Script',
@@ -347,6 +348,7 @@ const UI_TEXT = {
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '投影窗口',
     'button.testAudioFile': '测试音频文件',
+    'button.testAudioFileRunning': '正在测试音频文件...',
     'button.scriptManager': '讲稿',
     'button.uploadScript': '上传讲稿',
     'button.pasteScript': '粘贴讲稿',
@@ -834,6 +836,7 @@ function setControlsLocked(nextLocked) {
   lockTargets.forEach((element) => {
     element.disabled = controlsLocked;
   });
+  updateTestAudioFileButtonState();
 
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
@@ -859,6 +862,13 @@ function setRunningButtonState() {
   }
   toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+}
+
+function updateTestAudioFileButtonState() {
+  const busy = Boolean(testStreamActive);
+  testAudioFileButton.classList.toggle('busy', busy);
+  testAudioFileButton.textContent = busy ? t('button.testAudioFileRunning') : t('button.testAudioFile');
+  testAudioFileButton.disabled = controlsLocked || busy;
 }
 
 function refreshToggleButtonLabels() {
@@ -1143,7 +1153,7 @@ function applyUiLanguage() {
   setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
   toggleHelpButton.textContent = t('button.help');
   liveToggleHelpButton.textContent = t('button.help');
-  testAudioFileButton.textContent = t('button.testAudioFile');
+  updateTestAudioFileButtonState();
   openScriptManagerButton.textContent = t('button.scriptManager');
   liveOpenScriptManagerButton.textContent = t('button.scriptManager');
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
@@ -1344,6 +1354,7 @@ async function processTestAudioFile(file) {
   }
 
   testStreamActive = true;
+  updateTestAudioFileButtonState();
   setStatusKey('status.testingFile', { name: file.name });
 
   const buffer = await file.arrayBuffer();
@@ -1398,6 +1409,7 @@ async function processTestAudioFile(file) {
     playbackAudio.src = '';
     URL.revokeObjectURL(playbackUrl);
     testStreamActive = false;
+    updateTestAudioFileButtonState();
     testAudioFileInput.value = '';
   }
 }

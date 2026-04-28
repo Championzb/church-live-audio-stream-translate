@@ -624,6 +624,16 @@ button.stop:hover {
   background: linear-gradient(160deg, var(--danger-strong), var(--danger));
 }
 
+#testAudioFile.busy {
+  background: linear-gradient(160deg, var(--accent-strong), var(--accent));
+  color: #ffffff;
+  box-shadow: 0 12px 22px rgba(8, 145, 178, 0.3);
+}
+
+#testAudioFile.busy:hover {
+  transform: none;
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
