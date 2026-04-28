@@ -14,7 +14,6 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Hover hints on each button to explain what it does
 - Export transcript to a text file at any time
 - One-tap session reset for queue + captions + transcript (`F4`)
-- One-click copy for the latest output caption line
 - Optional auto-save transcript when stopping a session
 - Dedicated dual-screen projector window for subtitle-only display
 - Operator lock mode to prevent accidental config changes (`F2`)

@@ -68,7 +68,6 @@ const scriptModalTitleEl = document.getElementById('scriptModalTitle') as any;
 const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as any;
 const closeScriptModalButton = document.getElementById('closeScriptModal') as any;
 const resetSessionButton = document.getElementById('resetSession') as any;
-const copyLatestChineseButton = document.getElementById('copyLatestChinese') as any;
 const exportTranscriptButton = document.getElementById('exportTranscript') as any;
 const statusEl = document.getElementById('status') as any;
 const statusToastEl = document.getElementById('statusToast') as any;
@@ -188,7 +187,6 @@ const UI_TEXT = {
     'button.pasteScript': 'Paste Script',
     'button.clearScript': 'Clear Script',
     'button.resetSession': 'Reset Session (F4)',
-    'button.copyLatestOutput': 'Copy Latest Output',
     'button.copyLine': 'Copy line',
     'button.exportTranscript': 'Export Transcript',
     'button.saveGlossary': 'Save Glossary',
@@ -227,7 +225,6 @@ const UI_TEXT = {
     'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
     'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
     'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
-    'tooltip.copyLatestOutput': 'Copy the latest translated output caption line to clipboard.',
     'tooltip.copyLine': 'Copy this caption line.',
     'tooltip.exportTranscript': 'Export the current transcript entries to a text file.',
     'tooltip.saveGlossary': 'Save current glossary text for translation prompts.',
@@ -284,8 +281,6 @@ const UI_TEXT = {
     'status.outputSet': 'Output language set to {target}',
     'status.outputWindowToggled': 'Toggled projector window',
     'status.outputWindowError': 'Projector window error: {error}',
-    'status.noOutputToCopy': 'No output caption available to copy',
-    'status.copyDone': 'Copied latest output caption',
     'status.lineCopied': 'Caption line copied',
     'status.clipboardDenied': 'Clipboard permission denied',
     'status.transcriptExported': 'Transcript exported: {path}',
@@ -357,7 +352,6 @@ const UI_TEXT = {
     'button.pasteScript': '粘贴讲稿',
     'button.clearScript': '清除讲稿',
     'button.resetSession': '重置会话（F4）',
-    'button.copyLatestOutput': '复制最新输出',
     'button.copyLine': '复制本行',
     'button.exportTranscript': '导出转录',
     'button.saveGlossary': '保存术语表',
@@ -396,7 +390,6 @@ const UI_TEXT = {
     'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
     'tooltip.clearScript': '清除当前会话中的参考讲稿。',
     'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
-    'tooltip.copyLatestOutput': '复制最新一行输出字幕到剪贴板。',
     'tooltip.copyLine': '复制这一行字幕。',
     'tooltip.exportTranscript': '将当前转录条目导出为文本文件。',
     'tooltip.saveGlossary': '保存当前术语表内容用于翻译提示。',
@@ -453,8 +446,6 @@ const UI_TEXT = {
     'status.outputSet': '输出语言已设置为 {target}',
     'status.outputWindowToggled': '已切换投影窗口',
     'status.outputWindowError': '投影窗口错误：{error}',
-    'status.noOutputToCopy': '没有可复制的输出字幕',
-    'status.copyDone': '已复制最新输出字幕',
     'status.lineCopied': '已复制字幕行',
     'status.clipboardDenied': '剪贴板权限被拒绝',
     'status.transcriptExported': '转录已导出：{path}',
@@ -901,7 +892,6 @@ function setStaticButtonTooltips() {
   clearReferenceScriptButton.title = t('tooltip.clearScript');
   resetSessionButton.title = t('tooltip.resetSession');
   liveResetSessionButton.title = t('tooltip.resetSession');
-  copyLatestChineseButton.title = t('tooltip.copyLatestOutput');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
   saveGlossaryButton.title = t('tooltip.saveGlossary');
   importGlossaryButton.title = t('tooltip.import');
@@ -1092,15 +1082,6 @@ function clearCurrentLiveTranslation() {
   setLiveLine(chineseLiveEl, '', 'idle');
 }
 
-function getLatestChineseLine() {
-  for (let i = pairedLines.length - 1; i >= 0; i -= 1) {
-    if (!pairedLines[i].chineseWarning && pairedLines[i].chineseText) {
-      return pairedLines[i].chineseText;
-    }
-  }
-  return '';
-}
-
 function updateTranslatedHeading() {
   translatedHeadingEl.textContent = languageName(targetLanguageSelect.value || 'zh-hans');
 }
@@ -1170,7 +1151,6 @@ function applyUiLanguage() {
   clearReferenceScriptButton.textContent = t('button.clearScript');
   resetSessionButton.textContent = t('button.resetSession');
   liveResetSessionButton.textContent = t('button.resetSession');
-  copyLatestChineseButton.textContent = t('button.copyLatestOutput');
   exportTranscriptButton.textContent = t('button.exportTranscript');
   saveGlossaryButton.textContent = t('button.saveGlossary');
   importGlossaryButton.textContent = t('button.import');
@@ -2174,21 +2154,6 @@ resetSessionButton.addEventListener('click', () => {
 
 liveResetSessionButton.addEventListener('click', () => {
   resetSessionState();
-});
-
-copyLatestChineseButton.addEventListener('click', async () => {
-  const latestChinese = getLatestChineseLine();
-  if (!latestChinese) {
-    setStatusKey('status.noOutputToCopy');
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(latestChinese);
-    setStatusKey('status.copyDone');
-  } catch {
-    setStatusKey('status.clipboardDenied');
-  }
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
