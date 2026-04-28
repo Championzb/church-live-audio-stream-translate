@@ -868,8 +868,8 @@ function renderPanels(activeLineId = 0) {
     if (presentationMode) {
       alignPresentationPanels();
     } else {
-      englishActive.scrollIntoView({ block: 'nearest' });
-      chineseActive.scrollIntoView({ block: 'nearest' });
+      englishPanel.scrollTop = englishPanel.scrollHeight;
+      chinesePanel.scrollTop = chinesePanel.scrollHeight;
     }
   } else {
     englishPanel.scrollTop = englishPanel.scrollHeight;

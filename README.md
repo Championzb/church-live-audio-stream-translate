@@ -93,7 +93,7 @@ npm run typecheck
 - Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the header for faster access.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
-- The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll to the highlighted line.
+- The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll pinned to the latest bottom lines during translation.
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
