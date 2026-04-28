@@ -932,12 +932,6 @@ function alignPresentationPanels() {
 function pinPanelsToLatest() {
     englishPanel.scrollTop = englishPanel.scrollHeight;
     chinesePanel.scrollTop = chinesePanel.scrollHeight;
-    if (presentationMode) {
-        const scrollingRoot = document.scrollingElement;
-        if (scrollingRoot) {
-            scrollingRoot.scrollTop = scrollingRoot.scrollHeight;
-        }
-    }
 }
 function renderPanels(activeLineId = 0) {
     englishPanel.innerHTML = '';

@@ -994,6 +994,7 @@ body.presentation-mode .app-shell {
 
 body.presentation-mode .captions {
   gap: 10px;
+  align-items: start;
 }
 
 body.presentation-mode.has-reference-script .captions {
@@ -1005,7 +1006,7 @@ body.presentation-mode.has-reference-script .script-reference-card {
 }
 
 body.presentation-mode .caption-card {
-  min-height: calc(100vh - 36px);
+  height: calc(100vh - 36px);
   padding: 10px;
   display: grid;
   grid-template-rows: auto auto 1fr;
