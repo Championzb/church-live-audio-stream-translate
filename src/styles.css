@@ -479,6 +479,10 @@ button.stop:hover {
   font-size: 1rem;
 }
 
+.line.empty {
+  visibility: hidden;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -677,9 +681,4 @@ body.presentation-mode .line {
 
 body.presentation-mode .panel {
   max-height: none;
-}
-
-body.presentation-mode .line-spacer {
-  flex: 0 0 auto;
-  pointer-events: none;
 }
