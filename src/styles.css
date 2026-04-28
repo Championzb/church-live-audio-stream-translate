@@ -1010,7 +1010,7 @@ body.presentation-mode .caption-card {
   padding: 10px;
   display: grid;
   grid-template-rows: auto auto 1fr;
-  align-items: start;
+  align-items: stretch;
   min-height: 0;
 }
 
@@ -1043,6 +1043,8 @@ body.presentation-mode .panel {
   overscroll-behavior: contain;
   touch-action: pan-y;
   min-height: 0;
+  align-self: stretch;
+  -webkit-overflow-scrolling: touch;
 }
 
 body.presentation-mode .script-reference-card h2 {
