@@ -665,6 +665,12 @@ button:disabled {
   gap: 18px;
 }
 
+.app-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .transcription-hidden {
   display: none !important;
 }
@@ -1020,7 +1026,8 @@ body.presentation-mode .app-shell {
 }
 
 body.presentation-mode .app-header,
-body.presentation-mode .controls {
+body.presentation-mode .controls,
+body.presentation-mode .app-footer {
   display: none;
 }
 
