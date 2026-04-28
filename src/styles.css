@@ -828,13 +828,43 @@ button:disabled {
 }
 
 .line {
+  position: relative;
   background: linear-gradient(180deg, var(--line-bg), var(--surface-inset));
   border: 1px solid var(--line-border);
   border-radius: var(--radius-sm);
-  padding: 11px 12px;
+  padding: 11px 44px 11px 12px;
   font-size: clamp(1.08rem, 1.65vw, 1.3rem);
   line-height: 1.55;
   box-shadow: 0 8px 16px rgba(2, 6, 23, 0.1);
+}
+
+.line-text {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.line-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(-1px);
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease, background-color 140ms ease;
+}
+
+.line:hover .line-copy-btn,
+.line:focus-within .line-copy-btn {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .line.active-current {
@@ -1128,6 +1158,14 @@ body.presentation-mode .line {
   min-height: calc(1.7rem * 1.62);
   display: flex;
   align-items: center;
+}
+
+body.presentation-mode .line-copy-btn {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  font-size: 1.06rem;
 }
 
 body.presentation-mode .panel {

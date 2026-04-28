@@ -189,6 +189,7 @@ const UI_TEXT = {
     'button.clearScript': 'Clear Script',
     'button.resetSession': 'Reset Session (F4)',
     'button.copyLatestOutput': 'Copy Latest Output',
+    'button.copyLine': 'Copy line',
     'button.exportTranscript': 'Export Transcript',
     'button.saveGlossary': 'Save Glossary',
     'button.import': 'Import',
@@ -227,6 +228,7 @@ const UI_TEXT = {
     'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
     'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
     'tooltip.copyLatestOutput': 'Copy the latest translated output caption line to clipboard.',
+    'tooltip.copyLine': 'Copy this caption line.',
     'tooltip.exportTranscript': 'Export the current transcript entries to a text file.',
     'tooltip.saveGlossary': 'Save current glossary text for translation prompts.',
     'tooltip.import': 'Import glossary content from a text file.',
@@ -284,6 +286,7 @@ const UI_TEXT = {
     'status.outputWindowError': 'Projector window error: {error}',
     'status.noOutputToCopy': 'No output caption available to copy',
     'status.copyDone': 'Copied latest output caption',
+    'status.lineCopied': 'Caption line copied',
     'status.clipboardDenied': 'Clipboard permission denied',
     'status.transcriptExported': 'Transcript exported: {path}',
     'status.transcriptExportFailed': 'Transcript export failed',
@@ -355,6 +358,7 @@ const UI_TEXT = {
     'button.clearScript': '清除讲稿',
     'button.resetSession': '重置会话（F4）',
     'button.copyLatestOutput': '复制最新输出',
+    'button.copyLine': '复制本行',
     'button.exportTranscript': '导出转录',
     'button.saveGlossary': '保存术语表',
     'button.import': '导入',
@@ -393,6 +397,7 @@ const UI_TEXT = {
     'tooltip.clearScript': '清除当前会话中的参考讲稿。',
     'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
     'tooltip.copyLatestOutput': '复制最新一行输出字幕到剪贴板。',
+    'tooltip.copyLine': '复制这一行字幕。',
     'tooltip.exportTranscript': '将当前转录条目导出为文本文件。',
     'tooltip.saveGlossary': '保存当前术语表内容用于翻译提示。',
     'tooltip.import': '从文本文件导入术语表。',
@@ -450,6 +455,7 @@ const UI_TEXT = {
     'status.outputWindowError': '投影窗口错误：{error}',
     'status.noOutputToCopy': '没有可复制的输出字幕',
     'status.copyDone': '已复制最新输出字幕',
+    'status.lineCopied': '已复制字幕行',
     'status.clipboardDenied': '剪贴板权限被拒绝',
     'status.transcriptExported': '转录已导出：{path}',
     'status.transcriptExportFailed': '转录导出失败',
@@ -951,7 +957,28 @@ function buildLineCard(text, warning, isActive) {
   const div = document.createElement('div');
   const empty = !text;
   div.className = `line ${warning ? 'warning' : ''} ${isActive ? 'active-current' : ''} ${empty ? 'empty' : ''}`;
-  div.textContent = empty ? ' ' : text;
+  if (empty) {
+    div.textContent = ' ';
+    return div;
+  }
+
+  const textEl = document.createElement('span');
+  textEl.className = 'line-text';
+  textEl.textContent = text;
+  div.appendChild(textEl);
+
+  const copyButton = document.createElement('button');
+  copyButton.type = 'button';
+  copyButton.className = 'line-copy-btn';
+  copyButton.textContent = '⧉';
+  copyButton.setAttribute('aria-label', t('button.copyLine'));
+  copyButton.title = t('tooltip.copyLine');
+  copyButton.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    await copyTextToClipboard(text, 'status.lineCopied');
+  });
+  div.appendChild(copyButton);
+
   return div;
 }
 
