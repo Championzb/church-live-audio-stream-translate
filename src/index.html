@@ -38,6 +38,35 @@
             <p>Real-time captioning pipeline: source speech -> English -> target language.</p>
             <div class="status-stack">
               <p id="modeSummary">Mode: stopped | Source: korean | Worship: off | Translation Mode: off</p>
+              <div class="quick-state-bar">
+                <div class="quick-chip">
+                  <span id="chipModeLabel" class="chip-label">Mode</span>
+                  <strong id="chipModeValue" class="chip-value">Stopped</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="chipWorshipLabel" class="chip-label">Worship</span>
+                  <strong id="chipWorshipValue" class="chip-value">Off</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="chipPresentationLabel" class="chip-label">Translation</span>
+                  <strong id="chipPresentationValue" class="chip-value">Off</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="chipQueueLabel" class="chip-label">Queue</span>
+                  <strong id="chipQueueValue" class="chip-value">0</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="chipLockLabel" class="chip-label">Controls</span>
+                  <strong id="chipLockValue" class="chip-value">Unlocked</strong>
+                </div>
+              </div>
+              <div class="quick-hotkeys" aria-label="Quick keyboard shortcuts">
+                <span id="hintF8" class="hotkey-pill"><kbd>F8</kbd> Start/Stop</span>
+                <span id="hintF7" class="hotkey-pill"><kbd>F7</kbd> Worship</span>
+                <span id="hintF6" class="hotkey-pill"><kbd>F6</kbd> Translation</span>
+                <span id="hintF2" class="hotkey-pill"><kbd>F2</kbd> Lock</span>
+                <span id="hintF1" class="hotkey-pill"><kbd>F1</kbd> Help</span>
+              </div>
             </div>
           </div>
           <div class="header-right">

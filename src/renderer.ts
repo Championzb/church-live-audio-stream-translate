@@ -72,6 +72,21 @@ const exportTranscriptButton = document.getElementById('exportTranscript') as an
 const statusEl = document.getElementById('status') as any;
 const statusToastEl = document.getElementById('statusToast') as any;
 const modeSummaryEl = document.getElementById('modeSummary') as any;
+const chipModeLabelEl = document.getElementById('chipModeLabel') as any;
+const chipWorshipLabelEl = document.getElementById('chipWorshipLabel') as any;
+const chipPresentationLabelEl = document.getElementById('chipPresentationLabel') as any;
+const chipQueueLabelEl = document.getElementById('chipQueueLabel') as any;
+const chipLockLabelEl = document.getElementById('chipLockLabel') as any;
+const chipModeValueEl = document.getElementById('chipModeValue') as any;
+const chipWorshipValueEl = document.getElementById('chipWorshipValue') as any;
+const chipPresentationValueEl = document.getElementById('chipPresentationValue') as any;
+const chipQueueValueEl = document.getElementById('chipQueueValue') as any;
+const chipLockValueEl = document.getElementById('chipLockValue') as any;
+const hintF8El = document.getElementById('hintF8') as any;
+const hintF7El = document.getElementById('hintF7') as any;
+const hintF6El = document.getElementById('hintF6') as any;
+const hintF2El = document.getElementById('hintF2') as any;
+const hintF1El = document.getElementById('hintF1') as any;
 const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
@@ -240,6 +255,18 @@ const UI_TEXT = {
     'help.f2': '<strong>F2</strong>: Lock/unlock config controls',
     'help.f4': '<strong>F4</strong>: Reset captions + transcript + queue',
     'help.f1': '<strong>F1</strong>: Toggle this help panel',
+    'chip.mode': 'Mode',
+    'chip.worship': 'Worship',
+    'chip.translation': 'Translation',
+    'chip.queue': 'Queue',
+    'chip.controls': 'Controls',
+    'chip.locked': 'Locked',
+    'chip.unlocked': 'Unlocked',
+    'hint.f8': '<kbd>F8</kbd> Start/Stop',
+    'hint.f7': '<kbd>F7</kbd> Worship',
+    'hint.f6': '<kbd>F6</kbd> Translation',
+    'hint.f2': '<kbd>F2</kbd> Lock',
+    'hint.f1': '<kbd>F1</kbd> Help',
     'status.idle': 'Idle',
     'status.controlsLocked': 'Config controls locked',
     'status.controlsUnlocked': 'Config controls unlocked',
@@ -406,6 +433,18 @@ const UI_TEXT = {
     'help.f2': '<strong>F2</strong>：锁定/解锁配置',
     'help.f4': '<strong>F4</strong>：重置字幕 + 转录 + 队列',
     'help.f1': '<strong>F1</strong>：切换帮助面板',
+    'chip.mode': '模式',
+    'chip.worship': '敬拜',
+    'chip.translation': '翻译',
+    'chip.queue': '队列',
+    'chip.controls': '控制',
+    'chip.locked': '已锁定',
+    'chip.unlocked': '未锁定',
+    'hint.f8': '<kbd>F8</kbd> 开始/停止',
+    'hint.f7': '<kbd>F7</kbd> 敬拜',
+    'hint.f6': '<kbd>F6</kbd> 翻译',
+    'hint.f2': '<kbd>F2</kbd> 锁定',
+    'hint.f1': '<kbd>F1</kbd> 帮助',
     'status.idle': '空闲',
     'status.controlsLocked': '配置控件已锁定',
     'status.controlsUnlocked': '配置控件已解锁',
@@ -796,6 +835,16 @@ function updateModeSummary() {
   });
   modeSummaryEl.textContent = summaryText;
   liveModeSummaryEl.textContent = summaryText;
+  chipModeValueEl.textContent = running ? t('mode.running') : t('mode.stopped');
+  chipModeValueEl.dataset.state = running ? 'running' : 'stopped';
+  chipWorshipValueEl.textContent = worshipMode ? t('mode.on') : t('mode.off');
+  chipWorshipValueEl.dataset.state = worshipMode ? 'on' : 'off';
+  chipPresentationValueEl.textContent = presentationMode ? t('mode.on') : t('mode.off');
+  chipPresentationValueEl.dataset.state = presentationMode ? 'on' : 'off';
+  chipQueueValueEl.textContent = queueText;
+  chipQueueValueEl.dataset.state = segmentQueueRunning ? 'processing' : 'idle';
+  chipLockValueEl.textContent = controlsLocked ? t('chip.locked') : t('chip.unlocked');
+  chipLockValueEl.dataset.state = controlsLocked ? 'locked' : 'unlocked';
   syncOutputWindow();
 }
 
@@ -1182,6 +1231,16 @@ function applyUiLanguage() {
   helpF2El.innerHTML = t('help.f2');
   helpF4El.innerHTML = t('help.f4');
   helpF1El.innerHTML = t('help.f1');
+  chipModeLabelEl.textContent = t('chip.mode');
+  chipWorshipLabelEl.textContent = t('chip.worship');
+  chipPresentationLabelEl.textContent = t('chip.translation');
+  chipQueueLabelEl.textContent = t('chip.queue');
+  chipLockLabelEl.textContent = t('chip.controls');
+  hintF8El.innerHTML = t('hint.f8');
+  hintF7El.innerHTML = t('hint.f7');
+  hintF6El.innerHTML = t('hint.f6');
+  hintF2El.innerHTML = t('hint.f2');
+  hintF1El.innerHTML = t('hint.f1');
 
   Array.from(uiLanguageSelect.options).forEach((option: any) => {
     option.textContent = t(`ui.${option.value}`);

@@ -10,6 +10,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
 - One-click translation mode for subtitle-focused display (`F6`)
+- Header control hub shows live state chips (mode/worship/translation/queue/control-lock) and always-visible hotkey pills
 - Built-in help overlay for operators (button)
 - Hover hints on each button to explain what it does
 - Export transcript to a text file at any time
@@ -89,6 +90,8 @@ npm run typecheck
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/worship/translation-mode state.
 - The mode summary also shows current queue size so operators can watch backlog.
+- A compact state-chip row near the mode summary shows at-a-glance run/worship/translation/queue/control-lock state without opening help or settings.
+- A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
