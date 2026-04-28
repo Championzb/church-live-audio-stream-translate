@@ -1011,6 +1011,7 @@ body.presentation-mode .caption-card {
   display: grid;
   grid-template-rows: auto auto 1fr;
   align-items: start;
+  min-height: 0;
 }
 
 body.presentation-mode .caption-card h2 {
@@ -1041,6 +1042,7 @@ body.presentation-mode .panel {
   max-height: none;
   overscroll-behavior: contain;
   touch-action: pan-y;
+  min-height: 0;
 }
 
 body.presentation-mode .script-reference-card h2 {
