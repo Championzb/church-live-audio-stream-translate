@@ -48,6 +48,9 @@ const toggleLockControlsButton = document.getElementById('toggleLockControls') a
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
 const testAudioFileButton = document.getElementById('testAudioFile') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
+const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
+const referenceScriptInput = document.getElementById('referenceScriptInput') as any;
+const clearReferenceScriptButton = document.getElementById('clearReferenceScript') as any;
 const clearPanelsButton = document.getElementById('clearPanels') as any;
 const clearTranscriptButton = document.getElementById('clearTranscript') as any;
 const resetSessionButton = document.getElementById('resetSession') as any;
@@ -61,6 +64,10 @@ const chinesePanel = document.getElementById('chinesePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
 const englishLiveEl = document.getElementById('englishLive') as any;
 const chineseLiveEl = document.getElementById('chineseLive') as any;
+const scriptReferenceCardEl = document.getElementById('scriptReferenceCard') as any;
+const referenceScriptHeadingEl = document.getElementById('referenceScriptHeading') as any;
+const referenceScriptMetaEl = document.getElementById('referenceScriptMeta') as any;
+const referenceScriptContentEl = document.getElementById('referenceScriptContent') as any;
 const vadThresholdInput = document.getElementById('vadThreshold') as any;
 const vadValueEl = document.getElementById('vadValue') as any;
 const silenceMsInput = document.getElementById('silenceMs') as any;
@@ -161,6 +168,8 @@ const UI_TEXT = {
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Output Window',
     'button.testAudioFile': 'Test Audio File',
+    'button.uploadScript': 'Upload Script',
+    'button.clearScript': 'Clear Script',
     'button.clearCaptions': 'Clear Captions',
     'button.clearTranscript': 'Clear Transcript',
     'button.resetSession': 'Reset Session (F4)',
@@ -175,6 +184,7 @@ const UI_TEXT = {
     'button.back': 'Back',
     'heading.settings': 'Settings',
     'heading.appearance': 'Appearance',
+    'heading.referenceScript': 'Reference Script',
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
@@ -192,6 +202,8 @@ const UI_TEXT = {
     'tooltip.lockOff': 'Lock configuration controls to avoid accidental changes (F2).',
     'tooltip.outputWindow': 'Open or close the subtitle-only output window for a second screen.',
     'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
+    'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in presentation mode.',
+    'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
     'tooltip.clearCaptions': 'Clear current English and output caption panels only.',
     'tooltip.clearTranscript': 'Clear transcript memory without clearing current caption panels.',
     'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
@@ -220,6 +232,10 @@ const UI_TEXT = {
     'status.testingFile': 'Testing file: {name}',
     'status.fileTestFinished': 'Finished file test: {name}',
     'status.fileTestFailed': 'File test failed: {error}',
+    'status.scriptLoaded': 'Reference script loaded: {lines} lines',
+    'status.scriptLoadFailed': 'Failed to load script file: {error}',
+    'status.scriptCleared': 'Reference script cleared',
+    'status.noScriptToClear': 'No reference script is loaded',
     'status.testAudioPlaybackBlocked': 'Test audio playback was blocked by the browser. Streaming test still continues.',
     'status.audioDeviceAccessError': 'Audio device access error: {error}',
     'status.running': 'Running: capturing {source} audio and generating English + {target} captions',
@@ -256,6 +272,9 @@ const UI_TEXT = {
     'status.listening': 'Listening...',
     'status.translating': 'Translating...',
     'status.warning': 'Warning: {warning}',
+    'script.empty': 'No reference script loaded. Upload target-language script before translation for quick reference in presentation mode.',
+    'script.metaNone': 'No reference script loaded.',
+    'script.metaLoaded': 'Loaded script: {lines} lines',
     'mode.running': 'running',
     'mode.stopped': 'stopped',
     'mode.on': 'on',
@@ -310,6 +329,8 @@ const UI_TEXT = {
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '输出窗口',
     'button.testAudioFile': '测试音频文件',
+    'button.uploadScript': '上传讲稿',
+    'button.clearScript': '清除讲稿',
     'button.clearCaptions': '清除字幕',
     'button.clearTranscript': '清除转录',
     'button.resetSession': '重置会话（F4）',
@@ -324,6 +345,7 @@ const UI_TEXT = {
     'button.back': '返回',
     'heading.settings': '设置',
     'heading.appearance': '外观',
+    'heading.referenceScript': '参考讲稿',
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
@@ -341,6 +363,8 @@ const UI_TEXT = {
     'tooltip.lockOff': '锁定配置控件，避免误操作（F2）。',
     'tooltip.outputWindow': '打开或关闭仅字幕输出窗口（用于第二屏）。',
     'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
+    'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在投屏模式中滚动查看。',
+    'tooltip.clearScript': '清除当前会话中的参考讲稿。',
     'tooltip.clearCaptions': '仅清空当前英文和输出字幕面板。',
     'tooltip.clearTranscript': '清空转录内存，但不清空当前字幕面板。',
     'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
@@ -369,6 +393,10 @@ const UI_TEXT = {
     'status.testingFile': '正在测试文件：{name}',
     'status.fileTestFinished': '文件测试完成：{name}',
     'status.fileTestFailed': '文件测试失败：{error}',
+    'status.scriptLoaded': '参考讲稿已加载：{lines} 行',
+    'status.scriptLoadFailed': '加载讲稿文件失败：{error}',
+    'status.scriptCleared': '参考讲稿已清除',
+    'status.noScriptToClear': '当前没有已加载的参考讲稿',
     'status.testAudioPlaybackBlocked': '浏览器阻止了测试音频播放，流式测试仍会继续。',
     'status.audioDeviceAccessError': '音频设备访问错误：{error}',
     'status.running': '运行中：采集{source}音频，生成英文与{target}字幕',
@@ -405,6 +433,9 @@ const UI_TEXT = {
     'status.listening': '正在聆听...',
     'status.translating': '正在翻译...',
     'status.warning': '警告：{warning}',
+    'script.empty': '尚未加载参考讲稿。建议在翻译前上传目标语言讲稿，便于投屏模式中随时查看。',
+    'script.metaNone': '尚未加载参考讲稿。',
+    'script.metaLoaded': '已加载讲稿：{lines} 行',
     'mode.running': '运行中',
     'mode.stopped': '已停止',
     'mode.on': '开',
@@ -454,6 +485,7 @@ const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 const SUPPORTED_UI_THEMES = ['broadcast-clean', 'paper-light', 'minimal-mono'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
 const UI_THEME_STORAGE_KEY = 'church-ui-theme';
+const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
 const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
 let uiLanguage = 'en';
 let mainInitialized = false;
@@ -468,6 +500,7 @@ let cachedRealCostCurrency = 'USD';
 let cachedRealCostError = '';
 let hasConfiguredApiKey = false;
 let hasConfiguredAdminKey = false;
+let referenceScriptText = '';
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -506,6 +539,35 @@ function t(key, values = {}) {
 function languageName(code) {
   const labels = LANGUAGE_DISPLAY[uiLanguage] || LANGUAGE_DISPLAY.en;
   return labels[code] || code;
+}
+
+function countScriptLines(content) {
+  if (!content) return 0;
+  return content.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
+}
+
+function updateReferenceScriptUi() {
+  const hasScript = Boolean(referenceScriptText);
+  document.body.classList.toggle('has-reference-script', hasScript);
+  scriptReferenceCardEl.classList.toggle('has-script', hasScript);
+  referenceScriptContentEl.textContent = hasScript ? referenceScriptText : t('script.empty');
+  referenceScriptMetaEl.textContent = hasScript
+    ? t('script.metaLoaded', { lines: countScriptLines(referenceScriptText) })
+    : t('script.metaNone');
+  clearReferenceScriptButton.disabled = controlsLocked || !hasScript;
+}
+
+function setReferenceScript(rawScriptText, options: { persist?: boolean } = {}) {
+  const normalized = String(rawScriptText || '').replace(/\r\n/g, '\n').trim();
+  referenceScriptText = normalized;
+  if (options.persist !== false) {
+    if (normalized) {
+      localStorage.setItem(REFERENCE_SCRIPT_STORAGE_KEY, normalized);
+    } else {
+      localStorage.removeItem(REFERENCE_SCRIPT_STORAGE_KEY);
+    }
+  }
+  updateReferenceScriptUi();
 }
 
 function setStatus(text) {
@@ -718,6 +780,7 @@ function setControlsLocked(nextLocked) {
     targetLanguageSelect,
     refreshDevicesButton,
     testAudioFileButton,
+    uploadReferenceScriptButton,
     vadThresholdInput,
     silenceMsInput,
     maxSegmentMsInput,
@@ -733,6 +796,7 @@ function setControlsLocked(nextLocked) {
   });
 
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
+  updateReferenceScriptUi();
   setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
   updateModeSummary();
 }
@@ -767,6 +831,8 @@ function setStaticButtonTooltips() {
   toggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   testAudioFileButton.title = t('tooltip.testAudioFile');
+  uploadReferenceScriptButton.title = t('tooltip.uploadScript');
+  clearReferenceScriptButton.title = t('tooltip.clearScript');
   clearPanelsButton.title = t('tooltip.clearCaptions');
   clearTranscriptButton.title = t('tooltip.clearTranscript');
   resetSessionButton.title = t('tooltip.resetSession');
@@ -1006,10 +1072,13 @@ function applyUiLanguage() {
   backToLivePageButton.textContent = t('button.back');
   settingsHeadingEl.textContent = t('heading.settings');
   appearanceSummaryEl.textContent = t('heading.appearance');
+  referenceScriptHeadingEl.textContent = t('heading.referenceScript');
   refreshDevicesButton.textContent = t('button.refresh');
   toggleHelpButton.textContent = t('button.help');
   toggleOutputWindowButton.textContent = t('button.outputWindow');
   testAudioFileButton.textContent = t('button.testAudioFile');
+  uploadReferenceScriptButton.textContent = t('button.uploadScript');
+  clearReferenceScriptButton.textContent = t('button.clearScript');
   clearPanelsButton.textContent = t('button.clearCaptions');
   clearTranscriptButton.textContent = t('button.clearTranscript');
   resetSessionButton.textContent = t('button.resetSession');
@@ -1054,6 +1123,7 @@ function applyUiLanguage() {
   updateCostSummary();
   syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
   setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
+  updateReferenceScriptUi();
 
 }
 
@@ -1258,6 +1328,20 @@ async function processTestAudioFile(file) {
     URL.revokeObjectURL(playbackUrl);
     testStreamActive = false;
     testAudioFileInput.value = '';
+  }
+}
+
+async function processReferenceScriptFile(file) {
+  if (!file) return;
+  try {
+    const content = await file.text();
+    setReferenceScript(content);
+    await syncTranslationConfig();
+    setStatusKey('status.scriptLoaded', { lines: countScriptLines(referenceScriptText) });
+  } catch (err) {
+    setStatusKey('status.scriptLoadFailed', { error: (err && err.message) || String(err) });
+  } finally {
+    referenceScriptInput.value = '';
   }
 }
 
@@ -1555,6 +1639,7 @@ async function syncTranslationConfig() {
   await invoke('set_translation_config', {
     config: {
       glossary,
+      reference_script: referenceScriptText,
       target_language: targetLanguageSelect.value || 'zh-hans',
       source_language: sourceLanguageSelect.value || 'korean'
     }
@@ -1583,6 +1668,7 @@ async function ensureMainInitialized() {
   if (savedGlossary) {
     glossaryInput.value = savedGlossary;
   }
+  setReferenceScript(localStorage.getItem(REFERENCE_SCRIPT_STORAGE_KEY) || '', { persist: false });
 
   const savedSourceLanguage = localStorage.getItem('church-source-language');
   if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean' || savedSourceLanguage === 'japanese' || savedSourceLanguage === 'chinese') {
@@ -1878,10 +1964,30 @@ testAudioFileButton.addEventListener('click', () => {
   testAudioFileInput.click();
 });
 
+uploadReferenceScriptButton.addEventListener('click', () => {
+  referenceScriptInput.click();
+});
+
+clearReferenceScriptButton.addEventListener('click', async () => {
+  if (!referenceScriptText) {
+    setStatusKey('status.noScriptToClear');
+    return;
+  }
+  setReferenceScript('');
+  await syncTranslationConfig();
+  setStatusKey('status.scriptCleared');
+});
+
 testAudioFileInput.addEventListener('change', async (event) => {
   const input = event.target as HTMLInputElement | null;
   const file = input?.files?.[0];
   await processTestAudioFile(file);
+});
+
+referenceScriptInput.addEventListener('change', async (event) => {
+  const input = event.target as HTMLInputElement | null;
+  const file = input?.files?.[0];
+  await processReferenceScriptFile(file);
 });
 
 closeHelpButton.addEventListener('click', () => {

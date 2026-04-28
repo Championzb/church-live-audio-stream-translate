@@ -98,6 +98,9 @@
                 <div class="row actions-row secondary-action-row">
                   <button id="testAudioFile">Test Audio File</button>
                   <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
+                  <button id="uploadReferenceScript">Upload Script</button>
+                  <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
+                  <button id="clearReferenceScript">Clear Script</button>
                   <button id="clearPanels">Clear Captions</button>
                   <button id="clearTranscript">Clear Transcript</button>
                   <button id="resetSession">Reset Session (F4)</button>
@@ -118,6 +121,13 @@
               <h2 id="translatedHeading">Simplified Chinese</h2>
               <div id="chineseLive" class="live-line"></div>
               <div id="chinesePanel" class="panel"></div>
+            </article>
+            <article id="scriptReferenceCard" class="caption-card script-reference-card">
+              <h2 id="referenceScriptHeading">Reference Script</h2>
+              <div id="referenceScriptMeta" class="live-line status">No reference script loaded.</div>
+              <div class="panel script-panel">
+                <pre id="referenceScriptContent" class="script-content"></pre>
+              </div>
             </article>
           </section>
         </section>

@@ -20,6 +20,7 @@ struct AppState {
     api_key: Mutex<Option<String>>,
     admin_api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
+    reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
     running: AtomicBool,
@@ -41,6 +42,8 @@ struct SegmentResult {
 #[derive(Deserialize)]
 struct TranslationConfig {
     glossary: Option<String>,
+    #[serde(alias = "referenceScript")]
+    reference_script: Option<String>,
     #[serde(alias = "targetLanguage")]
     target_language: Option<String>,
     #[serde(alias = "sourceLanguage")]
@@ -200,10 +203,22 @@ fn log_project_costs(message: &str) {
 }
 
 fn truncate_for_log(value: &str, max_chars: usize) -> String {
+  let mut out = String::new();
+  for (idx, ch) in value.chars().enumerate() {
+        if idx >= max_chars {
+            out.push_str("...");
+            break;
+        }
+        out.push(ch);
+    }
+  out
+}
+
+fn truncate_for_prompt(value: &str, max_chars: usize) -> String {
     let mut out = String::new();
     for (idx, ch) in value.chars().enumerate() {
         if idx >= max_chars {
-            out.push_str("...");
+            out.push_str("\n...[script truncated for prompt length]");
             break;
         }
         out.push(ch);
@@ -642,6 +657,7 @@ fn set_translation_config(
     state: tauri::State<'_, AppState>,
 ) -> Result<OkResponse, String> {
     let glossary = config.glossary.unwrap_or_default().trim().to_string();
+    let reference_script = config.reference_script.unwrap_or_default().trim().to_string();
     let target_language = match config.target_language.as_deref() {
         Some("zh-hans") => "zh-hans".to_string(),
         Some("zh-hant") => "zh-hant".to_string(),
@@ -671,6 +687,14 @@ fn set_translation_config(
             .lock()
             .map_err(|_| "Failed to lock target language state".to_string())?;
         *target_language_guard = target_language;
+    }
+
+    {
+        let mut reference_script_guard = state
+            .reference_script
+            .lock()
+            .map_err(|_| "Failed to lock reference script state".to_string())?;
+        *reference_script_guard = reference_script;
     }
 
     {
@@ -887,6 +911,14 @@ async fn process_segment(
             .lock()
             .map_err(|_| "Failed to lock source language state".to_string())?;
         source_language_guard.clone()
+    };
+
+    let reference_script = {
+        let reference_script_guard = state
+            .reference_script
+            .lock()
+            .map_err(|_| "Failed to lock reference script state".to_string())?;
+        reference_script_guard.clone()
     };
 
     let audio_bytes = base64::engine::general_purpose::STANDARD
@@ -1202,8 +1234,17 @@ async fn process_segment(
         format!("\nGlossary and preferred translations:\n{glossary}")
     };
 
+    let reference_script_prompt = if reference_script.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "\nReference target-language sermon script (soft guide, may differ from live speech):\n{}\nUse this only as context. Follow the spoken English meaning first.",
+            truncate_for_prompt(&reference_script, 6000)
+        )
+    };
+
     let system_prompt = format!(
-        "Translate church sermon English into natural {target_label}.\nKeep Bible references accurate.\nPreserve names and church terms.\nReturn only the translated text.{glossary_prompt}"
+        "Translate church sermon English into natural {target_label}.\nKeep Bible references accurate.\nPreserve names and church terms.\nReturn only the translated text.{glossary_prompt}{reference_script_prompt}"
     );
 
     let chinese_request_body = serde_json::json!({
@@ -1272,7 +1313,7 @@ async fn process_segment(
                                 {
                                     "type": "input_text",
                                     "text": format!(
-                                        "Translate the user's English sermon text into {target_label}. Output in {target_label} only (except proper names and Bible references)."
+                                        "Translate the user's English sermon text into {target_label}. Output in {target_label} only (except proper names and Bible references).{reference_script_prompt}"
                                     )
                                 }
                             ]
@@ -1508,6 +1549,7 @@ pub fn run() {
             api_key: Mutex::new(None),
             admin_api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
+            reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
             running: AtomicBool::new(false),

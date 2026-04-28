@@ -21,6 +21,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Operator lock mode to prevent accidental config changes (`F2`)
 - Live cost estimator (session and rough monthly estimate)
 - File test mode for quick validation without live microphone input
+- Upload target-language reference script before translation (used as soft context and shown in presentation mode)
 
 ## Tech choices
 
@@ -63,16 +64,18 @@ npm run typecheck
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 6. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Click `Start (F8)`.
-8. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
-9. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
-10. Use `Export Transcript` if you want a saved copy after service.
-11. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
-12. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
-13. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-14. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
-15. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-16. Use `Test Audio File` to run one audio file through the same translation pipeline.
+7. Use `Upload Script` (optional) to load a target-language sermon script (`.txt/.md/.rtf`) before starting.
+8. Click `Start (F8)`.
+9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
+10. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
+11. In presentation mode, the reference script appears as a third scrollable panel when a script is loaded.
+12. Use `Export Transcript` if you want a saved copy after service.
+13. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
+14. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+15. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+16. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+17. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+18. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
@@ -98,6 +101,7 @@ npm run typecheck
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern glass-style visual refresh (soft surfaces, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
+- Uploaded reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll pinned to the latest bottom lines during translation (including presentation mode).
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
