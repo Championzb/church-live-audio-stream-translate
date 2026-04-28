@@ -3,7 +3,7 @@
 Desktop subtitle app for Windows and macOS using Tauri.
 
 - Korean speech in
-- English transcription is still processed internally, while the main page now focuses on target-language captions
+- English transcription is still processed internally; the main page focuses on target-language captions, while Translation Mode shows both English and target-language panels
 - Configurable output language captions shown in parallel
 - Source language switch supports Korean, English, Japanese, and Chinese sermons
 - Configurable UI language (English / Simplified Chinese)
@@ -67,7 +67,7 @@ npm run typecheck
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 10. Use `Translation Mode (F6)` for a subtitle-focused layout.
-11. In translation mode, the reference script appears as a side panel when a script is loaded.
+11. In translation mode, both English and target-language panels are shown, and the reference script appears as a side panel when a script is loaded.
 12. Use `Export Transcript` if you want a saved copy after service.
 13. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
 14. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.

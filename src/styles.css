@@ -988,16 +988,21 @@ body.presentation-mode .app-shell {
 }
 
 body.presentation-mode .captions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   align-items: start;
 }
 
 body.presentation-mode.has-reference-script .captions {
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 0.85fr);
 }
 
 body.presentation-mode.has-reference-script .script-reference-card {
   display: grid;
+}
+
+body.presentation-mode .transcription-hidden {
+  display: flex !important;
 }
 
 body.presentation-mode .caption-card {
