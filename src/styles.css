@@ -354,9 +354,24 @@ body {
 }
 
 .audio-input-group {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 6px;
+}
+
+.audio-input-heading {
+  grid-column: 1 / 2;
+}
+
+.audio-input-group #refreshDevices {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.audio-input-group #audioInput {
+  grid-column: 1 / 3;
+  grid-row: 2 / 3;
 }
 
 #maskedApiKey {
