@@ -366,6 +366,13 @@ body {
   font-size: 0.98rem;
 }
 
+#toggleOutputWindow.icon-btn {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  font-size: 0.9rem;
+}
+
 #refreshDevices.icon-btn:hover {
   background: rgba(148, 163, 184, 0.14);
   box-shadow: none;

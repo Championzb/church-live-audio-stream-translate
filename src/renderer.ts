@@ -1153,6 +1153,7 @@ function applyUiLanguage() {
   saveMainApiKeyButton.textContent = t('button.saveKey');
   cancelMainApiKeyButton.textContent = t('button.cancel');
   setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
+  setIconButton(toggleOutputWindowButton, '▣', t('button.outputWindow'));
   setIconButton(backToLivePageButton, '←', t('button.back'));
   setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
   settingsHeadingEl.textContent = t('heading.settings');
@@ -1161,7 +1162,6 @@ function applyUiLanguage() {
   setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
   toggleHelpButton.textContent = t('button.help');
   liveToggleHelpButton.textContent = t('button.help');
-  toggleOutputWindowButton.textContent = t('button.outputWindow');
   testAudioFileButton.textContent = t('button.testAudioFile');
   openScriptManagerButton.textContent = t('button.scriptManager');
   liveOpenScriptManagerButton.textContent = t('button.scriptManager');
