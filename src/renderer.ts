@@ -48,10 +48,15 @@ const toggleLockControlsButton = document.getElementById('toggleLockControls') a
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
 const testAudioFileButton = document.getElementById('testAudioFile') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
+const openScriptManagerButton = document.getElementById('openScriptManager') as any;
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
 const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript') as any;
 const referenceScriptInput = document.getElementById('referenceScriptInput') as any;
 const clearReferenceScriptButton = document.getElementById('clearReferenceScript') as any;
+const scriptModal = document.getElementById('scriptModal') as any;
+const scriptModalTitleEl = document.getElementById('scriptModalTitle') as any;
+const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as any;
+const closeScriptModalButton = document.getElementById('closeScriptModal') as any;
 const clearPanelsButton = document.getElementById('clearPanels') as any;
 const clearTranscriptButton = document.getElementById('clearTranscript') as any;
 const resetSessionButton = document.getElementById('resetSession') as any;
@@ -169,6 +174,7 @@ const UI_TEXT = {
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Output Window',
     'button.testAudioFile': 'Test Audio File',
+    'button.scriptManager': 'Script',
     'button.uploadScript': 'Upload Script',
     'button.pasteScript': 'Paste Script',
     'button.clearScript': 'Clear Script',
@@ -191,6 +197,8 @@ const UI_TEXT = {
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
     'modal.apiKeySubtitle': 'Enter API/Admin key or update project ID, then save.',
+    'modal.scriptTitle': 'Reference Script',
+    'modal.scriptSubtitle': 'Upload or paste script text, then clear it when needed.',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
@@ -204,6 +212,7 @@ const UI_TEXT = {
     'tooltip.lockOff': 'Lock configuration controls to avoid accidental changes (F2).',
     'tooltip.outputWindow': 'Open or close the subtitle-only output window for a second screen.',
     'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
+    'tooltip.scriptManager': 'Open script tools (upload, paste, clear).',
     'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in presentation mode.',
     'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
     'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
@@ -335,6 +344,7 @@ const UI_TEXT = {
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '输出窗口',
     'button.testAudioFile': '测试音频文件',
+    'button.scriptManager': '讲稿',
     'button.uploadScript': '上传讲稿',
     'button.pasteScript': '粘贴讲稿',
     'button.clearScript': '清除讲稿',
@@ -357,6 +367,8 @@ const UI_TEXT = {
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
     'modal.apiKeySubtitle': '输入 API/管理员密钥或更新 Project ID，然后保存。',
+    'modal.scriptTitle': '参考讲稿',
+    'modal.scriptSubtitle': '可上传或从剪贴板粘贴讲稿文本，需要时可清除。',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
@@ -370,6 +382,7 @@ const UI_TEXT = {
     'tooltip.lockOff': '锁定配置控件，避免误操作（F2）。',
     'tooltip.outputWindow': '打开或关闭仅字幕输出窗口（用于第二屏）。',
     'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
+    'tooltip.scriptManager': '打开讲稿工具（上传、粘贴、清除）。',
     'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在投屏模式中滚动查看。',
     'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
     'tooltip.clearScript': '清除当前会话中的参考讲稿。',
@@ -710,6 +723,14 @@ function setApiKeyModalVisible(nextVisible) {
   }
 }
 
+function setScriptModalVisible(nextVisible) {
+  const visible = Boolean(nextVisible);
+  scriptModal.classList.toggle('hidden', !visible);
+  if (visible) {
+    closeScriptModalButton.focus();
+  }
+}
+
 function sttRatePerMinute() {
   if (sourceLanguageSelect.value === 'korean') {
     return 0.006;
@@ -791,6 +812,7 @@ function setControlsLocked(nextLocked) {
     targetLanguageSelect,
     refreshDevicesButton,
     testAudioFileButton,
+    openScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
     vadThresholdInput,
@@ -843,6 +865,7 @@ function setStaticButtonTooltips() {
   toggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   testAudioFileButton.title = t('tooltip.testAudioFile');
+  openScriptManagerButton.title = t('tooltip.scriptManager');
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
@@ -855,6 +878,7 @@ function setStaticButtonTooltips() {
   importGlossaryButton.title = t('tooltip.import');
   exportGlossaryButton.title = t('tooltip.export');
   closeHelpButton.title = t('tooltip.close');
+  closeScriptModalButton.title = t('tooltip.close');
   copyMainApiKeyButton.title = t('tooltip.copyKey');
   copyMainAdminApiKeyButton.title = t('tooltip.copyKey');
 }
@@ -1090,6 +1114,7 @@ function applyUiLanguage() {
   toggleHelpButton.textContent = t('button.help');
   toggleOutputWindowButton.textContent = t('button.outputWindow');
   testAudioFileButton.textContent = t('button.testAudioFile');
+  openScriptManagerButton.textContent = t('button.scriptManager');
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
   pasteReferenceScriptButton.textContent = t('button.pasteScript');
   clearReferenceScriptButton.textContent = t('button.clearScript');
@@ -1102,8 +1127,11 @@ function applyUiLanguage() {
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');
   closeHelpButton.textContent = t('button.close');
+  closeScriptModalButton.textContent = t('button.close');
   apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
   apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
+  scriptModalTitleEl.textContent = t('modal.scriptTitle');
+  scriptModalSubtitleEl.textContent = t('modal.scriptSubtitle');
   labelMainApiKeyEl.textContent = t('label.apiKey');
   labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
   labelMainProjectIdEl.textContent = t('label.projectId');
@@ -1993,6 +2021,10 @@ testAudioFileButton.addEventListener('click', () => {
   testAudioFileInput.click();
 });
 
+openScriptManagerButton.addEventListener('click', () => {
+  setScriptModalVisible(true);
+});
+
 uploadReferenceScriptButton.addEventListener('click', () => {
   referenceScriptInput.click();
 });
@@ -2009,6 +2041,16 @@ clearReferenceScriptButton.addEventListener('click', async () => {
   setReferenceScript('');
   await syncTranslationConfig();
   setStatusKey('status.scriptCleared');
+});
+
+closeScriptModalButton.addEventListener('click', () => {
+  setScriptModalVisible(false);
+});
+
+scriptModal.addEventListener('click', (event) => {
+  if (event.target === scriptModal) {
+    setScriptModalVisible(false);
+  }
 });
 
 testAudioFileInput.addEventListener('change', async (event) => {
@@ -2139,6 +2181,10 @@ async function boot() {
 window.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && !apiKeyModal.classList.contains('hidden')) {
     setApiKeyModalVisible(false);
+    return;
+  }
+  if (event.key === 'Escape' && !scriptModal.classList.contains('hidden')) {
+    setScriptModalVisible(false);
     return;
   }
   if (event.key === 'Escape' && presentationMode) {

@@ -64,7 +64,7 @@ npm run typecheck
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 6. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Use `Upload Script` or `Paste Script` (optional) to load a target-language sermon script before starting.
+7. Use `Script` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 10. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.

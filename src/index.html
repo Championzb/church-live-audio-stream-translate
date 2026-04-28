@@ -98,10 +98,8 @@
                 <div class="row actions-row secondary-action-row">
                   <button id="testAudioFile">Test Audio File</button>
                   <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
-                  <button id="uploadReferenceScript">Upload Script</button>
-                  <button id="pasteReferenceScript">Paste Script</button>
+                  <button id="openScriptManager">Script</button>
                   <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
-                  <button id="clearReferenceScript">Clear Script</button>
                   <button id="clearPanels">Clear Captions</button>
                   <button id="clearTranscript">Clear Transcript</button>
                   <button id="resetSession">Reset Session (F4)</button>
@@ -227,6 +225,19 @@
         <div class="row">
           <button id="saveMainApiKey">Save Key</button>
           <button id="cancelMainApiKey">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="scriptModal" class="overlay hidden">
+      <div class="overlay-card compact-overlay-card">
+        <h3 id="scriptModalTitle">Reference Script</h3>
+        <p id="scriptModalSubtitle">Upload or paste script text, then clear it when needed.</p>
+        <div class="row">
+          <button id="uploadReferenceScript">Upload Script</button>
+          <button id="pasteReferenceScript">Paste Script</button>
+          <button id="clearReferenceScript">Clear Script</button>
+          <button id="closeScriptModal">Close</button>
         </div>
       </div>
     </div>
