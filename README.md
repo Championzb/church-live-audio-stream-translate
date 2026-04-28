@@ -67,13 +67,14 @@ npm run typecheck
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 10. Use `Translation Mode (F6)` for a subtitle-focused layout.
-11. In translation mode, both English and target-language panels are shown, and the reference script appears as a side panel when a script is loaded.
-12. Use `Export Transcript` if you want a saved copy after service.
-13. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
-14. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-15. Use `Projector Window` to open a second subtitle-only display for projector/monitor output.
-16. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-17. Use `Test Audio File` to run one audio file through the same translation pipeline.
+11. In translation mode, use the live bar back icon (`←`) or `Esc` to return quickly.
+12. In translation mode, both English and target-language panels are shown, and the reference script appears as a side panel when a script is loaded.
+13. Use `Export Transcript` if you want a saved copy after service.
+14. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+15. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+16. Use `Projector Window` to open a second subtitle-only display for projector/monitor output.
+17. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+18. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
@@ -96,6 +97,7 @@ npm run typecheck
 - Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Worship, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
+- Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.

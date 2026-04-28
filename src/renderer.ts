@@ -34,6 +34,7 @@ const settingsHeadingEl = document.getElementById('settingsHeading') as any;
 const appearanceSummaryEl = document.getElementById('appearanceSummary') as any;
 const liveWorkspaceEl = document.getElementById('liveWorkspace') as any;
 const translationLiveBarEl = document.getElementById('translationLiveBar') as any;
+const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode') as any;
 const liveToggleRunButton = document.getElementById('liveToggleRun') as any;
 const liveOpenScriptManagerButton = document.getElementById('liveOpenScriptManager') as any;
 const liveToggleWorshipModeButton = document.getElementById('liveToggleWorshipMode') as any;
@@ -211,7 +212,7 @@ const UI_TEXT = {
     'tooltip.stop': 'Stop live capture and translation (F8).',
     'tooltip.worshipOn': 'Worship mode is ON: translation is paused for songs. Click to resume translation (F7).',
     'tooltip.worshipOff': 'Worship mode is OFF: translation is active. Click to pause translation for songs (F7).',
-    'tooltip.presentationOn': 'Exit translation mode and return to standard layout (F6).',
+    'tooltip.presentationOn': 'Exit translation mode and return to standard layout (F6 or Esc).',
     'tooltip.presentationOff': 'Enter translation mode with a larger subtitle-focused layout (F6).',
     'tooltip.help': 'Show or hide the hotkey/help overlay.',
     'tooltip.lockOn': 'Unlock configuration controls to allow editing (F2).',
@@ -377,7 +378,7 @@ const UI_TEXT = {
     'tooltip.stop': '停止实时采集和翻译（F8）。',
     'tooltip.worshipOn': '敬拜模式已开启：翻译暂停（适合诗歌时段）。点击可恢复翻译（F7）。',
     'tooltip.worshipOff': '敬拜模式已关闭：翻译进行中。点击可在诗歌时段暂停翻译（F7）。',
-    'tooltip.presentationOn': '退出翻译模式并返回标准布局（F6）。',
+    'tooltip.presentationOn': '退出翻译模式并返回标准布局（F6 或 Esc）。',
     'tooltip.presentationOff': '进入翻译模式并使用更大的字幕布局（F6）。',
     'tooltip.help': '显示或隐藏快捷键帮助面板。',
     'tooltip.lockOn': '解锁配置控件以允许修改（F2）。',
@@ -881,6 +882,7 @@ function setStaticButtonTooltips() {
   saveKeyButton.title = t('tooltip.saveKey');
   openSettingsPageButton.title = t('tooltip.settings');
   backToLivePageButton.title = t('tooltip.back');
+  liveExitTranslationModeButton.title = t('tooltip.presentationOn');
   refreshDevicesButton.title = t('tooltip.refresh');
   toggleHelpButton.title = t('tooltip.help');
   liveToggleHelpButton.title = t('tooltip.help');
@@ -1125,6 +1127,7 @@ function applyUiLanguage() {
   cancelMainApiKeyButton.textContent = t('button.cancel');
   setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
   setIconButton(backToLivePageButton, '←', t('button.back'));
+  setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
   settingsHeadingEl.textContent = t('heading.settings');
   appearanceSummaryEl.textContent = t('heading.appearance');
   referenceScriptHeadingEl.textContent = t('heading.referenceScript');
@@ -2026,6 +2029,10 @@ liveToggleWorshipModeButton.addEventListener('click', () => {
 
 togglePresentationButton.addEventListener('click', () => {
   togglePresentationModeDebounced();
+});
+
+liveExitTranslationModeButton.addEventListener('click', () => {
+  setPresentationMode(false);
 });
 
 toggleHelpButton.addEventListener('click', () => {
