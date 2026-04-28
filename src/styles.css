@@ -987,14 +987,9 @@ body.presentation-mode .controls {
   display: none;
 }
 
-body.presentation-mode {
-  overflow: hidden;
-}
-
 body.presentation-mode .app-shell {
   max-width: none;
   padding: 10px;
-  height: 100vh;
 }
 
 body.presentation-mode .captions {
