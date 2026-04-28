@@ -101,7 +101,8 @@ npm run typecheck
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Worship, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
-- Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
+- Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
+- Utility actions (`Test Audio File`, `Reset Session`, `Export Transcript`) now live directly inside the main `Translation Mode` card instead of a separate panel.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - `Test Audio File` now shows a running state (`Testing Audio File...`) and disables itself while a file test is active.
