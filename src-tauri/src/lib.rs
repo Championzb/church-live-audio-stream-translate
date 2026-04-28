@@ -89,6 +89,7 @@ struct ProjectCostsResponse {
 #[derive(Deserialize)]
 struct CostsPageResponse {
     data: Vec<CostsBucket>,
+    next_page: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -703,59 +704,78 @@ async fn fetch_project_costs(
         .ok_or_else(|| "Failed to compute day start timestamp.".to_string())?;
 
     let client = Client::new();
-    let response = client
-        .get("https://api.openai.com/v1/organization/costs")
-        .bearer_auth(billing_key)
-        .query(&[
-            ("start_time", month_start.timestamp().to_string()),
-            ("end_time", now.timestamp().to_string()),
-            ("bucket_width", "1d".to_string()),
-            ("group_by", "project_id".to_string()),
-            ("project_ids", project_id.clone()),
-            ("limit", "180".to_string()),
-        ])
-        .send()
-        .await
-        .map_err(|e| format!("Project costs request failed: {e}"))?;
-
-    if !response.status().is_success() {
-        let status = response.status();
-        let body = response
-            .text()
-            .await
-            .unwrap_or_else(|_| "Unable to read error body".to_string());
-        return Err(format!(
-            "Project costs request failed ({status}): {body}"
-        ));
-    }
-
-    let costs_page = response
-        .json::<CostsPageResponse>()
-        .await
-        .map_err(|e| format!("Project costs response decode failed: {e}"))?;
-
     let mut month_cost = 0.0_f64;
     let mut today_cost = 0.0_f64;
     let mut currency = "usd".to_string();
     let today_start_ts = today_start.timestamp();
+    let mut page_cursor: Option<String> = None;
+    let mut page_count: usize = 0;
 
-    for bucket in costs_page.data {
-        let mut bucket_total = 0.0_f64;
-        for result in bucket.results {
-            if let Some(result_project_id) = result.project_id {
-                if result_project_id != project_id {
+    loop {
+        page_count += 1;
+        if page_count > 50 {
+            return Err("Project costs response pagination exceeded safe limit.".to_string());
+        }
+
+        let mut query: Vec<(&str, String)> = vec![
+            ("start_time", month_start.timestamp().to_string()),
+            ("end_time", now.timestamp().to_string()),
+            ("bucket_width", "1d".to_string()),
+            ("group_by", "project_id".to_string()),
+            ("project_ids[]", project_id.clone()),
+            ("limit", "180".to_string()),
+        ];
+        if let Some(cursor) = page_cursor.clone() {
+            query.push(("page", cursor));
+        }
+
+        let response = client
+            .get("https://api.openai.com/v1/organization/costs")
+            .bearer_auth(&billing_key)
+            .query(&query)
+            .send()
+            .await
+            .map_err(|e| format!("Project costs request failed: {e}"))?;
+
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Unable to read error body".to_string());
+            return Err(format!(
+                "Project costs request failed ({status}): {body}"
+            ));
+        }
+
+        let costs_page = response
+            .json::<CostsPageResponse>()
+            .await
+            .map_err(|e| format!("Project costs response decode failed: {e}"))?;
+
+        for bucket in costs_page.data {
+            let mut bucket_total = 0.0_f64;
+            for result in bucket.results {
+                if result.project_id.as_deref() != Some(project_id.as_str()) {
                     continue;
                 }
+                bucket_total += result.amount.value;
+                if !result.amount.currency.trim().is_empty() {
+                    currency = result.amount.currency.to_lowercase();
+                }
             }
-            bucket_total += result.amount.value;
-            if !result.amount.currency.trim().is_empty() {
-                currency = result.amount.currency.to_lowercase();
+
+            month_cost += bucket_total;
+            if bucket.start_time >= today_start_ts {
+                today_cost += bucket_total;
             }
         }
 
-        month_cost += bucket_total;
-        if bucket.start_time >= today_start_ts {
-            today_cost += bucket_total;
+        match costs_page.next_page {
+            Some(next) if !next.trim().is_empty() => {
+                page_cursor = Some(next);
+            }
+            _ => break,
         }
     }
 
