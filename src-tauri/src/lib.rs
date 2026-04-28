@@ -174,6 +174,22 @@ fn log_api_key_storage(message: &str) {
     log::info!("[api-key-storage] {message}");
 }
 
+fn log_project_costs(message: &str) {
+    log::info!("[project-costs] {message}");
+}
+
+fn truncate_for_log(value: &str, max_chars: usize) -> String {
+    let mut out = String::new();
+    for (idx, ch) in value.chars().enumerate() {
+        if idx >= max_chars {
+            out.push_str("...");
+            break;
+        }
+        out.push(ch);
+    }
+    out
+}
+
 fn mask_api_key(value: &str) -> String {
     let trimmed = value.trim();
     let chars: Vec<char> = trimmed.chars().collect();
@@ -689,9 +705,15 @@ async fn fetch_project_costs(
             .map_err(|_| "Failed to lock API key state".to_string())?;
         key_guard.clone()
     };
+    let using_admin_key = admin_api_key.is_some();
     let billing_key = admin_api_key
         .or(api_key)
         .ok_or_else(|| "OpenAI API key is not configured.".to_string())?;
+    log_project_costs(&format!(
+        "fetch start for project_id={} using {} key",
+        project_id,
+        if using_admin_key { "admin" } else { "main" }
+    ));
 
     let now = Utc::now();
     let month_start = Utc
@@ -714,6 +736,7 @@ async fn fetch_project_costs(
     loop {
         page_count += 1;
         if page_count > 50 {
+            log::error!("[project-costs] pagination exceeded safe limit for project_id={project_id}");
             return Err("Project costs response pagination exceeded safe limit.".to_string());
         }
 
@@ -735,7 +758,10 @@ async fn fetch_project_costs(
             .query(&query)
             .send()
             .await
-            .map_err(|e| format!("Project costs request failed: {e}"))?;
+            .map_err(|e| {
+                log::error!("[project-costs] request failed for project_id={project_id}: {e}");
+                format!("Project costs request failed: {e}")
+            })?;
 
         if !response.status().is_success() {
             let status = response.status();
@@ -743,15 +769,26 @@ async fn fetch_project_costs(
                 .text()
                 .await
                 .unwrap_or_else(|_| "Unable to read error body".to_string());
+            log::error!(
+                "[project-costs] request failed for project_id={project_id}, status={status}, body={}",
+                truncate_for_log(&body, 500)
+            );
             return Err(format!(
                 "Project costs request failed ({status}): {body}"
             ));
         }
 
-        let costs_page = response
-            .json::<CostsPageResponse>()
-            .await
-            .map_err(|e| format!("Project costs response decode failed: {e}"))?;
+        let response_text = response.text().await.map_err(|e| {
+            log::error!("[project-costs] failed to read response body for project_id={project_id}: {e}");
+            format!("Project costs response read failed: {e}")
+        })?;
+        let costs_page = serde_json::from_str::<CostsPageResponse>(&response_text).map_err(|e| {
+            log::error!(
+                "[project-costs] response decode failed for project_id={project_id}: {e}; body={}",
+                truncate_for_log(&response_text, 900)
+            );
+            format!("Project costs response decode failed: {e}")
+        })?;
 
         for bucket in costs_page.data {
             let mut bucket_total = 0.0_f64;
@@ -778,6 +815,11 @@ async fn fetch_project_costs(
             _ => break,
         }
     }
+
+    log_project_costs(&format!(
+        "fetch success for project_id={}, today_cost={:.6}, month_cost={:.6}, currency={}",
+        project_id, today_cost, month_cost, currency
+    ));
 
     Ok(ProjectCostsResponse {
         ok: true,

@@ -119,6 +119,7 @@ npm run typecheck
 - Quick tail command:
   - `tail -f ~/Library/Logs/com.church.live.translate/app.log`
 - API key storage diagnostics are logged with prefix: `[api-key-storage]`
+- Project cost fetch diagnostics (request/decode errors, totals) are logged with prefix: `[project-costs]`
 
 ## Broadcast workflow
 
