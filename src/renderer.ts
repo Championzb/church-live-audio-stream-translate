@@ -215,6 +215,7 @@ const UI_TEXT = {
     'status.testingFile': 'Testing file: {name}',
     'status.fileTestFinished': 'Finished file test: {name}',
     'status.fileTestFailed': 'File test failed: {error}',
+    'status.testAudioPlaybackBlocked': 'Test audio playback was blocked by the browser. Streaming test still continues.',
     'status.audioDeviceAccessError': 'Audio device access error: {error}',
     'status.running': 'Running: capturing {source} audio and generating English + {target} captions',
     'status.startFailed': 'Start failed: {error}',
@@ -357,6 +358,7 @@ const UI_TEXT = {
     'status.testingFile': '正在测试文件：{name}',
     'status.fileTestFinished': '文件测试完成：{name}',
     'status.fileTestFailed': '文件测试失败：{error}',
+    'status.testAudioPlaybackBlocked': '浏览器阻止了测试音频播放，流式测试仍会继续。',
     'status.audioDeviceAccessError': '音频设备访问错误：{error}',
     'status.running': '运行中：采集{source}音频，生成英文与{target}字幕',
     'status.startFailed': '启动失败：{error}',
@@ -1171,8 +1173,17 @@ async function processTestAudioFile(file) {
   setStatusKey('status.testingFile', { name: file.name });
 
   const buffer = await file.arrayBuffer();
+  const playbackUrl = URL.createObjectURL(file);
+  const playbackAudio = new Audio(playbackUrl);
+  playbackAudio.preload = 'auto';
 
   try {
+    try {
+      await playbackAudio.play();
+    } catch {
+      setStatusKey('status.testAudioPlaybackBlocked');
+    }
+
     const audioContextForTest = new AudioContext();
     const decoded = await audioContextForTest.decodeAudioData(buffer.slice(0));
     await audioContextForTest.close();
@@ -1209,6 +1220,9 @@ async function processTestAudioFile(file) {
     setStatusKey('status.fileTestFailed', { error });
     appendPairedLine(t('status.warning', { warning: error }), '', { englishWarning: true, highlight: false });
   } finally {
+    playbackAudio.pause();
+    playbackAudio.src = '';
+    URL.revokeObjectURL(playbackUrl);
     testStreamActive = false;
     testAudioFileInput.value = '';
   }
