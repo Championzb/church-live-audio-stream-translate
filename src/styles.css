@@ -368,10 +368,10 @@ body {
 
 #openSettingsPage.icon-btn,
 #toggleOutputWindow.icon-btn {
-  width: 48px;
-  min-width: 48px;
-  height: 48px;
-  font-size: 1.2rem;
+  width: 58px;
+  min-width: 58px;
+  height: 58px;
+  font-size: 1.5rem;
 }
 
 #refreshDevices.icon-btn:hover {
