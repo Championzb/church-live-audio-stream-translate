@@ -353,6 +353,12 @@ body {
   justify-content: flex-end;
 }
 
+.audio-input-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 #maskedApiKey {
   margin: 0 6px 0 0;
   padding: 8px 12px;
