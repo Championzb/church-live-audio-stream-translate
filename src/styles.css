@@ -1,6 +1,28 @@
 :root {
   color-scheme: light;
   font-family: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --bg-top: #e8eff8;
+  --bg-bottom: #d9eaf0;
+  --surface: #f8fbff;
+  --surface-alt: #eef4fb;
+  --text: #0f172a;
+  --muted: #334155;
+  --border: #c9d6e8;
+  --accent: #0f766e;
+  --accent-strong: #0b5f58;
+  --danger: #b91c1c;
+  --danger-strong: #991b1b;
+  --status: #92400e;
+  --header-bg: rgba(248, 251, 255, 0.84);
+  --header-border: rgba(201, 214, 232, 0.9);
+  --card-bg: rgba(248, 251, 255, 0.9);
+  --key-bg: rgba(248, 251, 255, 0.9);
+  --key-fg: #134e63;
+  --line-bg: #f3f8ff;
+  --line-border: #c9d8ea;
+}
+
+body[data-theme='paper-light'] {
   --bg-top: #f4f6fb;
   --bg-bottom: #ecf7f3;
   --surface: #ffffff;
@@ -8,11 +30,34 @@
   --text: #0f172a;
   --muted: #475569;
   --border: #d6dde8;
-  --accent: #0f766e;
-  --accent-strong: #0b5f58;
-  --danger: #b91c1c;
-  --danger-strong: #991b1b;
-  --status: #92400e;
+  --header-bg: rgba(255, 255, 255, 0.78);
+  --header-border: rgba(214, 221, 232, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --key-bg: rgba(255, 255, 255, 0.86);
+  --key-fg: #0f4f67;
+  --line-bg: #f8fbff;
+  --line-border: #d6e4f5;
+}
+
+body[data-theme='minimal-mono'] {
+  --bg-top: #eceff3;
+  --bg-bottom: #dde3ea;
+  --surface: #f8fafc;
+  --surface-alt: #eef1f5;
+  --text: #111827;
+  --muted: #4b5563;
+  --border: #c8d0da;
+  --accent: #374151;
+  --accent-strong: #1f2937;
+  --danger: #7f1d1d;
+  --danger-strong: #5f1111;
+  --header-bg: rgba(248, 250, 252, 0.84);
+  --header-border: rgba(200, 208, 218, 0.92);
+  --card-bg: rgba(248, 250, 252, 0.92);
+  --key-bg: rgba(241, 245, 249, 0.9);
+  --key-fg: #1f2937;
+  --line-bg: #f1f5f9;
+  --line-border: #cbd5e1;
 }
 
 * {
@@ -46,7 +91,7 @@ body {
 
 .landing-card {
   width: min(620px, 94vw);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
@@ -89,9 +134,9 @@ body {
   align-items: start;
   gap: 16px;
   padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--header-bg);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(214, 221, 232, 0.9);
+  border: 1px solid var(--header-border);
   border-radius: 14px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
 }
@@ -133,16 +178,16 @@ body {
   margin: 0 8px 0 0;
   padding: 7px 9px;
   border-radius: 8px;
-  border: 1px solid #c9d2e2;
-  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid var(--border);
+  background: var(--key-bg);
   font-size: 0.85rem;
-  color: #0f4f67;
+  color: var(--key-fg);
   font-weight: 600;
   cursor: pointer;
 }
 
 #maskedApiKey:hover {
-  background: #eef3fb;
+  background: var(--surface-alt);
 }
 
 h1 {
@@ -233,7 +278,7 @@ h1 {
 }
 
 .control-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
@@ -443,8 +488,8 @@ button.stop:hover {
 }
 
 .line {
-  background: #f8fbff;
-  border: 1px solid #d6e4f5;
+  background: var(--line-bg);
+  border: 1px solid var(--line-border);
   border-radius: 10px;
   padding: 10px;
   font-size: 1.26rem;

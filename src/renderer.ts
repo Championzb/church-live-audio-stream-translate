@@ -31,9 +31,11 @@ const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey') as an
 const openSettingsPageButton = document.getElementById('openSettingsPage') as any;
 const backToLivePageButton = document.getElementById('backToLivePage') as any;
 const settingsHeadingEl = document.getElementById('settingsHeading') as any;
+const appearanceSummaryEl = document.getElementById('appearanceSummary') as any;
 const liveWorkspaceEl = document.getElementById('liveWorkspace') as any;
 const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
+const themeSelect = document.getElementById('themeSelect') as any;
 const audioInputSelect = document.getElementById('audioInput') as any;
 const sourceLanguageSelect = document.getElementById('sourceLanguage') as any;
 const targetLanguageSelect = document.getElementById('targetLanguage') as any;
@@ -75,6 +77,7 @@ const labelAdminApiKeyEl = document.getElementById('labelAdminApiKey') as any;
 const labelProjectIdEl = document.getElementById('labelProjectId') as any;
 const labelUiLanguageEl = document.getElementById('labelUiLanguage') as any;
 const labelAudioInputEl = document.getElementById('labelAudioInput') as any;
+const labelThemeEl = document.getElementById('labelTheme') as any;
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage') as any;
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage') as any;
 const labelVadThresholdEl = document.getElementById('labelVadThreshold') as any;
@@ -136,6 +139,7 @@ const UI_TEXT = {
     'label.projectId': 'Project ID',
     'label.uiLanguage': 'UI Language',
     'label.audioInput': 'Audio Input',
+    'label.theme': 'Theme',
     'label.sourceLanguage': 'Source Language',
     'label.targetLanguage': 'Output Language',
     'label.vadThreshold': 'VAD Threshold',
@@ -170,6 +174,7 @@ const UI_TEXT = {
     'button.settings': 'Settings',
     'button.back': 'Back',
     'heading.settings': 'Settings',
+    'heading.appearance': 'Appearance',
     'apiKey.masked': 'OpenAI Key: {masked}',
     'apiKey.hidden': 'OpenAI Key: hidden',
     'modal.apiKeyTitle': 'Update OpenAI API Key',
@@ -227,6 +232,7 @@ const UI_TEXT = {
     'status.apiKeyCopied': 'OpenAI API key copied',
     'status.adminApiKeyCopied': 'OpenAI admin key copied',
     'status.projectIdSaved': 'Project ID saved',
+    'status.themeSet': 'Theme changed to {theme}',
     'status.apiKeyFailed': 'Failed to configure API key',
     'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
     'status.glossarySaved': 'Glossary saved',
@@ -264,6 +270,9 @@ const UI_TEXT = {
     'cost.realUnavailable': 'Real cost unavailable: {reason}',
     'ui.en': 'English',
     'ui.zh-hans': 'Simplified Chinese',
+    'theme.broadcast-clean': 'Broadcast Clean',
+    'theme.paper-light': 'Paper Light',
+    'theme.minimal-mono': 'Minimal Mono',
     'source.korean': '{language} (translate to English)',
     'source.english': '{language} (direct transcription)',
     'source.japanese': '{language}',
@@ -279,6 +288,7 @@ const UI_TEXT = {
     'label.projectId': 'Project ID',
     'label.uiLanguage': '界面语言',
     'label.audioInput': '音频输入',
+    'label.theme': '主题',
     'label.sourceLanguage': '源语言',
     'label.targetLanguage': '输出语言',
     'label.vadThreshold': 'VAD 阈值',
@@ -313,6 +323,7 @@ const UI_TEXT = {
     'button.settings': '设置',
     'button.back': '返回',
     'heading.settings': '设置',
+    'heading.appearance': '外观',
     'apiKey.masked': 'OpenAI 密钥：{masked}',
     'apiKey.hidden': 'OpenAI 密钥：隐藏',
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
@@ -370,6 +381,7 @@ const UI_TEXT = {
     'status.apiKeyCopied': '已复制 OpenAI API 密钥',
     'status.adminApiKeyCopied': '已复制 OpenAI 管理员密钥',
     'status.projectIdSaved': 'Project ID 已保存',
+    'status.themeSet': '主题已切换为 {theme}',
     'status.apiKeyFailed': '配置 API 密钥失败',
     'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
     'status.glossarySaved': '术语表已保存',
@@ -407,6 +419,9 @@ const UI_TEXT = {
     'cost.realUnavailable': '真实费用不可用：{reason}',
     'ui.en': 'English',
     'ui.zh-hans': '简体中文',
+    'theme.broadcast-clean': '投屏高对比',
+    'theme.paper-light': '浅色纸面',
+    'theme.minimal-mono': '极简单色',
     'source.korean': '{language}（先翻译为英文）',
     'source.english': '{language}（直接转录）',
     'source.japanese': '{language}',
@@ -436,7 +451,9 @@ const LANGUAGE_DISPLAY = {
   }
 };
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
+const SUPPORTED_UI_THEMES = ['broadcast-clean', 'paper-light', 'minimal-mono'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
+const UI_THEME_STORAGE_KEY = 'church-ui-theme';
 const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
 let uiLanguage = 'en';
 let mainInitialized = false;
@@ -466,6 +483,13 @@ function getUiLanguage() {
     return uiLanguageSelect.value;
   }
   return 'en';
+}
+
+function applyTheme(theme: any) {
+  const normalizedTheme = SUPPORTED_UI_THEMES.includes(theme) ? theme : 'broadcast-clean';
+  themeSelect.value = normalizedTheme;
+  document.body.setAttribute('data-theme', normalizedTheme);
+  localStorage.setItem(UI_THEME_STORAGE_KEY, normalizedTheme);
 }
 
 function t(key, values = {}) {
@@ -689,6 +713,7 @@ function setControlsLocked(nextLocked) {
     openSettingsPageButton,
     backToLivePageButton,
     audioInputSelect,
+    themeSelect,
     sourceLanguageSelect,
     targetLanguageSelect,
     refreshDevicesButton,
@@ -957,6 +982,7 @@ function applyUiLanguage() {
   labelProjectIdEl.textContent = t('label.projectId');
   labelUiLanguageEl.textContent = t('label.uiLanguage');
   labelAudioInputEl.textContent = t('label.audioInput');
+  labelThemeEl.textContent = t('label.theme');
   labelSourceLanguageEl.textContent = t('label.sourceLanguage');
   labelTargetLanguageEl.textContent = t('label.targetLanguage');
   labelVadThresholdEl.textContent = t('label.vadThreshold');
@@ -972,6 +998,7 @@ function applyUiLanguage() {
   openSettingsPageButton.textContent = t('button.settings');
   backToLivePageButton.textContent = t('button.back');
   settingsHeadingEl.textContent = t('heading.settings');
+  appearanceSummaryEl.textContent = t('heading.appearance');
   refreshDevicesButton.textContent = t('button.refresh');
   toggleHelpButton.textContent = t('button.help');
   toggleOutputWindowButton.textContent = t('button.outputWindow');
@@ -1001,6 +1028,9 @@ function applyUiLanguage() {
 
   Array.from(uiLanguageSelect.options).forEach((option: any) => {
     option.textContent = t(`ui.${option.value}`);
+  });
+  Array.from(themeSelect.options).forEach((option: any) => {
+    option.textContent = t(`theme.${option.value}`);
   });
   Array.from(audioInputSelect.options).forEach((option: any) => {
     if (option.value === '') {
@@ -1786,6 +1816,11 @@ uiLanguageSelect.addEventListener('change', () => {
   applyUiLanguage();
 });
 
+themeSelect.addEventListener('change', () => {
+  applyTheme(themeSelect.value);
+  setStatusKey('status.themeSet', { theme: t(`theme.${themeSelect.value}`) });
+});
+
 sourceLanguageSelect.addEventListener('change', async () => {
   await syncTranslationConfig();
   localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
@@ -1915,6 +1950,8 @@ async function loadSavedAdminApiKeyIfAvailable() {
 }
 
 async function boot() {
+  const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
+  applyTheme(savedTheme);
   const savedUiLanguage = localStorage.getItem('church-ui-language');
   if (savedUiLanguage && SUPPORTED_UI_LANGUAGES.includes(savedUiLanguage)) {
     uiLanguageSelect.value = savedUiLanguage;

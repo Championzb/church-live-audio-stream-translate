@@ -84,12 +84,14 @@ npm run typecheck
 - The compact key popup shows current saved API/Admin key values and includes copy buttons for quick clipboard copy.
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
+- The selected UI theme is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
 - A live mode summary line shows current run/worship/presentation state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
+- Settings includes a Theme picker with `Broadcast Clean`, `Paper Light`, and `Minimal Mono`.
 - Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the header for faster access.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
