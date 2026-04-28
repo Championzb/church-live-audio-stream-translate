@@ -611,6 +611,23 @@ button:disabled {
   justify-content: center;
   font-size: 1.08rem;
   line-height: 1;
+  background: transparent;
+  box-shadow: none;
+}
+
+.icon-btn:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.icon-btn:focus-visible {
+  background: transparent;
+  box-shadow: var(--ring-focus);
+}
+
+.icon-btn:disabled {
+  background: transparent;
+  box-shadow: none;
 }
 
 #apiKey {
