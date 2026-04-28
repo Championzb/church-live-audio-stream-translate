@@ -160,12 +160,12 @@ const UI_TEXT = {
         'button.worshipOff': 'Worship Mode Off (F7)',
         'button.presentationOn': 'Exit Translation Mode (F6)',
         'button.presentationOff': 'Translation Mode (F6)',
-        'button.help': 'Help',
+        'button.help': 'Help (F1)',
         'button.lockOn': 'Unlock Controls (F2)',
         'button.lockOff': 'Lock Controls (F2)',
         'button.outputWindow': 'Output Window',
         'button.testAudioFile': 'Test Audio File',
-        'button.scriptManager': 'Script (F1)',
+        'button.scriptManager': 'Script',
         'button.uploadScript': 'Upload Script',
         'button.pasteScript': 'Paste Script',
         'button.clearScript': 'Clear Script',
@@ -219,7 +219,7 @@ const UI_TEXT = {
         'help.f6': '<strong>F6</strong>: Toggle translation mode',
         'help.f2': '<strong>F2</strong>: Lock/unlock config controls',
         'help.f4': '<strong>F4</strong>: Reset captions + transcript + queue',
-        'help.f1': '<strong>F1</strong>: Open script manager',
+        'help.f1': '<strong>F1</strong>: Toggle this help panel',
         'status.idle': 'Idle',
         'status.controlsLocked': 'Config controls locked',
         'status.controlsUnlocked': 'Config controls unlocked',
@@ -323,12 +323,12 @@ const UI_TEXT = {
         'button.worshipOff': '敬拜模式关闭（F7）',
         'button.presentationOn': '退出翻译模式（F6）',
         'button.presentationOff': '翻译模式（F6）',
-        'button.help': '帮助',
+        'button.help': '帮助（F1）',
         'button.lockOn': '解锁控制项（F2）',
         'button.lockOff': '锁定控制项（F2）',
         'button.outputWindow': '输出窗口',
         'button.testAudioFile': '测试音频文件',
-        'button.scriptManager': '讲稿（F1）',
+        'button.scriptManager': '讲稿',
         'button.uploadScript': '上传讲稿',
         'button.pasteScript': '粘贴讲稿',
         'button.clearScript': '清除讲稿',
@@ -382,7 +382,7 @@ const UI_TEXT = {
         'help.f6': '<strong>F6</strong>：切换翻译模式',
         'help.f2': '<strong>F2</strong>：锁定/解锁配置',
         'help.f4': '<strong>F4</strong>：重置字幕 + 转录 + 队列',
-        'help.f1': '<strong>F1</strong>：打开讲稿工具',
+        'help.f1': '<strong>F1</strong>：切换帮助面板',
         'status.idle': '空闲',
         'status.controlsLocked': '配置控件已锁定',
         'status.controlsUnlocked': '配置控件已解锁',
@@ -1618,7 +1618,7 @@ async function ensureMainInitialized() {
         setWorshipMode(!worshipMode);
     });
     await listen('toggle-help-overlay', () => {
-        setScriptModalVisible(scriptModal.classList.contains('hidden'));
+        setHelpVisible(!helpVisible);
     });
     await listen('toggle-lock-controls', () => {
         setControlsLocked(!controlsLocked);

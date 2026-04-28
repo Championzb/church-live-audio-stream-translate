@@ -63,7 +63,7 @@ npm run typecheck
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 6. In the `Translation Mode` control panel, adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Use `Script (F1)` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
+7. Use `Script` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 10. Use `Translation Mode (F6)` for a subtitle-focused layout.
@@ -110,7 +110,7 @@ npm run typecheck
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles translation mode (subtitle-focused layout).
 - `Esc` exits translation mode quickly.
-- `F1` opens the script manager.
+- `F1` toggles the on-screen hotkey help overlay.
 - `F4` resets current session state (queued segments, captions, transcript).
 - `F2` locks or unlocks configuration controls.
 - The live line under each caption panel shows recording/translation progress between segment updates.
