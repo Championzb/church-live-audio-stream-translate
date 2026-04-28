@@ -1089,7 +1089,7 @@ function applyUiLanguage() {
     saveMainApiKeyButton.textContent = t('button.saveKey');
     cancelMainApiKeyButton.textContent = t('button.cancel');
     setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
-    setIconButton(toggleOutputWindowButton, '▣', t('button.outputWindow'));
+    setIconButton(toggleOutputWindowButton, '🖥', t('button.outputWindow'));
     setIconButton(backToLivePageButton, '←', t('button.back'));
     setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
