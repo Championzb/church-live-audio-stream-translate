@@ -822,13 +822,8 @@ function renderPanels(activeLineId = 0) {
     });
     normalizePairedCardHeights();
     if (englishActive instanceof HTMLElement && chineseActive instanceof HTMLElement) {
-        if (presentationMode) {
-            alignPresentationPanels();
-        }
-        else {
-            englishPanel.scrollTop = englishPanel.scrollHeight;
-            chinesePanel.scrollTop = chinesePanel.scrollHeight;
-        }
+        englishPanel.scrollTop = englishPanel.scrollHeight;
+        chinesePanel.scrollTop = chinesePanel.scrollHeight;
     }
     else {
         englishPanel.scrollTop = englishPanel.scrollHeight;
