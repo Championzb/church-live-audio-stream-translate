@@ -8,6 +8,7 @@ use chrono::{Datelike, TimeZone, Utc};
 use reqwest::multipart::{Form, Part};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tauri::Emitter;
 use tauri::Manager;
 use tauri::WebviewUrl;
@@ -106,8 +107,28 @@ struct CostsResult {
 
 #[derive(Deserialize)]
 struct CostsAmount {
+    #[serde(deserialize_with = "deserialize_f64_from_string_or_number")]
     value: f64,
     currency: String,
+}
+
+fn deserialize_f64_from_string_or_number<'de, D>(deserializer: D) -> Result<f64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let raw = Value::deserialize(deserializer)?;
+    match raw {
+        Value::Number(number) => number
+            .as_f64()
+            .ok_or_else(|| serde::de::Error::custom("invalid numeric value for cost amount")),
+        Value::String(text) => text
+            .trim()
+            .parse::<f64>()
+            .map_err(|e| serde::de::Error::custom(format!("invalid string numeric value for cost amount: {e}"))),
+        other => Err(serde::de::Error::custom(format!(
+            "unsupported cost amount value type: {other}"
+        ))),
+    }
 }
 
 #[derive(Clone, Serialize)]
