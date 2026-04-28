@@ -57,8 +57,6 @@ const scriptModal = document.getElementById('scriptModal') as any;
 const scriptModalTitleEl = document.getElementById('scriptModalTitle') as any;
 const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as any;
 const closeScriptModalButton = document.getElementById('closeScriptModal') as any;
-const clearPanelsButton = document.getElementById('clearPanels') as any;
-const clearTranscriptButton = document.getElementById('clearTranscript') as any;
 const resetSessionButton = document.getElementById('resetSession') as any;
 const copyLatestChineseButton = document.getElementById('copyLatestChinese') as any;
 const exportTranscriptButton = document.getElementById('exportTranscript') as any;
@@ -167,19 +165,17 @@ const UI_TEXT = {
     'button.stop': 'Stop (F8)',
     'button.worshipOn': 'Worship Mode On (F7)',
     'button.worshipOff': 'Worship Mode Off (F7)',
-    'button.presentationOn': 'Exit Presentation (F6)',
-    'button.presentationOff': 'Presentation Mode (F6)',
-    'button.help': 'Help (F1)',
+    'button.presentationOn': 'Exit Translation Mode (F6)',
+    'button.presentationOff': 'Translation Mode (F6)',
+    'button.help': 'Help',
     'button.lockOn': 'Unlock Controls (F2)',
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Output Window',
     'button.testAudioFile': 'Test Audio File',
-    'button.scriptManager': 'Script',
+    'button.scriptManager': 'Script (F1)',
     'button.uploadScript': 'Upload Script',
     'button.pasteScript': 'Paste Script',
     'button.clearScript': 'Clear Script',
-    'button.clearCaptions': 'Clear Captions',
-    'button.clearTranscript': 'Clear Transcript',
     'button.resetSession': 'Reset Session (F4)',
     'button.copyLatestOutput': 'Copy Latest Output',
     'button.exportTranscript': 'Export Transcript',
@@ -205,19 +201,17 @@ const UI_TEXT = {
     'tooltip.stop': 'Stop live capture and translation (F8).',
     'tooltip.worshipOn': 'Worship mode is ON: translation is paused for songs. Click to resume translation (F7).',
     'tooltip.worshipOff': 'Worship mode is OFF: translation is active. Click to pause translation for songs (F7).',
-    'tooltip.presentationOn': 'Exit presentation mode and show operator controls (F6).',
-    'tooltip.presentationOff': 'Enter presentation mode for large subtitle display (F6).',
-    'tooltip.help': 'Show or hide the hotkey/help overlay (F1).',
+    'tooltip.presentationOn': 'Exit translation mode and return to standard layout (F6).',
+    'tooltip.presentationOff': 'Enter translation mode with a larger subtitle-focused layout (F6).',
+    'tooltip.help': 'Show or hide the hotkey/help overlay.',
     'tooltip.lockOn': 'Unlock configuration controls to allow editing (F2).',
     'tooltip.lockOff': 'Lock configuration controls to avoid accidental changes (F2).',
     'tooltip.outputWindow': 'Open or close the subtitle-only output window for a second screen.',
     'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
     'tooltip.scriptManager': 'Open script tools (upload, paste, clear).',
-    'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in presentation mode.',
+    'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in translation mode.',
     'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
     'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
-    'tooltip.clearCaptions': 'Clear current English and output caption panels only.',
-    'tooltip.clearTranscript': 'Clear transcript memory without clearing current caption panels.',
     'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
     'tooltip.copyLatestOutput': 'Copy the latest translated output caption line to clipboard.',
     'tooltip.exportTranscript': 'Export the current transcript entries to a text file.',
@@ -229,10 +223,10 @@ const UI_TEXT = {
     'help.title': 'Quick Controls',
     'help.f8': '<strong>F8</strong>: Start/Stop translation',
     'help.f7': '<strong>F7</strong>: Toggle worship mode',
-    'help.f6': '<strong>F6</strong>: Toggle presentation mode',
+    'help.f6': '<strong>F6</strong>: Toggle translation mode',
     'help.f2': '<strong>F2</strong>: Lock/unlock config controls',
     'help.f4': '<strong>F4</strong>: Reset captions + transcript + queue',
-    'help.f1': '<strong>F1</strong>: Toggle this help panel',
+    'help.f1': '<strong>F1</strong>: Open script manager',
     'status.idle': 'Idle',
     'status.controlsLocked': 'Config controls locked',
     'status.controlsUnlocked': 'Config controls unlocked',
@@ -275,8 +269,6 @@ const UI_TEXT = {
     'status.outputSet': 'Output language set to {target}',
     'status.outputWindowToggled': 'Toggled output window',
     'status.outputWindowError': 'Output window error: {error}',
-    'status.captionsCleared': 'Caption panels cleared',
-    'status.transcriptCleared': 'Transcript memory cleared',
     'status.noOutputToCopy': 'No output caption available to copy',
     'status.copyDone': 'Copied latest output caption',
     'status.clipboardDenied': 'Clipboard permission denied',
@@ -287,7 +279,7 @@ const UI_TEXT = {
     'status.listening': 'Listening...',
     'status.translating': 'Translating...',
     'status.warning': 'Warning: {warning}',
-    'script.empty': 'No reference script loaded. Upload target-language script before translation for quick reference in presentation mode.',
+    'script.empty': 'No reference script loaded. Upload target-language script before translation for quick reference in translation mode.',
     'script.metaNone': 'No reference script loaded.',
     'script.metaLoaded': 'Loaded script: {lines} lines',
     'mode.running': 'running',
@@ -296,7 +288,7 @@ const UI_TEXT = {
     'mode.off': 'off',
     'mode.queueProcessing': 'processing',
     'mode.summary':
-      'Mode: {mode} | Worship: {worship} | Presentation: {presentation} | Queue: {queue}',
+      'Mode: {mode} | Worship: {worship} | Translation Mode: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
     'cost.project': 'Project: {projectId}',
     'cost.realSummary': 'Real cost: today {today} {currency} | month {month} {currency}',
@@ -337,19 +329,17 @@ const UI_TEXT = {
     'button.stop': '停止（F8）',
     'button.worshipOn': '敬拜模式开启（F7）',
     'button.worshipOff': '敬拜模式关闭（F7）',
-    'button.presentationOn': '退出投屏模式（F6）',
-    'button.presentationOff': '投屏模式（F6）',
-    'button.help': '帮助（F1）',
+    'button.presentationOn': '退出翻译模式（F6）',
+    'button.presentationOff': '翻译模式（F6）',
+    'button.help': '帮助',
     'button.lockOn': '解锁控制项（F2）',
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '输出窗口',
     'button.testAudioFile': '测试音频文件',
-    'button.scriptManager': '讲稿',
+    'button.scriptManager': '讲稿（F1）',
     'button.uploadScript': '上传讲稿',
     'button.pasteScript': '粘贴讲稿',
     'button.clearScript': '清除讲稿',
-    'button.clearCaptions': '清除字幕',
-    'button.clearTranscript': '清除转录',
     'button.resetSession': '重置会话（F4）',
     'button.copyLatestOutput': '复制最新输出',
     'button.exportTranscript': '导出转录',
@@ -375,19 +365,17 @@ const UI_TEXT = {
     'tooltip.stop': '停止实时采集和翻译（F8）。',
     'tooltip.worshipOn': '敬拜模式已开启：翻译暂停（适合诗歌时段）。点击可恢复翻译（F7）。',
     'tooltip.worshipOff': '敬拜模式已关闭：翻译进行中。点击可在诗歌时段暂停翻译（F7）。',
-    'tooltip.presentationOn': '退出投屏模式并显示操作控制（F6）。',
-    'tooltip.presentationOff': '进入投屏模式以显示大字幕（F6）。',
-    'tooltip.help': '显示或隐藏快捷键帮助面板（F1）。',
+    'tooltip.presentationOn': '退出翻译模式并返回标准布局（F6）。',
+    'tooltip.presentationOff': '进入翻译模式并使用更大的字幕布局（F6）。',
+    'tooltip.help': '显示或隐藏快捷键帮助面板。',
     'tooltip.lockOn': '解锁配置控件以允许修改（F2）。',
     'tooltip.lockOff': '锁定配置控件，避免误操作（F2）。',
     'tooltip.outputWindow': '打开或关闭仅字幕输出窗口（用于第二屏）。',
     'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
     'tooltip.scriptManager': '打开讲稿工具（上传、粘贴、清除）。',
-    'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在投屏模式中滚动查看。',
+    'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在翻译模式中滚动查看。',
     'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
     'tooltip.clearScript': '清除当前会话中的参考讲稿。',
-    'tooltip.clearCaptions': '仅清空当前英文和输出字幕面板。',
-    'tooltip.clearTranscript': '清空转录内存，但不清空当前字幕面板。',
     'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
     'tooltip.copyLatestOutput': '复制最新一行输出字幕到剪贴板。',
     'tooltip.exportTranscript': '将当前转录条目导出为文本文件。',
@@ -399,10 +387,10 @@ const UI_TEXT = {
     'help.title': '快捷控制',
     'help.f8': '<strong>F8</strong>：开始/停止翻译',
     'help.f7': '<strong>F7</strong>：切换敬拜模式',
-    'help.f6': '<strong>F6</strong>：切换投屏模式',
+    'help.f6': '<strong>F6</strong>：切换翻译模式',
     'help.f2': '<strong>F2</strong>：锁定/解锁配置',
     'help.f4': '<strong>F4</strong>：重置字幕 + 转录 + 队列',
-    'help.f1': '<strong>F1</strong>：切换帮助面板',
+    'help.f1': '<strong>F1</strong>：打开讲稿工具',
     'status.idle': '空闲',
     'status.controlsLocked': '配置控件已锁定',
     'status.controlsUnlocked': '配置控件已解锁',
@@ -445,8 +433,6 @@ const UI_TEXT = {
     'status.outputSet': '输出语言已设置为 {target}',
     'status.outputWindowToggled': '已切换输出窗口',
     'status.outputWindowError': '输出窗口错误：{error}',
-    'status.captionsCleared': '字幕面板已清空',
-    'status.transcriptCleared': '转录内存已清空',
     'status.noOutputToCopy': '没有可复制的输出字幕',
     'status.copyDone': '已复制最新输出字幕',
     'status.clipboardDenied': '剪贴板权限被拒绝',
@@ -457,7 +443,7 @@ const UI_TEXT = {
     'status.listening': '正在聆听...',
     'status.translating': '正在翻译...',
     'status.warning': '警告：{warning}',
-    'script.empty': '尚未加载参考讲稿。建议在翻译前上传目标语言讲稿，便于投屏模式中随时查看。',
+    'script.empty': '尚未加载参考讲稿。建议在翻译前上传目标语言讲稿，便于翻译模式中随时查看。',
     'script.metaNone': '尚未加载参考讲稿。',
     'script.metaLoaded': '已加载讲稿：{lines} 行',
     'mode.running': '运行中',
@@ -466,7 +452,7 @@ const UI_TEXT = {
     'mode.off': '关',
     'mode.queueProcessing': '处理中',
     'mode.summary':
-      '模式：{mode} | 敬拜：{worship} | 投屏：{presentation} | 队列：{queue}',
+      '模式：{mode} | 敬拜：{worship} | 翻译模式：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
     'cost.project': 'Project：{projectId}',
     'cost.realSummary': '真实费用：今日 {today} {currency} | 本月 {month} {currency}',
@@ -869,8 +855,6 @@ function setStaticButtonTooltips() {
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
-  clearPanelsButton.title = t('tooltip.clearCaptions');
-  clearTranscriptButton.title = t('tooltip.clearTranscript');
   resetSessionButton.title = t('tooltip.resetSession');
   copyLatestChineseButton.title = t('tooltip.copyLatestOutput');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
@@ -1111,8 +1095,6 @@ function applyUiLanguage() {
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
   pasteReferenceScriptButton.textContent = t('button.pasteScript');
   clearReferenceScriptButton.textContent = t('button.clearScript');
-  clearPanelsButton.textContent = t('button.clearCaptions');
-  clearTranscriptButton.textContent = t('button.clearTranscript');
   resetSessionButton.textContent = t('button.resetSession');
   copyLatestChineseButton.textContent = t('button.copyLatestOutput');
   exportTranscriptButton.textContent = t('button.exportTranscript');
@@ -1755,7 +1737,7 @@ async function ensureMainInitialized() {
   });
 
   await listen('toggle-help-overlay', () => {
-    setHelpVisible(!helpVisible);
+    setScriptModalVisible(scriptModal.classList.contains('hidden'));
   });
 
   await listen('toggle-lock-controls', () => {
@@ -2077,17 +2059,6 @@ maxSegmentMsInput.addEventListener('change', () => {
 
 autoSaveOnStopInput.addEventListener('change', () => {
   localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');
-});
-
-clearPanelsButton.addEventListener('click', () => {
-  clearPanels();
-  setStatusKey('status.captionsCleared');
-});
-
-clearTranscriptButton.addEventListener('click', () => {
-  transcriptEntries.length = 0;
-  setStatusKey('status.transcriptCleared');
-  updateModeSummary();
 });
 
 resetSessionButton.addEventListener('click', () => {

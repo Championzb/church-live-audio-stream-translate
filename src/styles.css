@@ -635,8 +635,12 @@ button:disabled {
 
 .captions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
+}
+
+.transcription-hidden {
+  display: none !important;
 }
 
 .caption-card {
@@ -978,14 +982,9 @@ button:disabled {
   }
 }
 
-body.presentation-mode .app-header,
-body.presentation-mode .controls {
-  display: none;
-}
-
 body.presentation-mode .app-shell {
   max-width: none;
-  padding: 10px;
+  padding: 14px;
 }
 
 body.presentation-mode .captions {
@@ -994,7 +993,7 @@ body.presentation-mode .captions {
 }
 
 body.presentation-mode.has-reference-script .captions {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(300px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
 }
 
 body.presentation-mode.has-reference-script .script-reference-card {
@@ -1002,12 +1001,11 @@ body.presentation-mode.has-reference-script .script-reference-card {
 }
 
 body.presentation-mode .caption-card {
-  height: calc(100vh - 36px);
-  padding: 10px;
+  min-height: 460px;
+  padding: 12px;
   display: grid;
   grid-template-rows: auto auto 1fr;
   align-items: stretch;
-  min-height: 0;
 }
 
 body.presentation-mode .caption-card h2 {
@@ -1027,9 +1025,9 @@ body.presentation-mode .live-line {
 }
 
 body.presentation-mode .line {
-  font-size: 2.1rem;
-  line-height: 1.65;
-  min-height: calc(2.1rem * 1.65);
+  font-size: 1.7rem;
+  line-height: 1.62;
+  min-height: calc(1.7rem * 1.62);
   display: flex;
   align-items: center;
 }

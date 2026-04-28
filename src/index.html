@@ -37,7 +37,7 @@
             <h1>Church Live Translate</h1>
             <p>Real-time captioning pipeline: source speech -> English -> target language.</p>
             <div class="status-stack">
-              <p id="modeSummary">Mode: stopped | Source: korean | Worship: off | Presentation: off</p>
+              <p id="modeSummary">Mode: stopped | Source: korean | Worship: off | Translation Mode: off</p>
             </div>
           </div>
           <div class="header-right">
@@ -83,10 +83,21 @@
                 </div>
                 <div class="row actions-row primary-action-row">
                   <button id="toggleRun" class="run">Start (F8)</button>
+                  <button id="openScriptManager">Script (F1)</button>
                   <button id="toggleWorshipMode">Worship Mode Off (F7)</button>
-                  <button id="togglePresentation">Presentation Mode (F6)</button>
-                  <button id="toggleHelp">Help (F1)</button>
+                  <button id="togglePresentation">Translation Mode (F6)</button>
                   <button id="toggleLockControls">Lock Controls (F2)</button>
+                </div>
+                <div class="row tuning-row">
+                  <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
+                  <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
+                  <span id="vadValue">0.040</span>
+                  <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
+                  <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
+                  <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
+                  <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+                </div>
+                <div class="row actions-row primary-action-row">
                   <button id="toggleOutputWindow">Output Window</button>
                 </div>
               </div>
@@ -98,10 +109,8 @@
                 <div class="row actions-row secondary-action-row">
                   <button id="testAudioFile">Test Audio File</button>
                   <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
-                  <button id="openScriptManager">Script</button>
+                  <button id="toggleHelp">Help</button>
                   <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
-                  <button id="clearPanels">Clear Captions</button>
-                  <button id="clearTranscript">Clear Transcript</button>
                   <button id="resetSession">Reset Session (F4)</button>
                   <button id="copyLatestChinese">Copy Latest Output</button>
                   <button id="exportTranscript">Export Transcript</button>
@@ -111,7 +120,7 @@
           </section>
 
           <section id="captionsSection" class="captions">
-            <article class="caption-card english-card">
+            <article class="caption-card english-card transcription-hidden">
               <h2 id="englishHeading">English</h2>
               <div id="englishLive" class="live-line"></div>
               <div id="englishPanel" class="panel"></div>
@@ -137,21 +146,6 @@
             <button id="backToLivePage">Back</button>
           </div>
           <section class="controls">
-            <details class="control-card" open>
-              <summary>Segmentation Tuning</summary>
-              <div class="card-body">
-                <div class="row tuning-row">
-                  <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
-                  <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
-                  <span id="vadValue">0.040</span>
-                  <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
-                  <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
-                  <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
-                  <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
-                </div>
-              </div>
-            </details>
-
             <details class="control-card" open>
               <summary id="appearanceSummary">Appearance</summary>
               <div class="card-body">
@@ -192,10 +186,10 @@
         <h3 id="helpTitle">Quick Controls</h3>
         <p id="helpF8"><strong>F8</strong>: Start/Stop translation</p>
         <p id="helpF7"><strong>F7</strong>: Toggle worship mode</p>
-        <p id="helpF6"><strong>F6</strong>: Toggle presentation mode</p>
+        <p id="helpF6"><strong>F6</strong>: Toggle translation mode</p>
         <p id="helpF2"><strong>F2</strong>: Lock/unlock config controls</p>
         <p id="helpF4"><strong>F4</strong>: Reset captions + transcript + queue</p>
-        <p id="helpF1"><strong>F1</strong>: Toggle this help panel</p>
+        <p id="helpF1"><strong>F1</strong>: Open script manager</p>
         <button id="closeHelp">Close</button>
       </div>
     </div>

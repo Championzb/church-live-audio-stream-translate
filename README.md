@@ -3,17 +3,16 @@
 Desktop subtitle app for Windows and macOS using Tauri.
 
 - Korean speech in
-- English captions always shown
+- English transcription is still processed internally, while the main page now focuses on target-language captions
 - Configurable output language captions shown in parallel
 - Source language switch supports Korean, English, Japanese, and Chinese sermons
 - Configurable UI language (English / Simplified Chinese)
 - Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
 - Worship mode quick toggle pauses translation without stopping the app (`F7`)
-- One-click presentation mode for full-screen subtitle display (`F6`)
-- Built-in help overlay for operators (`F1`)
+- One-click translation mode for subtitle-focused display (`F6`)
+- Built-in help overlay for operators (button)
 - Hover hints on each button to explain what it does
 - Export transcript to a text file at any time
-- Clear transcript memory without clearing on-screen captions
 - One-tap session reset for queue + captions + transcript (`F4`)
 - One-click copy for the latest output caption line
 - Optional auto-save transcript when stopping a session
@@ -21,7 +20,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Operator lock mode to prevent accidental config changes (`F2`)
 - Live cost estimator (session and rough monthly estimate)
 - File test mode for quick validation without live microphone input
-- Upload target-language reference script before translation (used as soft context and shown in presentation mode)
+- Upload target-language reference script before translation (used as soft context and shown in translation mode)
 
 ## Tech choices
 
@@ -63,19 +62,18 @@ npm run typecheck
 3. Select the desired audio input device, source language, and output language.
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
-6. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Use `Script` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
+6. In the `Translation Mode` control panel, adjust VAD threshold, silence hold, and max segment duration for lower latency.
+7. Use `Script (F1)` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
-10. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
-11. In presentation mode, the reference script appears as a third scrollable panel when a script is loaded.
+10. Use `Translation Mode (F6)` for a subtitle-focused layout.
+11. In translation mode, the reference script appears as a side panel when a script is loaded.
 12. Use `Export Transcript` if you want a saved copy after service.
-13. Use `Clear Transcript` if you want to reset transcript memory before the next segment/session.
-14. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
-15. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-16. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
-17. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-18. Use `Test Audio File` to run one audio file through the same translation pipeline.
+13. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
+14. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
+15. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+16. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
+17. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
 ## Notes
 
@@ -89,7 +87,7 @@ npm run typecheck
 - The selected UI language is saved locally for future sessions.
 - The selected UI theme is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
-- A live mode summary line shows current run/worship/presentation state.
+- A live mode summary line shows current run/worship/translation-mode state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
@@ -102,17 +100,17 @@ npm run typecheck
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
-- In presentation mode, script panel scrolling is independent from transcript panel scrolling.
-- The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll pinned to the latest bottom lines during translation (including presentation mode).
+- In translation mode, script panel scrolling is independent from caption panel scrolling.
+- The newest target-language lines are highlighted in the main panel, with auto-scroll pinned to the latest bottom lines during translation (including translation mode).
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.
 - `F7` toggles worship mode (pause/resume translation quickly).
-- `F6` toggles presentation mode (hides controls and enlarges subtitle text).
-- `Esc` exits presentation mode quickly.
-- `F1` toggles the on-screen hotkey help overlay.
+- `F6` toggles translation mode (subtitle-focused layout).
+- `Esc` exits translation mode quickly.
+- `F1` opens the script manager.
 - `F4` resets current session state (queued segments, captions, transcript).
 - `F2` locks or unlocks configuration controls.
 - The live line under each caption panel shows recording/translation progress between segment updates.
