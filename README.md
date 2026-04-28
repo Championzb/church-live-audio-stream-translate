@@ -80,8 +80,8 @@ npm run typecheck
 - The app stores the API key in OS secure storage (macOS Keychain / Windows Credential Manager) and also keeps an app-local fallback copy to prevent repeated key prompts if secure storage lookup is unavailable.
 - Optional OpenAI Admin Key can be entered in the same key panels and is stored securely (keyring + fallback file) for project costs API access.
 - OpenAI Project ID (`proj_...`) can be entered in the same API key panels (landing + key popup) and is stored locally for cost filtering/use.
-- The main page header shows a masked API key indicator (for quick verification without exposing the full key).
-- To change the API key after setup, click the masked API key box in the main page header to open the compact popup.
+- The operator panel shows a masked API key indicator (for quick verification without exposing the full key).
+- To change the API key after setup, click the masked API key box in the operator panel to open the compact popup.
 - The compact key popup shows current saved API/Admin key values and includes copy buttons for quick clipboard copy.
 - The selected source language is also saved locally for future sessions.
 - The selected UI language is saved locally for future sessions.
@@ -93,8 +93,9 @@ npm run typecheck
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
 - Settings includes a Theme picker with `Broadcast Clean`, `Paper Light`, and `Minimal Mono`.
-- Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the header for faster access.
-- Header controls now use grouped pill cards with a sticky top layout for quicker scanning during live operation.
+- Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button are in the foldable operator panel for faster access without cluttering the live view.
+- During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Worship, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
+- OpenAI key, Settings, UI language, and audio device controls are grouped into a foldable `Operator Panel` near the footer during normal operation.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
@@ -102,6 +103,7 @@ npm run typecheck
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - In translation mode, script panel scrolling is independent from caption panel scrolling.
 - The newest target-language lines are highlighted in the main panel, with auto-scroll pinned to the latest bottom lines during translation (including translation mode).
+- VAD threshold can be adjusted during live streaming and takes effect immediately.
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
 - English captions continue even if Chinese translation temporarily fails.

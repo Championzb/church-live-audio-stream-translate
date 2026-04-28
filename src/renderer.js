@@ -29,6 +29,15 @@ const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
 const liveWorkspaceEl = document.getElementById('liveWorkspace');
+const translationLiveBarEl = document.getElementById('translationLiveBar');
+const liveToggleRunButton = document.getElementById('liveToggleRun');
+const liveOpenScriptManagerButton = document.getElementById('liveOpenScriptManager');
+const liveToggleWorshipModeButton = document.getElementById('liveToggleWorshipMode');
+const liveToggleHelpButton = document.getElementById('liveToggleHelp');
+const liveResetSessionButton = document.getElementById('liveResetSession');
+const liveVadThresholdInput = document.getElementById('liveVadThreshold');
+const liveVadValueEl = document.getElementById('liveVadValue');
+const liveModeSummaryEl = document.getElementById('liveModeSummary');
 const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
@@ -88,6 +97,7 @@ const labelThemeEl = document.getElementById('labelTheme');
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
 const labelVadThresholdEl = document.getElementById('labelVadThreshold');
+const labelLiveVadThresholdEl = document.getElementById('labelLiveVadThreshold');
 const labelSilenceMsEl = document.getElementById('labelSilenceMs');
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs');
 const labelGlossaryEl = document.getElementById('labelGlossary');
@@ -747,12 +757,14 @@ function updateModeSummary() {
     const queueText = segmentQueueRunning
         ? `${pendingSegments.length} (${t('mode.queueProcessing')})`
         : `${pendingSegments.length}`;
-    modeSummaryEl.textContent = t('mode.summary', {
+    const summaryText = t('mode.summary', {
         mode: running ? t('mode.running') : t('mode.stopped'),
         worship: worshipMode ? t('mode.on') : t('mode.off'),
         presentation: presentationMode ? t('mode.on') : t('mode.off'),
         queue: queueText
     });
+    modeSummaryEl.textContent = summaryText;
+    liveModeSummaryEl.textContent = summaryText;
     syncOutputWindow();
 }
 function setHelpVisible(nextVisible) {
@@ -777,6 +789,7 @@ function setControlsLocked(nextLocked) {
         uploadReferenceScriptButton,
         pasteReferenceScriptButton,
         vadThresholdInput,
+        liveVadThresholdInput,
         silenceMsInput,
         maxSegmentMsInput,
         glossaryInput,
@@ -798,21 +811,31 @@ function setRunningButtonState() {
         toggleRunButton.textContent = t('button.stop');
         toggleRunButton.classList.add('stop');
         toggleRunButton.classList.remove('run');
+        liveToggleRunButton.textContent = t('button.stop');
+        liveToggleRunButton.classList.add('stop');
+        liveToggleRunButton.classList.remove('run');
     }
     else {
         toggleRunButton.textContent = t('button.start');
         toggleRunButton.classList.add('run');
         toggleRunButton.classList.remove('stop');
+        liveToggleRunButton.textContent = t('button.start');
+        liveToggleRunButton.classList.add('run');
+        liveToggleRunButton.classList.remove('stop');
     }
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+    liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
 }
 function refreshToggleButtonLabels() {
     setRunningButtonState();
     toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+    liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
     togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
     toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+    liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
     toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+    liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
     toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 }
@@ -820,13 +843,16 @@ function setStaticButtonTooltips() {
     saveKeyButton.title = t('tooltip.saveKey');
     refreshDevicesButton.title = t('tooltip.refresh');
     toggleHelpButton.title = t('tooltip.help');
+    liveToggleHelpButton.title = t('tooltip.help');
     toggleOutputWindowButton.title = t('tooltip.outputWindow');
     testAudioFileButton.title = t('tooltip.testAudioFile');
     openScriptManagerButton.title = t('tooltip.scriptManager');
+    liveOpenScriptManagerButton.title = t('tooltip.scriptManager');
     uploadReferenceScriptButton.title = t('tooltip.uploadScript');
     pasteReferenceScriptButton.title = t('tooltip.pasteScript');
     clearReferenceScriptButton.title = t('tooltip.clearScript');
     resetSessionButton.title = t('tooltip.resetSession');
+    liveResetSessionButton.title = t('tooltip.resetSession');
     copyLatestChineseButton.title = t('tooltip.copyLatestOutput');
     exportTranscriptButton.title = t('tooltip.exportTranscript');
     saveGlossaryButton.title = t('tooltip.saveGlossary');
@@ -840,6 +866,7 @@ function setStaticButtonTooltips() {
 function setPresentationMode(nextMode) {
     presentationMode = Boolean(nextMode);
     document.body.classList.toggle('presentation-mode', presentationMode);
+    translationLiveBarEl.classList.toggle('hidden', !presentationMode);
     togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
     if (presentationMode) {
@@ -858,7 +885,9 @@ function togglePresentationModeDebounced() {
 function setWorshipMode(nextMode) {
     worshipMode = Boolean(nextMode);
     toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+    liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
     toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+    liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
     if (worshipMode) {
         pendingSegments.length = 0;
         clearCurrentLiveTranslation();
@@ -1014,6 +1043,7 @@ function applyUiLanguage() {
     labelSourceLanguageEl.textContent = t('label.sourceLanguage');
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
     labelVadThresholdEl.textContent = t('label.vadThreshold');
+    labelLiveVadThresholdEl.textContent = t('label.vadThreshold');
     labelSilenceMsEl.textContent = t('label.silenceMs');
     labelMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
     labelGlossaryEl.textContent = t('label.glossary');
@@ -1029,13 +1059,16 @@ function applyUiLanguage() {
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     refreshDevicesButton.textContent = t('button.refresh');
     toggleHelpButton.textContent = t('button.help');
+    liveToggleHelpButton.textContent = t('button.help');
     toggleOutputWindowButton.textContent = t('button.outputWindow');
     testAudioFileButton.textContent = t('button.testAudioFile');
     openScriptManagerButton.textContent = t('button.scriptManager');
+    liveOpenScriptManagerButton.textContent = t('button.scriptManager');
     uploadReferenceScriptButton.textContent = t('button.uploadScript');
     pasteReferenceScriptButton.textContent = t('button.pasteScript');
     clearReferenceScriptButton.textContent = t('button.clearScript');
     resetSessionButton.textContent = t('button.resetSession');
+    liveResetSessionButton.textContent = t('button.resetSession');
     copyLatestChineseButton.textContent = t('button.copyLatestOutput');
     exportTranscriptButton.textContent = t('button.exportTranscript');
     saveGlossaryButton.textContent = t('button.saveGlossary');
@@ -1583,9 +1616,11 @@ async function ensureMainInitialized() {
     const savedSilenceMs = loadNumericSetting('church-silence-ms', 600, 200, 3000);
     const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 2500, 1200, 10000);
     vadThresholdInput.value = savedVadThreshold.toString();
+    liveVadThresholdInput.value = savedVadThreshold.toString();
     silenceMsInput.value = savedSilenceMs.toString();
     maxSegmentMsInput.value = savedMaxSegmentMs.toString();
     vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
+    liveVadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
     const savedGlossary = localStorage.getItem('church-glossary');
     if (savedGlossary) {
         glossaryInput.value = savedGlossary;
@@ -1828,13 +1863,22 @@ targetLanguageSelect.addEventListener('change', async () => {
 toggleRunButton.addEventListener('click', async () => {
     await setRunning(!running);
 });
+liveToggleRunButton.addEventListener('click', async () => {
+    await setRunning(!running);
+});
 toggleWorshipModeButton.addEventListener('click', () => {
+    setWorshipMode(!worshipMode);
+});
+liveToggleWorshipModeButton.addEventListener('click', () => {
     setWorshipMode(!worshipMode);
 });
 togglePresentationButton.addEventListener('click', () => {
     togglePresentationModeDebounced();
 });
 toggleHelpButton.addEventListener('click', () => {
+    setHelpVisible(!helpVisible);
+});
+liveToggleHelpButton.addEventListener('click', () => {
     setHelpVisible(!helpVisible);
 });
 toggleLockControlsButton.addEventListener('click', () => {
@@ -1854,6 +1898,9 @@ testAudioFileButton.addEventListener('click', () => {
     testAudioFileInput.click();
 });
 openScriptManagerButton.addEventListener('click', () => {
+    setScriptModalVisible(true);
+});
+liveOpenScriptManagerButton.addEventListener('click', () => {
     setScriptModalVisible(true);
 });
 uploadReferenceScriptButton.addEventListener('click', () => {
@@ -1893,8 +1940,18 @@ closeHelpButton.addEventListener('click', () => {
     setHelpVisible(false);
 });
 vadThresholdInput.addEventListener('input', () => {
-    vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
+    const value = Number(vadThresholdInput.value).toFixed(3);
+    vadValueEl.textContent = value;
+    liveVadThresholdInput.value = vadThresholdInput.value;
+    liveVadValueEl.textContent = value;
     localStorage.setItem('church-vad-threshold', vadThresholdInput.value);
+});
+liveVadThresholdInput.addEventListener('input', () => {
+    const value = Number(liveVadThresholdInput.value).toFixed(3);
+    liveVadValueEl.textContent = value;
+    vadThresholdInput.value = liveVadThresholdInput.value;
+    vadValueEl.textContent = value;
+    localStorage.setItem('church-vad-threshold', liveVadThresholdInput.value);
 });
 silenceMsInput.addEventListener('change', () => {
     localStorage.setItem('church-silence-ms', silenceMsInput.value);
@@ -1906,6 +1963,9 @@ autoSaveOnStopInput.addEventListener('change', () => {
     localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');
 });
 resetSessionButton.addEventListener('click', () => {
+    resetSessionState();
+});
+liveResetSessionButton.addEventListener('click', () => {
     resetSessionState();
 });
 copyLatestChineseButton.addEventListener('click', async () => {
