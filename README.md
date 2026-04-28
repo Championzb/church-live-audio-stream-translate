@@ -16,7 +16,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - One-tap session reset for queue + captions + transcript (`F4`)
 - One-click copy for the latest output caption line
 - Optional auto-save transcript when stopping a session
-- Dedicated dual-screen output window for subtitle-only display
+- Dedicated dual-screen projector window for subtitle-only display
 - Operator lock mode to prevent accidental config changes (`F2`)
 - Live cost estimator (session and rough monthly estimate)
 - File test mode for quick validation without live microphone input
@@ -71,7 +71,7 @@ npm run typecheck
 12. Use `Export Transcript` if you want a saved copy after service.
 13. Use `Reset Session (F4)` to clear queue/captions/transcript together between services.
 14. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
-15. Use `Output Window` to open a second subtitle-only display for projector/monitor output.
+15. Use `Projector Window` to open a second subtitle-only display for projector/monitor output.
 16. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
 17. Use `Test Audio File` to run one audio file through the same translation pipeline.
 
