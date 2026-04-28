@@ -2067,7 +2067,7 @@ window.addEventListener('keydown', (event) => {
         || target.tagName === 'TEXTAREA'
         || target.tagName === 'SELECT'
         || target.isContentEditable));
-    if (event.key === 'Delete'
+    if ((event.key === 'Delete' || event.key === 'Backspace')
         && mainView === 'settings'
         && apiKeyModal.classList.contains('hidden')
         && scriptModal.classList.contains('hidden')

@@ -2237,7 +2237,7 @@ window.addEventListener('keydown', (event) => {
     )
   );
   if (
-    event.key === 'Delete'
+    (event.key === 'Delete' || event.key === 'Backspace')
     && mainView === 'settings'
     && apiKeyModal.classList.contains('hidden')
     && scriptModal.classList.contains('hidden')
