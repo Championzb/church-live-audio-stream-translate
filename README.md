@@ -64,7 +64,7 @@ npm run typecheck
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
 6. Adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Use `Upload Script` (optional) to load a target-language sermon script (`.txt/.md/.rtf`) before starting.
+7. Use `Upload Script` or `Paste Script` (optional) to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
 9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
 10. Use `Presentation Mode (F6)` on the subtitle monitor when operator controls are no longer needed on screen.
@@ -101,7 +101,7 @@ npm run typecheck
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern glass-style visual refresh (soft surfaces, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
-- Uploaded reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
+- Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll pinned to the latest bottom lines during translation (including presentation mode).
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.

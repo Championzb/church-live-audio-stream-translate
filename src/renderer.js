@@ -45,6 +45,7 @@ const toggleOutputWindowButton = document.getElementById('toggleOutputWindow');
 const testAudioFileButton = document.getElementById('testAudioFile');
 const testAudioFileInput = document.getElementById('testAudioFileInput');
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript');
+const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript');
 const referenceScriptInput = document.getElementById('referenceScriptInput');
 const clearReferenceScriptButton = document.getElementById('clearReferenceScript');
 const clearPanelsButton = document.getElementById('clearPanels');
@@ -162,6 +163,7 @@ const UI_TEXT = {
         'button.outputWindow': 'Output Window',
         'button.testAudioFile': 'Test Audio File',
         'button.uploadScript': 'Upload Script',
+        'button.pasteScript': 'Paste Script',
         'button.clearScript': 'Clear Script',
         'button.clearCaptions': 'Clear Captions',
         'button.clearTranscript': 'Clear Transcript',
@@ -196,6 +198,7 @@ const UI_TEXT = {
         'tooltip.outputWindow': 'Open or close the subtitle-only output window for a second screen.',
         'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
         'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in presentation mode.',
+        'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
         'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
         'tooltip.clearCaptions': 'Clear current English and output caption panels only.',
         'tooltip.clearTranscript': 'Clear transcript memory without clearing current caption panels.',
@@ -227,6 +230,9 @@ const UI_TEXT = {
         'status.fileTestFailed': 'File test failed: {error}',
         'status.scriptLoaded': 'Reference script loaded: {lines} lines',
         'status.scriptLoadFailed': 'Failed to load script file: {error}',
+        'status.scriptPasted': 'Reference script pasted: {lines} lines',
+        'status.scriptPasteFailed': 'Failed to paste script from clipboard: {error}',
+        'status.scriptClipboardEmpty': 'Clipboard has no script text',
         'status.scriptCleared': 'Reference script cleared',
         'status.noScriptToClear': 'No reference script is loaded',
         'status.testAudioPlaybackBlocked': 'Test audio playback was blocked by the browser. Streaming test still continues.',
@@ -322,6 +328,7 @@ const UI_TEXT = {
         'button.outputWindow': '输出窗口',
         'button.testAudioFile': '测试音频文件',
         'button.uploadScript': '上传讲稿',
+        'button.pasteScript': '粘贴讲稿',
         'button.clearScript': '清除讲稿',
         'button.clearCaptions': '清除字幕',
         'button.clearTranscript': '清除转录',
@@ -356,6 +363,7 @@ const UI_TEXT = {
         'tooltip.outputWindow': '打开或关闭仅字幕输出窗口（用于第二屏）。',
         'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
         'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在投屏模式中滚动查看。',
+        'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
         'tooltip.clearScript': '清除当前会话中的参考讲稿。',
         'tooltip.clearCaptions': '仅清空当前英文和输出字幕面板。',
         'tooltip.clearTranscript': '清空转录内存，但不清空当前字幕面板。',
@@ -387,6 +395,9 @@ const UI_TEXT = {
         'status.fileTestFailed': '文件测试失败：{error}',
         'status.scriptLoaded': '参考讲稿已加载：{lines} 行',
         'status.scriptLoadFailed': '加载讲稿文件失败：{error}',
+        'status.scriptPasted': '参考讲稿已粘贴：{lines} 行',
+        'status.scriptPasteFailed': '从剪贴板粘贴讲稿失败：{error}',
+        'status.scriptClipboardEmpty': '剪贴板中没有可用讲稿文本',
         'status.scriptCleared': '参考讲稿已清除',
         'status.noScriptToClear': '当前没有已加载的参考讲稿',
         'status.testAudioPlaybackBlocked': '浏览器阻止了测试音频播放，流式测试仍会继续。',
@@ -757,6 +768,7 @@ function setControlsLocked(nextLocked) {
         refreshDevicesButton,
         testAudioFileButton,
         uploadReferenceScriptButton,
+        pasteReferenceScriptButton,
         vadThresholdInput,
         silenceMsInput,
         maxSegmentMsInput,
@@ -804,6 +816,7 @@ function setStaticButtonTooltips() {
     toggleOutputWindowButton.title = t('tooltip.outputWindow');
     testAudioFileButton.title = t('tooltip.testAudioFile');
     uploadReferenceScriptButton.title = t('tooltip.uploadScript');
+    pasteReferenceScriptButton.title = t('tooltip.pasteScript');
     clearReferenceScriptButton.title = t('tooltip.clearScript');
     clearPanelsButton.title = t('tooltip.clearCaptions');
     clearTranscriptButton.title = t('tooltip.clearTranscript');
@@ -1018,6 +1031,7 @@ function applyUiLanguage() {
     toggleOutputWindowButton.textContent = t('button.outputWindow');
     testAudioFileButton.textContent = t('button.testAudioFile');
     uploadReferenceScriptButton.textContent = t('button.uploadScript');
+    pasteReferenceScriptButton.textContent = t('button.pasteScript');
     clearReferenceScriptButton.textContent = t('button.clearScript');
     clearPanelsButton.textContent = t('button.clearCaptions');
     clearTranscriptButton.textContent = t('button.clearTranscript');
@@ -1261,6 +1275,21 @@ async function processReferenceScriptFile(file) {
     }
     finally {
         referenceScriptInput.value = '';
+    }
+}
+async function pasteReferenceScriptFromClipboard() {
+    try {
+        const content = await navigator.clipboard.readText();
+        if (!content || !content.trim()) {
+            setStatusKey('status.scriptClipboardEmpty');
+            return;
+        }
+        setReferenceScript(content);
+        await syncTranslationConfig();
+        setStatusKey('status.scriptPasted', { lines: countScriptLines(referenceScriptText) });
+    }
+    catch (err) {
+        setStatusKey('status.scriptPasteFailed', { error: (err && err.message) || String(err) });
     }
 }
 async function drainSegmentQueue() {
@@ -1823,6 +1852,9 @@ testAudioFileButton.addEventListener('click', () => {
 });
 uploadReferenceScriptButton.addEventListener('click', () => {
     referenceScriptInput.click();
+});
+pasteReferenceScriptButton.addEventListener('click', async () => {
+    await pasteReferenceScriptFromClipboard();
 });
 clearReferenceScriptButton.addEventListener('click', async () => {
     if (!referenceScriptText) {
