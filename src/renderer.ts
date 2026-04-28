@@ -869,11 +869,21 @@ function alignPresentationPanels() {
   );
 }
 
+function pinPanelsToLatest() {
+  englishPanel.scrollTop = englishPanel.scrollHeight;
+  chinesePanel.scrollTop = chinesePanel.scrollHeight;
+
+  if (presentationMode) {
+    const scrollingRoot = document.scrollingElement;
+    if (scrollingRoot) {
+      scrollingRoot.scrollTop = scrollingRoot.scrollHeight;
+    }
+  }
+}
+
 function renderPanels(activeLineId = 0) {
   englishPanel.innerHTML = '';
   chinesePanel.innerHTML = '';
-  let englishActive = null;
-  let chineseActive = null;
 
   pairedLines.forEach((line) => {
     const isActive = line.id === activeLineId;
@@ -881,20 +891,17 @@ function renderPanels(activeLineId = 0) {
     const chineseCard = buildLineCard(line.chineseText, line.chineseWarning, isActive);
     englishPanel.appendChild(englishCard);
     chinesePanel.appendChild(chineseCard);
-    if (isActive) {
-      englishActive = englishCard;
-      chineseActive = chineseCard;
-    }
   });
 
   normalizePairedCardHeights();
-
-  if (englishActive instanceof HTMLElement && chineseActive instanceof HTMLElement) {
-    englishPanel.scrollTop = englishPanel.scrollHeight;
-    chinesePanel.scrollTop = chinesePanel.scrollHeight;
-  } else {
-    englishPanel.scrollTop = englishPanel.scrollHeight;
-    chinesePanel.scrollTop = chinesePanel.scrollHeight;
+  pinPanelsToLatest();
+  window.requestAnimationFrame(() => {
+    pinPanelsToLatest();
+  });
+  if (presentationMode) {
+    window.requestAnimationFrame(() => {
+      pinPanelsToLatest();
+    });
   }
 }
 
