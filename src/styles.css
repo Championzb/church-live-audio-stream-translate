@@ -222,7 +222,7 @@ body {
 .app-shell {
   max-width: 1520px;
   margin: 0 auto;
-  padding: 24px 22px 124px;
+  padding: 24px 22px 34px;
 }
 
 .landing-page {
@@ -279,9 +279,9 @@ body {
   top: auto;
   z-index: 80;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1fr);
   align-items: start;
-  gap: 8px;
+  gap: 14px;
   padding: 0 0 6px;
   background: none;
   backdrop-filter: none;
@@ -665,22 +665,6 @@ button:disabled {
   gap: 18px;
 }
 
-.footer-admin {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 78;
-  padding: 0 18px 12px;
-}
-
-.footer-admin .control-card {
-  max-width: 1520px;
-  margin: 0 auto;
-  background: var(--surface-elevated);
-  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.22);
-}
-
 .transcription-hidden {
   display: none !important;
 }
@@ -952,7 +936,7 @@ button:disabled {
 
 @media (max-width: 760px) {
   .app-shell {
-    padding: 14px 12px 108px;
+    padding: 14px 12px 20px;
   }
 
   .app-header {
@@ -1004,9 +988,6 @@ button:disabled {
     width: 100%;
   }
 
-  .footer-admin {
-    padding: 0 10px 10px;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1039,8 +1020,7 @@ body.presentation-mode .app-shell {
 }
 
 body.presentation-mode .app-header,
-body.presentation-mode .controls,
-body.presentation-mode .footer-admin {
+body.presentation-mode .controls {
   display: none;
 }
 
