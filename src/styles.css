@@ -243,7 +243,7 @@ body {
   padding: 16px 18px;
   background: var(--header-bg);
   backdrop-filter: blur(10px);
-  border: 1px solid var(--section-border);
+  border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--header-shadow);
 }
@@ -266,11 +266,11 @@ body {
 }
 
 .control-pill {
-  border: 1px solid var(--section-border);
+  border: none;
   background: var(--card-bg);
   border-radius: var(--radius-md);
   padding: 8px;
-  box-shadow: 0 1px 1px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .ui-language-slot {
@@ -330,7 +330,7 @@ h1 {
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   background: var(--summary-bg);
-  border: 1px solid var(--section-border);
+  border: none;
   font-size: 0.88rem;
   line-height: 1.25;
   white-space: nowrap;
@@ -396,7 +396,7 @@ h1 {
 
 .control-card {
   background: var(--card-bg);
-  border: 1px solid var(--section-border);
+  border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--card-shadow);
   padding: 15px;
@@ -407,7 +407,6 @@ h1 {
 
 .control-card:hover {
   transform: translateY(-1px);
-  border-color: var(--section-border);
   box-shadow: 0 12px 26px rgba(2, 6, 23, 0.14);
 }
 
@@ -586,7 +585,7 @@ button:disabled {
 
 .caption-card {
   background: var(--surface);
-  border: 1px solid var(--section-border);
+  border: none;
   border-radius: var(--radius-lg);
   padding: 15px;
   min-height: 520px;
