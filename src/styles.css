@@ -600,6 +600,19 @@ button:disabled {
   transform: none;
 }
 
+.icon-btn {
+  min-width: 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.08rem;
+  line-height: 1;
+}
+
 #apiKey {
   min-width: min(360px, 100%);
   flex: 1;

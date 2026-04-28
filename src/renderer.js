@@ -544,6 +544,10 @@ function t(key, values = {}) {
     });
     return text;
 }
+function setIconButton(button, icon, label) {
+    button.textContent = icon;
+    button.setAttribute('aria-label', label);
+}
 function languageName(code) {
     const labels = LANGUAGE_DISPLAY[uiLanguage] || LANGUAGE_DISPLAY.en;
     return labels[code] || code;
@@ -1052,12 +1056,12 @@ function applyUiLanguage() {
     saveKeyButton.textContent = t('button.saveKey');
     saveMainApiKeyButton.textContent = t('button.saveKey');
     cancelMainApiKeyButton.textContent = t('button.cancel');
-    openSettingsPageButton.textContent = t('button.settings');
-    backToLivePageButton.textContent = t('button.back');
+    setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
+    setIconButton(backToLivePageButton, '←', t('button.back'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
-    refreshDevicesButton.textContent = t('button.refresh');
+    setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
     toggleHelpButton.textContent = t('button.help');
     liveToggleHelpButton.textContent = t('button.help');
     toggleOutputWindowButton.textContent = t('button.outputWindow');
