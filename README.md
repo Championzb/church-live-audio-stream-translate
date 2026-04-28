@@ -99,7 +99,7 @@ npm run typecheck
 - Header controls now use grouped pill cards with a sticky top layout for quicker scanning during live operation.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
-- The UI uses a modern glass-style visual refresh (soft surfaces, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
+- The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - In presentation mode, script panel scrolling is independent from transcript panel scrolling.
