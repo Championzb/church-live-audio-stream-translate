@@ -93,9 +93,9 @@ npm run typecheck
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
 - Settings includes a Theme picker with `Broadcast Clean`, `Paper Light`, and `Minimal Mono`.
-- Session setup controls (`Audio Input`, `Refresh`) and the `Settings` button stay in the header for faster access.
+- Session setup controls (`Audio Input`, `Refresh`) stay in the header for faster access.
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Worship, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
-- OpenAI key, Settings, UI language, and audio device controls stay in the header during normal operation.
+- OpenAI key, Settings, and UI language are placed in the footer during normal operation.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode and Utility Actions now auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
