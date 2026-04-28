@@ -1038,7 +1038,7 @@ body.presentation-mode .line {
 }
 
 body.presentation-mode .panel {
-  max-height: none;
+  max-height: 62vh;
   overscroll-behavior: contain;
   touch-action: pan-y;
   min-height: 0;
