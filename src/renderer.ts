@@ -217,6 +217,8 @@ const UI_TEXT = {
     'tooltip.lockOn': 'Unlock configuration controls to allow editing (F2).',
     'tooltip.lockOff': 'Lock configuration controls to avoid accidental changes (F2).',
     'tooltip.outputWindow': 'Open or close the subtitle-only projector window for a second screen.',
+    'tooltip.settings': 'Open settings page.',
+    'tooltip.back': 'Return to live translation view.',
     'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
     'tooltip.scriptManager': 'Open script tools (upload, paste, clear).',
     'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in translation mode.',
@@ -381,6 +383,8 @@ const UI_TEXT = {
     'tooltip.lockOn': '解锁配置控件以允许修改（F2）。',
     'tooltip.lockOff': '锁定配置控件，避免误操作（F2）。',
     'tooltip.outputWindow': '打开或关闭仅字幕投影窗口（用于第二屏）。',
+    'tooltip.settings': '打开设置页面。',
+    'tooltip.back': '返回实时翻译页面。',
     'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
     'tooltip.scriptManager': '打开讲稿工具（上传、粘贴、清除）。',
     'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在翻译模式中滚动查看。',
@@ -875,6 +879,8 @@ function refreshToggleButtonLabels() {
 
 function setStaticButtonTooltips() {
   saveKeyButton.title = t('tooltip.saveKey');
+  openSettingsPageButton.title = t('tooltip.settings');
+  backToLivePageButton.title = t('tooltip.back');
   refreshDevicesButton.title = t('tooltip.refresh');
   toggleHelpButton.title = t('tooltip.help');
   liveToggleHelpButton.title = t('tooltip.help');
