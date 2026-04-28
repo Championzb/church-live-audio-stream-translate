@@ -114,6 +114,7 @@ npm run typecheck
 - `F7` toggles worship mode (pause/resume translation quickly).
 - `F6` toggles translation mode (subtitle-focused layout).
 - `Esc` exits translation mode quickly.
+- `Delete` returns from `Settings` back to the live view.
 - `F1` toggles the on-screen hotkey help overlay.
 - `F4` resets current session state (queued segments, captions, transcript).
 - `F2` locks or unlocks configuration controls.

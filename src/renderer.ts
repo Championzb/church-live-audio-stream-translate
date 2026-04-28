@@ -2227,6 +2227,26 @@ async function boot() {
 }
 
 window.addEventListener('keydown', (event) => {
+  const target = event.target as any;
+  const isEditableTarget = Boolean(
+    target && (
+      target.tagName === 'INPUT'
+      || target.tagName === 'TEXTAREA'
+      || target.tagName === 'SELECT'
+      || target.isContentEditable
+    )
+  );
+  if (
+    event.key === 'Delete'
+    && mainView === 'settings'
+    && apiKeyModal.classList.contains('hidden')
+    && scriptModal.classList.contains('hidden')
+    && !isEditableTarget
+  ) {
+    event.preventDefault();
+    setMainView('live');
+    return;
+  }
   if (event.key === 'Escape' && !apiKeyModal.classList.contains('hidden')) {
     setApiKeyModalVisible(false);
     return;
