@@ -102,6 +102,7 @@ npm run typecheck
 - The UI uses a modern glass-style visual refresh (soft surfaces, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
+- In presentation mode, script panel scrolling is independent from transcript panel scrolling.
 - The newest English and target-language transcript lines are highlighted directly in each panel, with auto-scroll pinned to the latest bottom lines during translation (including presentation mode).
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.

@@ -679,6 +679,9 @@ button:disabled {
 
 .script-panel {
   max-height: 520px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .script-content {
@@ -984,9 +987,14 @@ body.presentation-mode .controls {
   display: none;
 }
 
+body.presentation-mode {
+  overflow: hidden;
+}
+
 body.presentation-mode .app-shell {
   max-width: none;
   padding: 10px;
+  height: 100vh;
 }
 
 body.presentation-mode .captions {
@@ -1035,6 +1043,8 @@ body.presentation-mode .line {
 
 body.presentation-mode .panel {
   max-height: none;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 body.presentation-mode .script-reference-card h2 {
