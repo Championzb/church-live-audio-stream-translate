@@ -493,6 +493,8 @@ h1 {
 }
 
 .hotkey-pill {
+  appearance: none;
+  border: 1px solid var(--section-border);
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -504,6 +506,17 @@ h1 {
   font-size: 0.8rem;
   line-height: 1;
   white-space: nowrap;
+  box-shadow: none;
+  transform: none;
+}
+
+.hotkey-pill:hover {
+  background: var(--surface-soft);
+  transform: none;
+}
+
+.hotkey-pill:focus-visible {
+  box-shadow: var(--ring-focus);
 }
 
 .hotkey-pill kbd {

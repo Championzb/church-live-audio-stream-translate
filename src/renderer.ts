@@ -957,7 +957,9 @@ function setStaticButtonTooltips() {
   backToLivePageButton.title = t('tooltip.back');
   liveExitTranslationModeButton.title = t('tooltip.presentationOn');
   refreshDevicesButton.title = t('tooltip.refresh');
-  toggleHelpButton.title = t('tooltip.help');
+  if (toggleHelpButton) {
+    toggleHelpButton.title = t('tooltip.help');
+  }
   liveToggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   testAudioFileButton.title = t('tooltip.testAudioFile');
@@ -1226,7 +1228,9 @@ function applyUiLanguage() {
   appearanceSummaryEl.textContent = t('heading.appearance');
   referenceScriptHeadingEl.textContent = t('heading.referenceScript');
   setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
-  toggleHelpButton.textContent = t('button.help');
+  if (toggleHelpButton) {
+    toggleHelpButton.textContent = t('button.help');
+  }
   liveToggleHelpButton.textContent = t('button.help');
   updateTestAudioFileButtonState();
   openScriptManagerButton.textContent = t('button.scriptManager');
@@ -2141,11 +2145,33 @@ liveExitTranslationModeButton.addEventListener('click', () => {
   setPresentationMode(false);
 });
 
-toggleHelpButton.addEventListener('click', () => {
+if (toggleHelpButton) {
+  toggleHelpButton.addEventListener('click', () => {
+    setHelpVisible(!helpVisible);
+  });
+}
+
+liveToggleHelpButton.addEventListener('click', () => {
   setHelpVisible(!helpVisible);
 });
 
-liveToggleHelpButton.addEventListener('click', () => {
+hintF8El.addEventListener('click', async () => {
+  await setRunning(!running);
+});
+
+hintF7El.addEventListener('click', () => {
+  toggleSuspendMode();
+});
+
+hintF6El.addEventListener('click', () => {
+  togglePresentationModeDebounced();
+});
+
+hintF2El.addEventListener('click', () => {
+  setControlsLocked(!controlsLocked);
+});
+
+hintF1El.addEventListener('click', () => {
   setHelpVisible(!helpVisible);
 });
 

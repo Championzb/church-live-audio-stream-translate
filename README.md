@@ -91,7 +91,7 @@ npm run typecheck
 - A live mode summary line shows current run/translation/translation-mode state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - A compact state-chip row near the mode summary shows at-a-glance run/translation state/translation mode/queue/control-lock state without opening help or settings.
-- A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding.
+- A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding, and each pill is clickable as a quick action.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
@@ -99,6 +99,7 @@ npm run typecheck
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
+- The duplicate `Help (F1)` button was removed from the Translation Mode card because the header `F1` hotkey pill now acts as a clickable help toggle.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
