@@ -353,6 +353,12 @@ body {
   justify-content: flex-end;
 }
 
+.session-setup-slot > button:not(.icon-btn) {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: 0.84rem;
+}
+
 .audio-input-group {
   display: inline-flex;
   align-items: center;

@@ -64,6 +64,7 @@
                 <button id="hintF8" class="hotkey-pill" type="button"><kbd>F8</kbd> Start/Stop</button>
                 <button id="hintF7" class="hotkey-pill" type="button"><kbd>F7</kbd> Suspend</button>
                 <button id="hintF6" class="hotkey-pill" type="button"><kbd>F6</kbd> Translation</button>
+                <button id="resetSession" class="hotkey-pill" type="button"><kbd>F4</kbd> Reset</button>
                 <button id="hintF2" class="hotkey-pill" type="button"><kbd>F2</kbd> Lock</button>
                 <button id="hintF1" class="hotkey-pill" type="button"><kbd>F1</kbd> Help</button>
               </div>
@@ -78,6 +79,8 @@
                 <select id="audioInput"></select>
                 <button id="refreshDevices" class="icon-btn" aria-label="Refresh audio devices">↻</button>
               </div>
+              <button id="testAudioFile">Test Audio File</button>
+              <button id="exportTranscript">Export Transcript</button>
             </div>
           </div>
         </header>
@@ -211,22 +214,13 @@
               </div>
             </details>
 
-            <details class="control-card" open>
-              <summary>Session Tools</summary>
-              <div class="card-body">
-                <div class="row actions-row secondary-action-row">
-                  <button id="testAudioFile">Test Audio File</button>
-                  <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
-                  <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
-                  <button id="resetSession">Reset Session (F4)</button>
-                  <button id="exportTranscript">Export Transcript</button>
-                </div>
-              </div>
-            </details>
           </section>
         </section>
       </section>
     </main>
+
+    <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
+    <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
 
     <div id="helpOverlay" class="overlay hidden">
       <div class="overlay-card">
