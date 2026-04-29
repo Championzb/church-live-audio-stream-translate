@@ -56,7 +56,6 @@ const togglePresentationButton = document.getElementById('togglePresentation') a
 const toggleHelpButton = document.getElementById('toggleHelp') as any;
 const toggleLockControlsButton = document.getElementById('toggleLockControls') as any;
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
-const testAudioFileButton = document.getElementById('testAudioFile') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
 const openScriptManagerButton = document.getElementById('openScriptManager') as any;
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
@@ -135,6 +134,7 @@ const MAX_LINES = 200;
 const SEGMENT_MAX_RETRIES = 2;
 const RETRY_DELAYS_MS = [300, 700];
 const TEST_FILE_SEGMENT_MS = 12000;
+const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
 const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
@@ -166,6 +166,7 @@ let totalTranslatedChars = 0;
 let pendingSegmentDurationMs = 0;
 let testStreamActive = false;
 let selectedTestAudioFile: File | null = null;
+let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
 let activePairLineId = 0;
 
@@ -199,8 +200,6 @@ const UI_TEXT = {
     'button.lockOn': 'Unlock Controls (F2)',
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Projector Window',
-    'button.testAudioFile': 'Test Audio File',
-    'button.testAudioFileRunning': 'Testing Audio File...',
     'button.scriptManager': 'Script',
     'button.uploadScript': 'Upload Script',
     'button.pasteScript': 'Paste Script',
@@ -238,7 +237,6 @@ const UI_TEXT = {
     'tooltip.outputWindow': 'Open or close the subtitle-only projector window for a second screen.',
     'tooltip.settings': 'Open settings page.',
     'tooltip.back': 'Return to live translation view.',
-    'tooltip.testAudioFile': 'Run one audio file through the same translation pipeline for testing.',
     'tooltip.scriptManager': 'Open script tools (upload, paste, clear).',
     'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in translation mode.',
     'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
@@ -355,6 +353,7 @@ const UI_TEXT = {
     'source.japanese': '{language}',
     'source.chinese': '{language}',
     'device.default': 'System Default',
+    'device.testAudioPicker': 'Test Audio File...',
     'device.input': 'Input {index}',
     'device.testAudioInput': 'Test Audio: {name}'
   },
@@ -387,8 +386,6 @@ const UI_TEXT = {
     'button.lockOn': '解锁控制项（F2）',
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '投影窗口',
-    'button.testAudioFile': '测试音频文件',
-    'button.testAudioFileRunning': '正在测试音频文件...',
     'button.scriptManager': '讲稿',
     'button.uploadScript': '上传讲稿',
     'button.pasteScript': '粘贴讲稿',
@@ -426,7 +423,6 @@ const UI_TEXT = {
     'tooltip.outputWindow': '打开或关闭仅字幕投影窗口（用于第二屏）。',
     'tooltip.settings': '打开设置页面。',
     'tooltip.back': '返回实时翻译页面。',
-    'tooltip.testAudioFile': '用音频文件走同一翻译流程进行测试。',
     'tooltip.scriptManager': '打开讲稿工具（上传、粘贴、清除）。',
     'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在翻译模式中滚动查看。',
     'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
@@ -543,6 +539,7 @@ const UI_TEXT = {
     'source.japanese': '{language}',
     'source.chinese': '{language}',
     'device.default': '系统默认',
+    'device.testAudioPicker': '测试音频文件...',
     'device.input': '输入 {index}',
     'device.testAudioInput': '测试音频：{name}'
   }
@@ -898,7 +895,6 @@ function setControlsLocked(nextLocked) {
     sourceLanguageSelect,
     targetLanguageSelect,
     refreshDevicesButton,
-    testAudioFileButton,
     openScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
@@ -916,7 +912,6 @@ function setControlsLocked(nextLocked) {
   lockTargets.forEach((element) => {
     element.disabled = controlsLocked;
   });
-  updateTestAudioFileButtonState();
 
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
@@ -1019,17 +1014,6 @@ function updateHotkeyPills() {
   });
 }
 
-function updateTestAudioFileButtonState() {
-  const busy = Boolean(testStreamActive);
-  testAudioFileButton.classList.toggle('busy', busy);
-  setIconButton(
-    testAudioFileButton,
-    busy ? '⏳' : '🎧',
-    busy ? t('button.testAudioFileRunning') : t('button.testAudioFile')
-  );
-  testAudioFileButton.disabled = controlsLocked || busy;
-}
-
 function refreshToggleButtonLabels() {
   setRunningButtonState();
   setSuspendButtonState();
@@ -1063,7 +1047,6 @@ function setStaticButtonTooltips() {
   }
   liveToggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
-  testAudioFileButton.title = t('tooltip.testAudioFile');
   openScriptManagerButton.title = t('tooltip.scriptManager');
   liveOpenScriptManagerButton.title = t('tooltip.scriptManager');
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
@@ -1336,7 +1319,6 @@ function applyUiLanguage() {
     toggleHelpButton.textContent = t('button.help');
   }
   liveToggleHelpButton.textContent = t('button.help');
-  updateTestAudioFileButtonState();
   setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
   liveOpenScriptManagerButton.textContent = t('button.scriptManager');
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
@@ -1380,8 +1362,11 @@ function applyUiLanguage() {
   Array.from(audioInputSelect.options).forEach((option: any) => {
     if (option.value === '') {
       option.textContent = t('device.default');
+    } else if (option.value === TEST_AUDIO_PICKER_VALUE) {
+      option.textContent = t('device.testAudioPicker');
     }
   });
+  syncTestAudioInputOption();
 
   updateSourceLanguageOptionLabels();
   updateTargetLanguageOptionLabels();
@@ -1542,7 +1527,6 @@ async function processTestAudioFile(file) {
   }
 
   testStreamActive = true;
-  updateTestAudioFileButtonState();
   setStatusKey('status.testingFile', { name: file.name });
 
   const buffer = await file.arrayBuffer();
@@ -1602,12 +1586,21 @@ async function processTestAudioFile(file) {
     playbackAudio.src = '';
     URL.revokeObjectURL(playbackUrl);
     testStreamActive = false;
-    updateTestAudioFileButtonState();
     testAudioFileInput.value = '';
   }
 }
 
 function syncTestAudioInputOption() {
+  const existingPickerOption = audioInputSelect.querySelector(`option[value="${TEST_AUDIO_PICKER_VALUE}"]`) as HTMLOptionElement | null;
+  if (existingPickerOption) {
+    existingPickerOption.textContent = t('device.testAudioPicker');
+  } else {
+    const pickerOption = document.createElement('option');
+    pickerOption.value = TEST_AUDIO_PICKER_VALUE;
+    pickerOption.textContent = t('device.testAudioPicker');
+    audioInputSelect.appendChild(pickerOption);
+  }
+
   const existingOption = audioInputSelect.querySelector(`option[value="${TEST_AUDIO_INPUT_VALUE}"]`) as HTMLOptionElement | null;
   if (!selectedTestAudioFile) {
     if (existingOption) {
@@ -1632,6 +1625,7 @@ function setSelectedTestAudioFile(file: File | null) {
   syncTestAudioInputOption();
   if (selectedTestAudioFile) {
     audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
+    lastNonPickerAudioInputValue = TEST_AUDIO_INPUT_VALUE;
     setStatusKey('status.testAudioSelected', { name: selectedTestAudioFile.name });
   }
 }
@@ -1760,6 +1754,9 @@ async function loadDevices() {
     syncTestAudioInputOption();
     if (previousValue === TEST_AUDIO_INPUT_VALUE && selectedTestAudioFile) {
       audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
+    }
+    if (audioInputSelect.value && audioInputSelect.value !== TEST_AUDIO_PICKER_VALUE) {
+      lastNonPickerAudioInputValue = audioInputSelect.value;
     }
   } catch (err) {
     setStatusKey('status.audioDeviceAccessError', { error: err.message || String(err) });
@@ -2249,6 +2246,16 @@ refreshDevicesButton.addEventListener('click', () => {
   loadDevices();
 });
 
+audioInputSelect.addEventListener('change', () => {
+  const selectedValue = audioInputSelect.value || '';
+  if (selectedValue === TEST_AUDIO_PICKER_VALUE) {
+    audioInputSelect.value = lastNonPickerAudioInputValue || '';
+    testAudioFileInput.click();
+    return;
+  }
+  lastNonPickerAudioInputValue = selectedValue;
+});
+
 uiLanguageSelect.addEventListener('change', () => {
   applyUiLanguage();
 });
@@ -2350,10 +2357,6 @@ toggleOutputWindowButton.addEventListener('click', async () => {
   }
 });
 
-testAudioFileButton.addEventListener('click', () => {
-  testAudioFileInput.click();
-});
-
 openScriptManagerButton.addEventListener('click', () => {
   setScriptModalVisible(true);
 });
@@ -2393,7 +2396,12 @@ scriptModal.addEventListener('click', (event) => {
 testAudioFileInput.addEventListener('change', async (event) => {
   const input = event.target as HTMLInputElement | null;
   const file = input?.files?.[0];
-  setSelectedTestAudioFile(file || null);
+  if (!file) {
+    testAudioFileInput.value = '';
+    audioInputSelect.value = lastNonPickerAudioInputValue || '';
+    return;
+  }
+  setSelectedTestAudioFile(file);
   testAudioFileInput.value = '';
 });
 
