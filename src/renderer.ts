@@ -1088,13 +1088,13 @@ function updateHotkeyPills() {
     state: worshipMode ? 'suspended' : running ? 'active' : 'idle'
   });
 
-  setHotkeyPill(hintF6El, 'F6', presentationMode ? t('hint.f6.exit') : t('hint.f6.enter'), {
+  setHotkeyPill(hintF6El, 'F6', t('hint.f6.enter'), {
     title: presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff'),
     active: presentationMode,
     pressed: presentationMode,
     state: presentationMode ? 'active' : 'idle'
   });
-  setHotkeyPill(liveHotkeyF6El, 'F6', presentationMode ? t('hint.f6.exit') : t('hint.f6.enter'), {
+  setHotkeyPill(liveHotkeyF6El, 'F6', t('hint.f6.enter'), {
     title: presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff'),
     active: presentationMode,
     pressed: presentationMode,
