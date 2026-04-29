@@ -58,6 +58,7 @@ const toggleHelpButton = document.getElementById('toggleHelp') as any;
 const toggleLockControlsButton = document.getElementById('toggleLockControls') as any;
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
 const openScriptManagerButton = document.getElementById('openScriptManager') as any;
+const scriptPanelOpenScriptManagerButton = document.getElementById('scriptPanelOpenScriptManager') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
 const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript') as any;
@@ -901,6 +902,7 @@ function setControlsLocked(nextLocked) {
     targetLanguageSelect,
     refreshDevicesButton,
     openScriptManagerButton,
+    scriptPanelOpenScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
     vadThresholdInput,
@@ -1054,6 +1056,7 @@ function setStaticButtonTooltips() {
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
   openScriptManagerButton.title = t('tooltip.scriptManager');
+  scriptPanelOpenScriptManagerButton.title = t('tooltip.scriptManager');
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
@@ -1327,6 +1330,7 @@ function applyUiLanguage() {
   }
   liveToggleHelpButton.textContent = t('button.help');
   setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
+  setIconButton(scriptPanelOpenScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
   setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
   setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
@@ -2396,6 +2400,10 @@ liveToggleOutputWindowButton.addEventListener('click', async () => {
 });
 
 openScriptManagerButton.addEventListener('click', () => {
+  setScriptModalVisible(true);
+});
+
+scriptPanelOpenScriptManagerButton.addEventListener('click', () => {
   setScriptModalVisible(true);
 });
 

@@ -111,6 +111,7 @@ npm run typecheck
 - Selecting `Test Audio File...` from `Audio Input` arms that file as the active input source; translation starts when `Start (F8)` is pressed, matching live stream control flow.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - In translation mode, script panel scrolling is independent from caption panel scrolling.
+- In Translation Mode, the script panel header includes a `Script` icon for quick script popup access.
 - The newest target-language lines are highlighted in the main panel, with auto-scroll pinned to the latest bottom lines during translation (including translation mode).
 - Hover a caption line in the transcription/translation panels to reveal a copy icon for quick per-line clipboard copy.
 - VAD threshold can be adjusted during live streaming and takes effect immediately.
