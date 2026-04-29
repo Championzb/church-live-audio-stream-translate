@@ -180,6 +180,7 @@ let selectedTestAudioFile: File | null = null;
 let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
 let activePairLineId = 0;
+let transcriptPanelsAutoPin = true;
 
 const UI_TEXT = {
   en: {
@@ -1289,6 +1290,15 @@ function pinPanelsToLatest() {
   chinesePanel.scrollTop = chinesePanel.scrollHeight;
 }
 
+function isPanelNearBottom(panelEl: HTMLElement) {
+  const remaining = panelEl.scrollHeight - panelEl.clientHeight - panelEl.scrollTop;
+  return remaining <= 48;
+}
+
+function updateTranscriptAutoPinState() {
+  transcriptPanelsAutoPin = isPanelNearBottom(englishPanel) && isPanelNearBottom(chinesePanel);
+}
+
 function renderPanels(activeLineId = 0) {
   englishPanel.innerHTML = '';
   chinesePanel.innerHTML = '';
@@ -1302,11 +1312,8 @@ function renderPanels(activeLineId = 0) {
   });
 
   normalizePairedCardHeights();
-  pinPanelsToLatest();
-  window.requestAnimationFrame(() => {
+  if (transcriptPanelsAutoPin) {
     pinPanelsToLatest();
-  });
-  if (presentationMode) {
     window.requestAnimationFrame(() => {
       pinPanelsToLatest();
     });
@@ -1502,6 +1509,7 @@ async function syncOutputWindow() {
 function clearPanels() {
   pairedLines.length = 0;
   activePairLineId = 0;
+  transcriptPanelsAutoPin = true;
   renderPanels(activePairLineId);
   clearCurrentLiveTranslation();
   syncOutputWindow();
@@ -2569,6 +2577,14 @@ referenceScriptInput.addEventListener('change', async (event) => {
 
 closeHelpButton.addEventListener('click', () => {
   setHelpVisible(false);
+});
+
+englishPanel.addEventListener('scroll', () => {
+  updateTranscriptAutoPinState();
+});
+
+chinesePanel.addEventListener('scroll', () => {
+  updateTranscriptAutoPinState();
 });
 
 vadThresholdInput.addEventListener('input', () => {
