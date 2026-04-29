@@ -1532,6 +1532,11 @@ fn push_output_caption(payload: OutputCaptionPayload, app: tauri::AppHandle) -> 
     Ok(OkResponse { ok: true })
 }
 
+#[tauri::command]
+fn is_output_window_open(app: tauri::AppHandle) -> Result<bool, String> {
+    Ok(app.get_webview_window("output").is_some())
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(
@@ -1649,7 +1654,8 @@ pub fn run() {
             import_glossary,
             export_glossary,
             toggle_output_window,
-            push_output_caption
+            push_output_caption,
+            is_output_window_open
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

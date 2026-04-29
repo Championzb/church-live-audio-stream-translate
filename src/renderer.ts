@@ -82,6 +82,7 @@ const statusEl = document.getElementById('status') as any;
 const statusToastEl = document.getElementById('statusToast') as any;
 const modeSummaryEl = document.getElementById('modeSummary') as any;
 const mockModeIndicatorEl = document.getElementById('mockModeIndicator') as any;
+const projectorStatusIndicatorEl = document.getElementById('projectorStatusIndicator') as any;
 const chipModeLabelEl = document.getElementById('chipModeLabel') as any;
 const chipWorshipLabelEl = document.getElementById('chipWorshipLabel') as any;
 const chipPresentationLabelEl = document.getElementById('chipPresentationLabel') as any;
@@ -186,6 +187,13 @@ let activePairLineId = 0;
 let selectedPairLineId = 0;
 let transcriptPanelsAutoPin = true;
 let mockModeEnabled = false;
+let outputWindowOpen = false;
+let outputWindowReady = false;
+let lastOutputHeartbeatAt = 0;
+let projectorStateTimerId = 0;
+
+const PROJECTOR_STALE_MS = 7000;
+const PROJECTOR_STATE_POLL_MS = 2500;
 
 const UI_TEXT = {
   en: {
@@ -365,6 +373,10 @@ const UI_TEXT = {
     'mode.off': 'off',
     'mode.queueProcessing': 'processing',
     'mode.mockBadge': 'Mock Mode',
+    'projector.state.off': 'Projector: Off',
+    'projector.state.waiting': 'Projector: Waiting',
+    'projector.state.connected': 'Projector: Connected',
+    'projector.state.stale': 'Projector: Stale',
     'mode.summary':
       'Mode: {mode} | Translation: {translation} | Translation Mode: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
@@ -563,6 +575,10 @@ const UI_TEXT = {
     'mode.off': '关',
     'mode.queueProcessing': '处理中',
     'mode.mockBadge': '模拟模式',
+    'projector.state.off': '投影：关闭',
+    'projector.state.waiting': '投影：等待中',
+    'projector.state.connected': '投影：已连接',
+    'projector.state.stale': '投影：无响应',
     'mode.summary':
       '模式：{mode} | 翻译：{translation} | 翻译模式：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
@@ -912,6 +928,7 @@ function updateModeSummary() {
   chipLockValueEl.textContent = controlsLocked ? t('chip.locked') : t('chip.unlocked');
   chipLockValueEl.dataset.state = controlsLocked ? 'locked' : 'unlocked';
   updateMockModeIndicator();
+  updateProjectorIndicator();
   syncOutputWindow();
 }
 
@@ -921,6 +938,33 @@ function updateMockModeIndicator() {
   }
   mockModeIndicatorEl.textContent = t('mode.mockBadge');
   mockModeIndicatorEl.classList.toggle('hidden', !mockModeEnabled);
+}
+
+function projectorStateKey() {
+  if (!outputWindowOpen) return 'off';
+  if (!outputWindowReady) return 'waiting';
+  return Date.now() - lastOutputHeartbeatAt > PROJECTOR_STALE_MS ? 'stale' : 'connected';
+}
+
+function updateProjectorIndicator() {
+  if (!projectorStatusIndicatorEl) return;
+  const state = projectorStateKey();
+  projectorStatusIndicatorEl.dataset.state = state;
+  projectorStatusIndicatorEl.textContent = t(`projector.state.${state}`);
+}
+
+async function refreshProjectorOpenState() {
+  try {
+    const openNow = Boolean(await invoke('is_output_window_open'));
+    outputWindowOpen = openNow;
+    if (!openNow) {
+      outputWindowReady = false;
+      lastOutputHeartbeatAt = 0;
+    }
+    updateProjectorIndicator();
+  } catch {
+    // keep last known state
+  }
 }
 
 function setHelpVisible(nextVisible) {
@@ -1544,6 +1588,7 @@ function applyUiLanguage() {
   chipQueueLabelEl.textContent = t('chip.queue');
   chipLockLabelEl.textContent = t('chip.controls');
   mockModeIndicatorEl.textContent = t('mode.mockBadge');
+  updateProjectorIndicator();
   Array.from(uiLanguageSelect.options).forEach((option: any) => {
     option.textContent = t(`ui.${option.value}`);
   });
@@ -2331,6 +2376,28 @@ async function ensureMainInitialized() {
     resetSessionState();
   });
 
+  await listen('output-ready', () => {
+    outputWindowOpen = true;
+    outputWindowReady = true;
+    lastOutputHeartbeatAt = Date.now();
+    updateProjectorIndicator();
+  });
+
+  await listen('output-caption-rendered', () => {
+    outputWindowOpen = true;
+    outputWindowReady = true;
+    lastOutputHeartbeatAt = Date.now();
+    updateProjectorIndicator();
+  });
+
+  await refreshProjectorOpenState();
+  if (projectorStateTimerId) {
+    window.clearInterval(projectorStateTimerId);
+  }
+  projectorStateTimerId = window.setInterval(() => {
+    void refreshProjectorOpenState();
+  }, PROJECTOR_STATE_POLL_MS);
+
   mainInitialized = true;
 }
 
@@ -2650,6 +2717,12 @@ async function toggleOutputWindow() {
   try {
     await invoke('toggle_output_window');
     setStatusKey('status.outputWindowToggled');
+    await refreshProjectorOpenState();
+    if (outputWindowOpen) {
+      outputWindowReady = false;
+      lastOutputHeartbeatAt = 0;
+      updateProjectorIndicator();
+    }
     await syncOutputWindow();
     // New output window can miss early emits while listeners initialize.
     // Replay snapshot for a short period so projector reliably hydrates even
@@ -2661,6 +2734,10 @@ async function toggleOutputWindow() {
       }, delayMs);
     });
   } catch (err) {
+    outputWindowOpen = false;
+    outputWindowReady = false;
+    lastOutputHeartbeatAt = 0;
+    updateProjectorIndicator();
     setStatusKey('status.outputWindowError', { error: err.message || String(err) });
   }
 }

@@ -1,4 +1,4 @@
-const { listen } = window.__TAURI__.event;
+const { emit, listen } = window.__TAURI__.event;
 
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
@@ -19,6 +19,13 @@ function renderLines(panel, lines) {
 }
 
 async function boot() {
+  const emitHeartbeat = () => {
+    void emit('output-caption-rendered', { at: Date.now() });
+  };
+  const emitReady = () => {
+    void emit('output-ready', { at: Date.now() });
+  };
+
   await listen('output-caption', (event) => {
     const payload = event.payload || {};
     modeSummaryEl.textContent = payload.modeSummary || 'Waiting for captions...';
@@ -27,7 +34,13 @@ async function boot() {
     chineseLiveEl.textContent = payload.chineseLive || '';
     renderLines(englishPanel, payload.englishLines || []);
     renderLines(chinesePanel, payload.chineseLines || []);
+    emitHeartbeat();
   });
+
+  emitReady();
+  window.setTimeout(() => {
+    emitReady();
+  }, 260);
 }
 
 boot();

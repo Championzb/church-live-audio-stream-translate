@@ -560,6 +560,30 @@ h1 {
   white-space: nowrap;
 }
 
+.mode-indicator[data-kind='projector'][data-state='off'] {
+  border-color: color-mix(in srgb, var(--section-border) 78%, transparent);
+  background: color-mix(in srgb, var(--surface-inset) 70%, transparent);
+  color: var(--text-subtle);
+}
+
+.mode-indicator[data-kind='projector'][data-state='waiting'] {
+  border-color: color-mix(in srgb, var(--status) 60%, transparent);
+  background: color-mix(in srgb, var(--status) 16%, transparent);
+  color: color-mix(in srgb, var(--status) 84%, #ffffff);
+}
+
+.mode-indicator[data-kind='projector'][data-state='connected'] {
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.mode-indicator[data-kind='projector'][data-state='stale'] {
+  border-color: color-mix(in srgb, var(--danger) 58%, transparent);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: color-mix(in srgb, var(--danger) 80%, #ffffff);
+}
+
 .quick-state-bar {
   display: none;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
