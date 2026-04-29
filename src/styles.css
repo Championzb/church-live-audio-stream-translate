@@ -815,13 +815,14 @@ button:disabled {
   justify-content: center;
   font-size: 1.08rem;
   line-height: 1;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06));
-  box-shadow: var(--btn-shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid transparent;
 }
 
 .icon-btn:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
-  box-shadow: 0 12px 22px rgba(2, 6, 23, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.17);
+  background: transparent;
+  box-shadow: none;
 }
 
 .icon-btn:focus-visible {
@@ -830,8 +831,9 @@ button:disabled {
 }
 
 .icon-btn:disabled {
-  background: var(--surface-inset);
-  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+  background: transparent;
+  box-shadow: none;
+  opacity: 0.55;
 }
 
 #apiKey {
