@@ -105,6 +105,13 @@ h2 {
   letter-spacing: 0.008em;
 }
 
+.line.line-latest {
+  border-color: rgba(45, 212, 191, 0.9);
+  border-left-color: rgba(34, 211, 238, 0.96);
+  background: linear-gradient(90deg, rgba(16, 52, 74, 0.96), rgba(13, 38, 58, 0.96));
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.38), 0 14px 26px rgba(8, 145, 178, 0.26);
+}
+
 @media (max-width: 1080px) {
   .captions {
     grid-template-columns: 1fr;

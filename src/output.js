@@ -6,7 +6,7 @@ const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
-const PROJECTOR_MAX_HISTORY_LINES = 6;
+const PROJECTOR_MAX_HISTORY_LINES = 2;
 
 async function resolveTauriApis(maxWaitMs = 5000) {
   const startedAt = Date.now();
@@ -33,10 +33,11 @@ function renderLines(panel, lines) {
   const recentLines = Array.isArray(lines)
     ? lines.filter((text) => Boolean(text)).slice(-PROJECTOR_MAX_HISTORY_LINES)
     : [];
-  recentLines.forEach((text) => {
+  recentLines.forEach((text, index) => {
     if (!text) return;
     const div = document.createElement('div');
-    div.className = 'line';
+    const isLatest = index === recentLines.length - 1;
+    div.className = `line ${isLatest ? 'line-latest' : ''}`;
     div.textContent = text;
     panel.appendChild(div);
   });
