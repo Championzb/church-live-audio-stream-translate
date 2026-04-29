@@ -55,6 +55,11 @@ struct OkResponse {
     ok: bool,
 }
 
+#[derive(Clone, Serialize)]
+struct OutputWindowStatePayload {
+    state: String,
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct ApiKeyConfigResponse {
@@ -1537,6 +1542,14 @@ fn is_output_window_open(app: tauri::AppHandle) -> Result<bool, String> {
     Ok(app.get_webview_window("output").is_some())
 }
 
+#[tauri::command]
+fn notify_output_window_state(state: String, app: tauri::AppHandle) -> Result<OkResponse, String> {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.emit("output-window-state", OutputWindowStatePayload { state });
+    }
+    Ok(OkResponse { ok: true })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(
@@ -1655,7 +1668,8 @@ pub fn run() {
             export_glossary,
             toggle_output_window,
             push_output_caption,
-            is_output_window_open
+            is_output_window_open,
+            notify_output_window_state
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

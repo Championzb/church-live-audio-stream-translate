@@ -1,4 +1,5 @@
-const { emit, listen } = window.__TAURI__.event;
+const { invoke } = window.__TAURI__.core;
+const { listen } = window.__TAURI__.event;
 
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
@@ -19,11 +20,15 @@ function renderLines(panel, lines) {
 }
 
 async function boot() {
-  const emitHeartbeat = () => {
-    void emit('output-caption-rendered', { at: Date.now() });
+  let lastHeartbeatAt = 0;
+  const sendHeartbeat = () => {
+    const now = Date.now();
+    if (now - lastHeartbeatAt < 450) return;
+    lastHeartbeatAt = now;
+    void invoke('notify_output_window_state', { state: 'rendered' });
   };
-  const emitReady = () => {
-    void emit('output-ready', { at: Date.now() });
+  const sendReady = () => {
+    void invoke('notify_output_window_state', { state: 'ready' });
   };
 
   await listen('output-caption', (event) => {
@@ -34,12 +39,12 @@ async function boot() {
     chineseLiveEl.textContent = payload.chineseLive || '';
     renderLines(englishPanel, payload.englishLines || []);
     renderLines(chinesePanel, payload.chineseLines || []);
-    emitHeartbeat();
+    sendHeartbeat();
   });
 
-  emitReady();
+  sendReady();
   window.setTimeout(() => {
-    emitReady();
+    sendReady();
   }, 260);
 }
 

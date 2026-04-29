@@ -2238,6 +2238,16 @@ async function ensureMainInitialized() {
     await listen('reset-session', () => {
         resetSessionState();
     });
+    await listen('output-window-state', (event) => {
+        const payload = event.payload || {};
+        const state = typeof payload.state === 'string' ? payload.state : '';
+        if (state === 'ready' || state === 'rendered') {
+            outputWindowOpen = true;
+            outputWindowReady = true;
+            lastOutputHeartbeatAt = Date.now();
+            updateProjectorIndicator();
+        }
+    });
     await listen('output-ready', () => {
         outputWindowOpen = true;
         outputWindowReady = true;
