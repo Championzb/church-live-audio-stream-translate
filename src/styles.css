@@ -1148,13 +1148,14 @@ button:disabled {
 
 .line {
   position: relative;
-  background: linear-gradient(180deg, var(--line-bg), var(--surface-inset));
+  background: var(--line-bg);
   border: 1px solid var(--line-border);
   border-radius: var(--radius-sm);
   padding: 11px 44px 11px 12px;
   font-size: clamp(1.08rem, 1.65vw, 1.3rem);
   line-height: 1.55;
   box-shadow: 0 8px 16px rgba(2, 6, 23, 0.1);
+  overflow: hidden;
 }
 
 .line-text {
