@@ -75,6 +75,7 @@ const exportTranscriptButton = document.getElementById('exportTranscript') as an
 const exportTranscriptTranslatedButton = document.getElementById('exportTranscriptTranslated') as any;
 const statusEl = document.getElementById('status') as any;
 const statusToastEl = document.getElementById('statusToast') as any;
+const modeSummaryEl = document.getElementById('modeSummary') as any;
 const chipModeLabelEl = document.getElementById('chipModeLabel') as any;
 const chipWorshipLabelEl = document.getElementById('chipWorshipLabel') as any;
 const chipPresentationLabelEl = document.getElementById('chipPresentationLabel') as any;
@@ -867,6 +868,7 @@ function updateModeSummary() {
     presentation: presentationMode ? t('mode.on') : t('mode.off'),
     queue: queueText
   });
+  modeSummaryEl.textContent = summaryText;
   liveModeSummaryEl.textContent = summaryText;
   chipModeValueEl.textContent = running ? t('mode.running') : t('mode.stopped');
   chipModeValueEl.dataset.state = running ? 'running' : 'stopped';
@@ -1405,7 +1407,7 @@ async function syncOutputWindow() {
         chineseLines: pairedLines.map((line) => line.chineseText).filter(Boolean),
         englishLive: englishLiveEl.textContent || '',
         chineseLive: chineseLiveEl.textContent || '',
-        modeSummary: liveModeSummaryEl.textContent || '',
+        modeSummary: modeSummaryEl.textContent || '',
         targetLabel: languageName(targetLanguageSelect.value || 'zh-hans')
       }
     });
