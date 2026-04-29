@@ -1602,8 +1602,8 @@ body.presentation-mode .live-line {
 }
 
 body.presentation-mode .line {
-  font-size: 1.7rem;
-  line-height: 1.62;
+  font-size: 1.5rem;
+  line-height: 1.56;
   min-height: auto !important;
   height: auto !important;
   display: block;
