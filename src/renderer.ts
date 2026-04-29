@@ -69,6 +69,7 @@ const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as 
 const closeScriptModalButton = document.getElementById('closeScriptModal') as any;
 const resetSessionButton = document.getElementById('resetSession') as any;
 const exportTranscriptButton = document.getElementById('exportTranscript') as any;
+const exportTranscriptTranslatedButton = document.getElementById('exportTranscriptTranslated') as any;
 const statusEl = document.getElementById('status') as any;
 const statusToastEl = document.getElementById('statusToast') as any;
 const modeSummaryEl = document.getElementById('modeSummary') as any;
@@ -1039,6 +1040,7 @@ function setStaticButtonTooltips() {
   resetSessionButton.title = t('tooltip.resetSession');
   liveResetSessionButton.title = t('tooltip.resetSession');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
+  exportTranscriptTranslatedButton.title = t('tooltip.exportTranscript');
   saveGlossaryButton.title = t('tooltip.saveGlossary');
   importGlossaryButton.title = t('tooltip.import');
   exportGlossaryButton.title = t('tooltip.export');
@@ -1309,6 +1311,7 @@ function applyUiLanguage() {
   resetSessionButton.textContent = t('button.resetSession');
   liveResetSessionButton.textContent = t('button.resetSession');
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
+  setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveGlossary');
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');
@@ -2344,6 +2347,15 @@ liveResetSessionButton.addEventListener('click', () => {
 });
 
 exportTranscriptButton.addEventListener('click', async () => {
+  const result = await invoke('export_transcript', { entries: transcriptEntries });
+  if (result.ok) {
+    setStatusKey('status.transcriptExported', { path: result.path });
+  } else {
+    setStatus(result.message || t('status.transcriptExportFailed'));
+  }
+});
+
+exportTranscriptTranslatedButton.addEventListener('click', async () => {
   const result = await invoke('export_transcript', { entries: transcriptEntries });
   if (result.ok) {
     setStatusKey('status.transcriptExported', { path: result.path });
