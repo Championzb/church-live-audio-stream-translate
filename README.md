@@ -95,6 +95,7 @@ npm run typecheck
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
+- The `Settings` header button is a toggle: click once to open Settings, click again to return to Live view.
 - Settings includes UI language and a Theme picker (`Broadcast Clean`, `Paper Light`, `Minimal Mono`).
 - OpenAI key access is available from the right side of the bottom status bar for one-click updates.
 - Settings now uses a responsive structured layout with tighter width, a compact Appearance card, and a cleaner Glossary editor/action row.

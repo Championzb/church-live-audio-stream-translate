@@ -2250,10 +2250,10 @@ saveMainApiKeyButton.addEventListener('click', async () => {
     await saveApiKeyModalChanges();
 });
 openSettingsPageButton.addEventListener('click', () => {
-    setMainView('settings');
+    setMainView(mainView === 'settings' ? 'live' : 'settings');
 });
 liveOpenSettingsPageButton.addEventListener('click', () => {
-    setMainView('settings');
+    setMainView(mainView === 'settings' ? 'live' : 'settings');
 });
 backToLivePageButton.addEventListener('click', () => {
     setMainView('live');
