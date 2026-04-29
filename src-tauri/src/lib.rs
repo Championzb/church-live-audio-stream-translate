@@ -1596,6 +1596,30 @@ fn start_dragging_window(window: tauri::WebviewWindow) -> Result<OkResponse, Str
     Ok(OkResponse { ok: true })
 }
 
+#[tauri::command]
+fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResponse, String> {
+    match action.as_str() {
+        "minimize" => window.minimize().map_err(|e| format!("Failed to minimize window: {e}"))?,
+        "toggle_maximize" => {
+            let is_maximized = window
+                .is_maximized()
+                .map_err(|e| format!("Failed to read maximize state: {e}"))?;
+            if is_maximized {
+                window
+                    .unmaximize()
+                    .map_err(|e| format!("Failed to unmaximize window: {e}"))?;
+            } else {
+                window
+                    .maximize()
+                    .map_err(|e| format!("Failed to maximize window: {e}"))?;
+            }
+        }
+        "close" => window.close().map_err(|e| format!("Failed to close window: {e}"))?,
+        _ => return Err(format!("Unknown window action: {action}")),
+    }
+    Ok(OkResponse { ok: true })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(
@@ -1718,7 +1742,8 @@ pub fn run() {
             is_output_window_open,
             notify_output_window_state,
             get_latest_output_caption,
-            start_dragging_window
+            start_dragging_window,
+            control_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

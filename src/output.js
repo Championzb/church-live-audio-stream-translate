@@ -4,6 +4,9 @@ const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
+const outputWindowMinimizeButton = document.getElementById('outputWindowMinimize');
+const outputWindowMaximizeButton = document.getElementById('outputWindowMaximize');
+const outputWindowCloseButton = document.getElementById('outputWindowClose');
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
 const PROJECTOR_MAX_HISTORY_LINES = 2;
@@ -119,9 +122,36 @@ function bindDragBars(invoke) {
   });
 }
 
+function bindWindowControls(invoke) {
+  if (!invoke) return;
+  const runWindowAction = async (action) => {
+    try {
+      await invoke('control_window', { action });
+    } catch {
+      // ignore control errors
+    }
+  };
+  if (outputWindowMinimizeButton) {
+    outputWindowMinimizeButton.addEventListener('click', () => {
+      void runWindowAction('minimize');
+    });
+  }
+  if (outputWindowMaximizeButton) {
+    outputWindowMaximizeButton.addEventListener('click', () => {
+      void runWindowAction('toggle_maximize');
+    });
+  }
+  if (outputWindowCloseButton) {
+    outputWindowCloseButton.addEventListener('click', () => {
+      void runWindowAction('close');
+    });
+  }
+}
+
 async function boot() {
   const { invoke, listen } = await resolveTauriApis();
   bindDragBars(invoke);
+  bindWindowControls(invoke);
   if (!invoke && !listen) {
     console.error('[output] Tauri APIs unavailable; output listener and bootstrap fetch not attached.');
     return;

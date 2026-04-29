@@ -98,6 +98,9 @@ const hintF7El = document.getElementById('hintF7') as any;
 const hintF6El = document.getElementById('hintF6') as any;
 const hintF2El = document.getElementById('hintF2') as any;
 const hintF1El = document.getElementById('hintF1') as any;
+const windowMinimizeButton = document.getElementById('windowMinimize') as any;
+const windowMaximizeButton = document.getElementById('windowMaximize') as any;
+const windowCloseButton = document.getElementById('windowClose') as any;
 const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
@@ -711,6 +714,31 @@ function bindDragBars() {
       }
     });
   });
+}
+
+function bindWindowControls() {
+  const runWindowAction = async (action) => {
+    try {
+      await invoke('control_window', { action });
+    } catch {
+      // Ignore control errors on unsupported platforms.
+    }
+  };
+  if (windowMinimizeButton) {
+    windowMinimizeButton.addEventListener('click', () => {
+      void runWindowAction('minimize');
+    });
+  }
+  if (windowMaximizeButton) {
+    windowMaximizeButton.addEventListener('click', () => {
+      void runWindowAction('toggle_maximize');
+    });
+  }
+  if (windowCloseButton) {
+    windowCloseButton.addEventListener('click', () => {
+      void runWindowAction('close');
+    });
+  }
 }
 
 function languageName(code) {
@@ -3015,6 +3043,7 @@ async function loadSavedAdminApiKeyIfAvailable() {
 
 async function boot() {
   bindDragBars();
+  bindWindowControls();
   const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
   applyTheme(savedTheme);
   const savedUiLanguage = localStorage.getItem('church-ui-language');

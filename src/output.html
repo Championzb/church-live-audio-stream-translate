@@ -8,7 +8,14 @@
   </head>
   <body>
     <main>
-      <div class="window-drag-bar" data-tauri-drag-region aria-hidden="true"></div>
+      <div class="window-titlebar window-drag-bar" data-tauri-drag-region>
+        <div class="window-title">Projector View</div>
+        <div class="window-controls" data-no-drag>
+          <button id="outputWindowMinimize" class="window-control-btn" type="button" aria-label="Minimize">−</button>
+          <button id="outputWindowMaximize" class="window-control-btn" type="button" aria-label="Maximize">□</button>
+          <button id="outputWindowClose" class="window-control-btn danger" type="button" aria-label="Close">×</button>
+        </div>
+      </div>
       <section class="captions">
         <article>
           <h2>English</h2>
