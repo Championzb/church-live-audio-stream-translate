@@ -44,6 +44,8 @@ function applyCaptionPayload(payload) {
   renderLines(chinesePanel, data.chineseLines || []);
 }
 
+window.__applyOutputCaption = applyCaptionPayload;
+
 function applySnapshotFromStorage() {
   try {
     const raw = localStorage.getItem(OUTPUT_SNAPSHOT_STORAGE_KEY);

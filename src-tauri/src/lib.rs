@@ -1547,10 +1547,17 @@ fn push_output_caption(
         *latest = Some(payload.clone());
     }
     if let Some(window) = app.get_webview_window("output") {
+        let payload_json = serde_json::to_string(&payload)
+            .map_err(|e| format!("Failed to serialize output payload: {e}"))?;
         let emitted = window.emit("output-caption", payload).is_ok();
+        let eval_delivered = window
+            .eval(&format!(
+                "window.__applyOutputCaption && window.__applyOutputCaption({payload_json});"
+            ))
+            .is_ok();
         return Ok(PushOutputCaptionResponse {
             ok: true,
-            delivered: emitted,
+            delivered: emitted || eval_delivered,
         });
     }
     Ok(PushOutputCaptionResponse {
