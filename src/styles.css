@@ -374,7 +374,7 @@ body {
 
 .control-pill {
   border: 1px solid color-mix(in srgb, var(--section-border) 70%, transparent);
-  background: color-mix(in srgb, var(--surface-soft) 42%, transparent);
+  background: transparent;
   border-radius: var(--radius-md);
   padding: 10px;
   box-shadow: 0 10px 20px rgba(2, 6, 23, 0.12);
@@ -468,7 +468,7 @@ h1 {
   margin: 0;
   padding: 9px 13px;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--summary-bg) 30%, transparent);
+  background: transparent;
   border: 1px solid color-mix(in srgb, var(--section-border) 62%, transparent);
   font-size: 0.9rem;
   line-height: 1.3;
