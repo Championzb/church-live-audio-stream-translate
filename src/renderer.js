@@ -49,6 +49,7 @@ const liveHotkeyF1El = document.getElementById('liveHotkeyF1');
 const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
+const mockModeInput = document.getElementById('mockMode');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
 const targetLanguageSelect = document.getElementById('targetLanguage');
@@ -118,6 +119,7 @@ const labelUiLanguageEl = document.getElementById('labelUiLanguage');
 const labelAudioInputEl = document.getElementById('labelAudioInput');
 const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput');
 const labelThemeEl = document.getElementById('labelTheme');
+const labelMockModeEl = document.getElementById('labelMockMode');
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
 const labelVadThresholdEl = document.getElementById('labelVadThreshold');
@@ -175,6 +177,7 @@ let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
 let activePairLineId = 0;
 let transcriptPanelsAutoPin = true;
+let mockModeEnabled = false;
 const UI_TEXT = {
     en: {
         'landing.title': 'Connect OpenAI API Key',
@@ -185,6 +188,7 @@ const UI_TEXT = {
         'label.uiLanguage': 'UI Language',
         'label.audioInput': 'Audio Input',
         'label.theme': 'Theme',
+        'label.mockMode': 'Mock Mode (No API)',
         'label.sourceLanguage': 'Source Language',
         'label.targetLanguage': 'Output Language',
         'label.vadThreshold': 'VAD Threshold',
@@ -339,6 +343,8 @@ const UI_TEXT = {
         'status.listening': 'Listening...',
         'status.translating': 'Translating...',
         'status.warning': 'Warning: {warning}',
+        'status.mockModeEnabled': 'Mock mode enabled: local fake translation is active',
+        'status.mockModeDisabled': 'Mock mode disabled: real API translation restored',
         'script.empty': 'No reference script loaded. Upload target-language script before translation for quick reference in translation mode.',
         'script.metaNone': 'No reference script loaded.',
         'script.metaLoaded': 'Loaded script: {lines} lines',
@@ -378,6 +384,7 @@ const UI_TEXT = {
         'label.uiLanguage': '界面语言',
         'label.audioInput': '音频输入',
         'label.theme': '主题',
+        'label.mockMode': '模拟模式（不调用 API）',
         'label.sourceLanguage': '源语言',
         'label.targetLanguage': '输出语言',
         'label.vadThreshold': 'VAD 阈值',
@@ -532,6 +539,8 @@ const UI_TEXT = {
         'status.listening': '正在聆听...',
         'status.translating': '正在翻译...',
         'status.warning': '警告：{warning}',
+        'status.mockModeEnabled': '模拟模式已开启：使用本地假翻译',
+        'status.mockModeDisabled': '模拟模式已关闭：恢复真实 API 翻译',
         'script.empty': '尚未加载参考讲稿。建议在翻译前上传目标语言讲稿，便于翻译模式中随时查看。',
         'script.metaNone': '尚未加载参考讲稿。',
         'script.metaLoaded': '已加载讲稿：{lines} 行',
@@ -588,6 +597,7 @@ const SUPPORTED_UI_THEMES = ['broadcast-clean', 'paper-light', 'minimal-mono'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
 const UI_THEME_STORAGE_KEY = 'church-ui-theme';
 const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
+const MOCK_MODE_STORAGE_KEY = 'church-mock-mode';
 const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
 let uiLanguage = 'en';
 let mainInitialized = false;
@@ -895,6 +905,7 @@ function setControlsLocked(nextLocked) {
         audioInputSelect,
         liveAudioInputSelect,
         themeSelect,
+        mockModeInput,
         sourceLanguageSelect,
         targetLanguageSelect,
         refreshDevicesButton,
@@ -1340,6 +1351,7 @@ function applyUiLanguage() {
     labelAudioInputEl.textContent = t('label.audioInput');
     labelLiveAudioInputEl.textContent = t('label.audioInput');
     labelThemeEl.textContent = t('label.theme');
+    labelMockModeEl.textContent = t('label.mockMode');
     labelSourceLanguageEl.textContent = t('label.sourceLanguage');
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
     labelVadThresholdEl.textContent = t('label.vadThreshold');
@@ -1534,7 +1546,50 @@ function waitMs(ms) {
         window.setTimeout(resolve, ms);
     });
 }
+const MOCK_TRANSLATION_PAIRS = [
+    {
+        english: 'Mock: This is a sample translated segment for panel testing.',
+        chinese: '模拟：这是用于面板测试的示例翻译片段。'
+    },
+    {
+        english: 'Mock: Scroll behavior and line wrapping should match live mode.',
+        chinese: '模拟：滚动行为和换行效果应与真实模式一致。'
+    },
+    {
+        english: 'Mock: Long sentence preview to test clipping, spacing, and card growth under dense content.',
+        chinese: '模拟：这是一段较长文本，用于测试密集内容下的裁切、间距和卡片自适应高度。'
+    },
+    {
+        english: 'Mock: Highlight, export, and copy actions remain available in this mode.',
+        chinese: '模拟：高亮、导出和复制功能在该模式下仍然可用。'
+    },
+    {
+        english: 'Mock: Deterministic output keeps repeated tests stable and comparable.',
+        chinese: '模拟：确定性输出可让重复测试保持稳定、便于对比。'
+    }
+];
+function hashSeedText(seedText) {
+    let hash = 0;
+    for (let i = 0; i < seedText.length; i += 1) {
+        hash = (hash * 31 + seedText.charCodeAt(i)) >>> 0;
+    }
+    return hash;
+}
+function buildMockSegmentResult(payload) {
+    const audioSeed = String(payload?.audio_base64 || '').slice(0, 512);
+    const seedText = `${payload?.durationMs || 0}:${audioSeed}`;
+    const pair = MOCK_TRANSLATION_PAIRS[hashSeedText(seedText) % MOCK_TRANSLATION_PAIRS.length];
+    return {
+        english: pair.english,
+        translated: pair.chinese,
+        chinese: pair.chinese,
+        warning: ''
+    };
+}
 async function processSegmentWithRetry(payload) {
+    if (mockModeEnabled) {
+        return buildMockSegmentResult(payload);
+    }
     let lastError;
     for (let attempt = 0; attempt <= SEGMENT_MAX_RETRIES; attempt += 1) {
         try {
@@ -2052,6 +2107,9 @@ async function ensureMainInitialized() {
     }
     const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
     autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
+    const savedMockMode = localStorage.getItem(MOCK_MODE_STORAGE_KEY);
+    mockModeEnabled = savedMockMode === '1';
+    mockModeInput.checked = mockModeEnabled;
     const savedControlsLocked = localStorage.getItem('church-controls-locked');
     setControlsLocked(savedControlsLocked === '1');
     updateTranslatedHeading();
@@ -2273,6 +2331,11 @@ uiLanguageSelect.addEventListener('change', () => {
 themeSelect.addEventListener('change', () => {
     applyTheme(themeSelect.value);
     setStatusKey('status.themeSet', { theme: t(`theme.${themeSelect.value}`) });
+});
+mockModeInput.addEventListener('change', () => {
+    mockModeEnabled = Boolean(mockModeInput.checked);
+    localStorage.setItem(MOCK_MODE_STORAGE_KEY, mockModeEnabled ? '1' : '0');
+    setStatusKey(mockModeEnabled ? 'status.mockModeEnabled' : 'status.mockModeDisabled');
 });
 sourceLanguageSelect.addEventListener('change', async () => {
     await syncTranslationConfig();

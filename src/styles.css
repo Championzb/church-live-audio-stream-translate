@@ -983,6 +983,15 @@ button:disabled {
   width: 86px;
 }
 
+#mockMode {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  box-shadow: none;
+  justify-self: start;
+}
+
 #glossary {
   width: min(960px, 100%);
   min-height: 84px;
