@@ -89,7 +89,28 @@ function applySnapshotFromStorage() {
   }
 }
 
+function bindDragBars() {
+  const currentWindow =
+    window.__TAURI__
+    && window.__TAURI__.window
+    && typeof window.__TAURI__.window.getCurrentWindow === 'function'
+      ? window.__TAURI__.window.getCurrentWindow()
+      : null;
+  if (!currentWindow || typeof currentWindow.startDragging !== 'function') {
+    return;
+  }
+  const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
+  dragBars.forEach((bar) => {
+    if (!(bar instanceof HTMLElement)) return;
+    bar.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0) return;
+      void currentWindow.startDragging();
+    });
+  });
+}
+
 async function boot() {
+  bindDragBars();
   const { invoke, listen } = await resolveTauriApis();
   if (!invoke && !listen) {
     console.error('[output] Tauri APIs unavailable; output listener and bootstrap fetch not attached.');

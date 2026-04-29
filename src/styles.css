@@ -225,6 +225,12 @@ body[data-theme='minimal-mono'] {
   width: 100%;
   -webkit-app-region: drag;
   border-radius: 10px;
+  cursor: grab;
+  user-select: none;
+}
+
+.window-drag-bar:active {
+  cursor: grabbing;
 }
 
 body {

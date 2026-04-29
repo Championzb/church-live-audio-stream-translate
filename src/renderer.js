@@ -671,6 +671,26 @@ function setIconButton(button, icon, label) {
     button.textContent = icon;
     button.setAttribute('aria-label', label);
 }
+function bindDragBars() {
+    const currentWindow = window.__TAURI__
+        && window.__TAURI__.window
+        && typeof window.__TAURI__.window.getCurrentWindow === 'function'
+        ? window.__TAURI__.window.getCurrentWindow()
+        : null;
+    if (!currentWindow || typeof currentWindow.startDragging !== 'function') {
+        return;
+    }
+    const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
+    dragBars.forEach((bar) => {
+        if (!(bar instanceof HTMLElement))
+            return;
+        bar.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0)
+                return;
+            void currentWindow.startDragging();
+        });
+    });
+}
 function languageName(code) {
     const labels = LANGUAGE_DISPLAY[uiLanguage] || LANGUAGE_DISPLAY.en;
     return labels[code] || code;
@@ -2779,6 +2799,7 @@ async function loadSavedAdminApiKeyIfAvailable() {
     }
 }
 async function boot() {
+    bindDragBars();
     const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
     applyTheme(savedTheme);
     const savedUiLanguage = localStorage.getItem('church-ui-language');
