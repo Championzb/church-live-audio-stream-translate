@@ -21,10 +21,7 @@ main {
 }
 
 .window-drag-bar {
-  height: 44px;
-  width: 100%;
   -webkit-app-region: drag;
-  border-radius: 14px;
   cursor: grab;
   user-select: none;
 }
@@ -33,48 +30,69 @@ main {
   cursor: grabbing;
 }
 
-.window-titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px 8px 14px;
-  background: rgba(10, 22, 41, 0.52);
-  border: 1px solid rgba(100, 132, 170, 0.28);
-  backdrop-filter: blur(6px);
+.window-frame-overlay {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 62px;
+  pointer-events: none;
+  z-index: 1400;
 }
 
-.window-title {
-  font-size: 0.86rem;
-  font-weight: 650;
-  letter-spacing: 0.02em;
-  color: #b9cfeb;
-  white-space: nowrap;
+.window-drag-zone {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  border-radius: 14px 14px 0 0;
 }
 
 .window-controls {
   -webkit-app-region: no-drag;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.floating-window-controls {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 132, 170, 0.34);
+  background: rgba(10, 22, 41, 0.26);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
 }
 
 .window-control-btn {
-  width: 30px;
-  min-width: 30px;
-  height: 26px;
-  min-height: 26px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
   padding: 0;
-  border-radius: 8px;
-  font-size: 0.92rem;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
   line-height: 1;
   border: 1px solid rgba(148, 163, 184, 0.34);
   color: #e8f0fb;
-  background: rgba(15, 32, 52, 0.62);
+  background: rgba(15, 32, 52, 0.6);
   cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.window-control-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(33, 58, 85, 0.66);
+  border-color: rgba(165, 196, 233, 0.54);
 }
 
 .window-control-btn.danger:hover {
-  background: rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(248, 113, 113, 0.46);
 }
 
 .mode-summary {
