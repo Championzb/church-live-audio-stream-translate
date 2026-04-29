@@ -312,10 +312,10 @@ body {
   top: 10px;
   z-index: 85;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto;
   grid-template-areas:
-    "hotkeys actions"
-    "tuning tuning";
+    "exit hotkeys output"
+    "tuning tuning tuning";
   align-items: center;
   width: 100%;
   max-width: none;
@@ -326,16 +326,6 @@ body {
   border: 1px solid var(--section-border);
   background: var(--surface-soft);
   box-shadow: var(--ring-soft);
-}
-
-.live-bar-actions {
-  grid-area: actions;
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 8px;
-  justify-self: end;
-  align-self: start;
 }
 
 .live-bar-tuning {
@@ -365,6 +355,19 @@ body {
   align-items: center;
   gap: 6px;
   width: 100%;
+  justify-self: center;
+}
+
+#liveExitTranslationMode {
+  grid-area: exit;
+  justify-self: start;
+  align-self: start;
+}
+
+#liveToggleOutputWindow {
+  grid-area: output;
+  justify-self: end;
+  align-self: start;
 }
 
 .live-hotkey-pill {
@@ -1225,11 +1228,11 @@ button:disabled {
 
   .translation-live-bar {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: auto auto;
     grid-template-areas:
-      "hotkeys"
-      "tuning"
-      "actions";
+      "exit output"
+      "hotkeys hotkeys"
+      "tuning tuning";
     width: 100%;
   }
 
