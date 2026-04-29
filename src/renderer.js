@@ -181,8 +181,8 @@ const UI_TEXT = {
         'button.refresh': 'Refresh',
         'button.start': 'Start (F8)',
         'button.stop': 'Stop (F8)',
-        'button.worshipOn': 'Worship Mode On (F7)',
-        'button.worshipOff': 'Worship Mode Off (F7)',
+        'button.worshipOn': 'Resume Translation (F7)',
+        'button.worshipOff': 'Suspend Translation (F7)',
         'button.presentationOn': 'Exit Translation Mode (F6)',
         'button.presentationOff': 'Translation Mode (F6)',
         'button.help': 'Help (F1)',
@@ -218,8 +218,8 @@ const UI_TEXT = {
         'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
         'tooltip.start': 'Start live capture and translation (F8).',
         'tooltip.stop': 'Stop live capture and translation (F8).',
-        'tooltip.worshipOn': 'Worship mode is ON: translation is paused for songs. Click to resume translation (F7).',
-        'tooltip.worshipOff': 'Worship mode is OFF: translation is active. Click to pause translation for songs (F7).',
+        'tooltip.worshipOn': 'Translation is suspended. Click to resume translation (F7).',
+        'tooltip.worshipOff': 'Translation is active. Click to suspend translation without stopping capture (F7).',
         'tooltip.presentationOn': 'Exit translation mode and return to standard layout (F6 or Esc).',
         'tooltip.presentationOff': 'Enter translation mode with a larger subtitle-focused layout (F6).',
         'tooltip.help': 'Show or hide the hotkey/help overlay.',
@@ -243,29 +243,29 @@ const UI_TEXT = {
         'tooltip.copyKey': 'Copy this key value to clipboard.',
         'help.title': 'Quick Controls',
         'help.f8': '<strong>F8</strong>: Start/Stop translation',
-        'help.f7': '<strong>F7</strong>: Toggle worship mode',
+        'help.f7': '<strong>F7</strong>: Suspend/Resume translation',
         'help.f6': '<strong>F6</strong>: Toggle translation mode',
         'help.f2': '<strong>F2</strong>: Lock/unlock config controls',
         'help.f4': '<strong>F4</strong>: Reset captions + transcript + queue',
         'help.f1': '<strong>F1</strong>: Toggle this help panel',
         'chip.mode': 'Mode',
-        'chip.worship': 'Worship',
+        'chip.worship': 'Translation',
         'chip.translation': 'Translation',
         'chip.queue': 'Queue',
         'chip.controls': 'Controls',
         'chip.locked': 'Locked',
         'chip.unlocked': 'Unlocked',
         'hint.f8': '<kbd>F8</kbd> Start/Stop',
-        'hint.f7': '<kbd>F7</kbd> Worship',
+        'hint.f7': '<kbd>F7</kbd> Suspend',
         'hint.f6': '<kbd>F6</kbd> Translation',
         'hint.f2': '<kbd>F2</kbd> Lock',
         'hint.f1': '<kbd>F1</kbd> Help',
         'status.idle': 'Idle',
         'status.controlsLocked': 'Config controls locked',
         'status.controlsUnlocked': 'Config controls unlocked',
-        'status.worshipEnabled': 'Worship mode enabled: translation is paused',
-        'status.worshipDisabledRunning': 'Worship mode disabled: translation resumed',
-        'status.worshipDisabled': 'Worship mode disabled',
+        'status.worshipEnabled': 'Translation suspended',
+        'status.worshipDisabledRunning': 'Translation resumed',
+        'status.worshipDisabled': 'Translation state reset',
         'status.sessionReset': 'Session reset: captions, transcript, and queue cleared',
         'status.retryingSegment': 'Retrying segment ({attempt}/{max})...',
         'status.testingFile': 'Testing file: {name}',
@@ -316,10 +316,12 @@ const UI_TEXT = {
         'script.metaLoaded': 'Loaded script: {lines} lines',
         'mode.running': 'running',
         'mode.stopped': 'stopped',
+        'mode.active': 'active',
+        'mode.suspended': 'suspended',
         'mode.on': 'on',
         'mode.off': 'off',
         'mode.queueProcessing': 'processing',
-        'mode.summary': 'Mode: {mode} | Worship: {worship} | Translation Mode: {presentation} | Queue: {queue}',
+        'mode.summary': 'Mode: {mode} | Translation: {translation} | Translation Mode: {presentation} | Queue: {queue}',
         'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
         'cost.project': 'Project: {projectId}',
         'cost.realSummary': 'Real cost: today {today} {currency} | month {month} {currency}',
@@ -358,8 +360,8 @@ const UI_TEXT = {
         'button.refresh': '刷新',
         'button.start': '开始（F8）',
         'button.stop': '停止（F8）',
-        'button.worshipOn': '敬拜模式开启（F7）',
-        'button.worshipOff': '敬拜模式关闭（F7）',
+        'button.worshipOn': '恢复翻译（F7）',
+        'button.worshipOff': '暂停翻译（F7）',
         'button.presentationOn': '退出翻译模式（F6）',
         'button.presentationOff': '翻译模式（F6）',
         'button.help': '帮助（F1）',
@@ -395,8 +397,8 @@ const UI_TEXT = {
         'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
         'tooltip.start': '开始实时采集和翻译（F8）。',
         'tooltip.stop': '停止实时采集和翻译（F8）。',
-        'tooltip.worshipOn': '敬拜模式已开启：翻译暂停（适合诗歌时段）。点击可恢复翻译（F7）。',
-        'tooltip.worshipOff': '敬拜模式已关闭：翻译进行中。点击可在诗歌时段暂停翻译（F7）。',
+        'tooltip.worshipOn': '翻译已暂停。点击恢复翻译（F7）。',
+        'tooltip.worshipOff': '翻译进行中。点击暂停翻译且不停止采集（F7）。',
         'tooltip.presentationOn': '退出翻译模式并返回标准布局（F6 或 Esc）。',
         'tooltip.presentationOff': '进入翻译模式并使用更大的字幕布局（F6）。',
         'tooltip.help': '显示或隐藏快捷键帮助面板。',
@@ -420,29 +422,29 @@ const UI_TEXT = {
         'tooltip.copyKey': '复制该密钥到剪贴板。',
         'help.title': '快捷控制',
         'help.f8': '<strong>F8</strong>：开始/停止翻译',
-        'help.f7': '<strong>F7</strong>：切换敬拜模式',
+        'help.f7': '<strong>F7</strong>：暂停/恢复翻译',
         'help.f6': '<strong>F6</strong>：切换翻译模式',
         'help.f2': '<strong>F2</strong>：锁定/解锁配置',
         'help.f4': '<strong>F4</strong>：重置字幕 + 转录 + 队列',
         'help.f1': '<strong>F1</strong>：切换帮助面板',
         'chip.mode': '模式',
-        'chip.worship': '敬拜',
+        'chip.worship': '翻译',
         'chip.translation': '翻译',
         'chip.queue': '队列',
         'chip.controls': '控制',
         'chip.locked': '已锁定',
         'chip.unlocked': '未锁定',
         'hint.f8': '<kbd>F8</kbd> 开始/停止',
-        'hint.f7': '<kbd>F7</kbd> 敬拜',
+        'hint.f7': '<kbd>F7</kbd> 暂停',
         'hint.f6': '<kbd>F6</kbd> 翻译',
         'hint.f2': '<kbd>F2</kbd> 锁定',
         'hint.f1': '<kbd>F1</kbd> 帮助',
         'status.idle': '空闲',
         'status.controlsLocked': '配置控件已锁定',
         'status.controlsUnlocked': '配置控件已解锁',
-        'status.worshipEnabled': '已开启敬拜模式：翻译已暂停',
-        'status.worshipDisabledRunning': '已关闭敬拜模式：翻译已恢复',
-        'status.worshipDisabled': '已关闭敬拜模式',
+        'status.worshipEnabled': '翻译已暂停',
+        'status.worshipDisabledRunning': '翻译已恢复',
+        'status.worshipDisabled': '翻译状态已重置',
         'status.sessionReset': '会话已重置：字幕、转录和队列已清空',
         'status.retryingSegment': '正在重试片段（{attempt}/{max}）...',
         'status.testingFile': '正在测试文件：{name}',
@@ -493,10 +495,12 @@ const UI_TEXT = {
         'script.metaLoaded': '已加载讲稿：{lines} 行',
         'mode.running': '运行中',
         'mode.stopped': '已停止',
+        'mode.active': '进行中',
+        'mode.suspended': '已暂停',
         'mode.on': '开',
         'mode.off': '关',
         'mode.queueProcessing': '处理中',
-        'mode.summary': '模式：{mode} | 敬拜：{worship} | 翻译模式：{presentation} | 队列：{queue}',
+        'mode.summary': '模式：{mode} | 翻译：{translation} | 翻译模式：{presentation} | 队列：{queue}',
         'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
         'cost.project': 'Project：{projectId}',
         'cost.realSummary': '真实费用：今日 {today} {currency} | 本月 {month} {currency}',
@@ -804,9 +808,14 @@ function updateModeSummary() {
     const queueText = segmentQueueRunning
         ? `${pendingSegments.length} (${t('mode.queueProcessing')})`
         : `${pendingSegments.length}`;
+    const translationState = !running
+        ? t('mode.stopped')
+        : worshipMode
+            ? t('mode.suspended')
+            : t('mode.active');
     const summaryText = t('mode.summary', {
         mode: running ? t('mode.running') : t('mode.stopped'),
-        worship: worshipMode ? t('mode.on') : t('mode.off'),
+        translation: translationState,
         presentation: presentationMode ? t('mode.on') : t('mode.off'),
         queue: queueText
     });
@@ -814,8 +823,8 @@ function updateModeSummary() {
     liveModeSummaryEl.textContent = summaryText;
     chipModeValueEl.textContent = running ? t('mode.running') : t('mode.stopped');
     chipModeValueEl.dataset.state = running ? 'running' : 'stopped';
-    chipWorshipValueEl.textContent = worshipMode ? t('mode.on') : t('mode.off');
-    chipWorshipValueEl.dataset.state = worshipMode ? 'on' : 'off';
+    chipWorshipValueEl.textContent = translationState;
+    chipWorshipValueEl.dataset.state = !running ? 'stopped' : worshipMode ? 'suspended' : 'running';
     chipPresentationValueEl.textContent = presentationMode ? t('mode.on') : t('mode.off');
     chipPresentationValueEl.dataset.state = presentationMode ? 'on' : 'off';
     chipQueueValueEl.textContent = queueText;
@@ -883,6 +892,16 @@ function setRunningButtonState() {
     }
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
     liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+    setSuspendButtonState();
+}
+function setSuspendButtonState() {
+    toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+    liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+    toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+    liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+    const canToggleSuspend = running || worshipMode;
+    toggleWorshipModeButton.disabled = !canToggleSuspend;
+    liveToggleWorshipModeButton.disabled = !canToggleSuspend;
 }
 function updateTestAudioFileButtonState() {
     const busy = Boolean(testStreamActive);
@@ -892,14 +911,11 @@ function updateTestAudioFileButtonState() {
 }
 function refreshToggleButtonLabels() {
     setRunningButtonState();
-    toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
-    liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+    setSuspendButtonState();
     togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
     toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
     liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
-    toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
-    liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
     toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
 }
@@ -948,25 +964,34 @@ function togglePresentationModeDebounced() {
     lastPresentationToggleAt = now;
     setPresentationMode(!presentationMode);
 }
-function setWorshipMode(nextMode) {
+function setWorshipMode(nextMode, options = {}) {
+    if (nextMode && !running) {
+        return;
+    }
     worshipMode = Boolean(nextMode);
-    toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
-    liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
-    toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
-    liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+    setSuspendButtonState();
     if (worshipMode) {
         pendingSegments.length = 0;
         clearCurrentLiveTranslation();
-        setStatusKey('status.worshipEnabled');
+        if (!options.silentStatus) {
+            setStatusKey('status.worshipEnabled');
+        }
     }
     else if (running) {
-        setStatusKey('status.worshipDisabledRunning');
         drainSegmentQueue();
+        if (!options.silentStatus) {
+            setStatusKey('status.worshipDisabledRunning');
+        }
     }
-    else {
+    else if (!options.silentStatus) {
         setStatusKey('status.worshipDisabled');
     }
     updateModeSummary();
+}
+function toggleSuspendMode() {
+    if (!running && !worshipMode)
+        return;
+    setWorshipMode(!worshipMode);
 }
 function buildLineCard(text, warning, isActive) {
     const div = document.createElement('div');
@@ -1642,6 +1667,7 @@ async function setRunning(nextRunning) {
     setRunningButtonState();
     await invoke('set_running', { nextRunning: running });
     if (running) {
+        setWorshipMode(false, { silentStatus: true });
         try {
             await setupAudioPipeline();
             setStatusKey('status.running', {
@@ -1658,6 +1684,7 @@ async function setRunning(nextRunning) {
         }
     }
     else {
+        setWorshipMode(false, { silentStatus: true });
         await stopAudioPipeline();
         pendingSegments.length = 0;
         clearCurrentLiveTranslation();
@@ -1738,7 +1765,7 @@ async function ensureMainInitialized() {
         togglePresentationModeDebounced();
     });
     await listen('toggle-worship-mode', () => {
-        setWorshipMode(!worshipMode);
+        toggleSuspendMode();
     });
     await listen('toggle-help-overlay', () => {
         setHelpVisible(!helpVisible);
@@ -1955,10 +1982,10 @@ liveToggleRunButton.addEventListener('click', async () => {
     await setRunning(!running);
 });
 toggleWorshipModeButton.addEventListener('click', () => {
-    setWorshipMode(!worshipMode);
+    toggleSuspendMode();
 });
 liveToggleWorshipModeButton.addEventListener('click', () => {
-    setWorshipMode(!worshipMode);
+    toggleSuspendMode();
 });
 togglePresentationButton.addEventListener('click', () => {
     togglePresentationModeDebounced();

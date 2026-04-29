@@ -7,10 +7,10 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Configurable output language captions shown in parallel
 - Source language switch supports Korean, English, Japanese, and Chinese sermons
 - Configurable UI language (English / Simplified Chinese)
-- Operator controls `Start/Stop` manually (button or `F8`) so worship songs can be skipped
-- Worship mode quick toggle pauses translation without stopping the app (`F7`)
+- Operator controls translation `Start/Stop` manually (button or `F8`)
+- Translation suspend toggle pauses/resumes translation without stopping capture (`F7`)
 - One-click translation mode for subtitle-focused display (`F6`)
-- Header control hub shows live state chips (mode/worship/translation/queue/control-lock) and always-visible hotkey pills
+- Header control hub shows live state chips (mode/translation state/translation mode/queue/control-lock) and always-visible hotkey pills
 - Built-in help overlay for operators (button)
 - Hover hints on each button to explain what it does
 - Export transcript to a text file at any time
@@ -65,7 +65,7 @@ npm run typecheck
 6. In the `Translation Mode` control panel, adjust VAD threshold, silence hold, and max segment duration for lower latency.
 7. Use `Script` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
-9. Toggle `Worship Mode (F7)` during songs to pause translation without stopping capture controls.
+9. Toggle `Suspend Translation (F7)` during songs to pause/resume translation without stopping capture controls.
 10. Use `Translation Mode (F6)` for a subtitle-focused layout.
 11. In translation mode, use the live bar back icon (`←`) or `Esc` to return quickly.
 12. In translation mode, both English and target-language panels are shown, and the reference script appears as a side panel when a script is loaded.
@@ -88,9 +88,9 @@ npm run typecheck
 - The selected UI language is saved locally for future sessions.
 - The selected UI theme is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
-- A live mode summary line shows current run/worship/translation-mode state.
+- A live mode summary line shows current run/translation/translation-mode state.
 - The mode summary also shows current queue size so operators can watch backlog.
-- A compact state-chip row near the mode summary shows at-a-glance run/worship/translation/queue/control-lock state without opening help or settings.
+- A compact state-chip row near the mode summary shows at-a-glance run/translation state/translation mode/queue/control-lock state without opening help or settings.
 - A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
 - Control groups are collapsible to reduce visual crowding during operation.
@@ -98,7 +98,7 @@ npm run typecheck
 - Settings includes OpenAI key access, UI language, and a Theme picker (`Broadcast Clean`, `Paper Light`, `Minimal Mono`).
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
-- During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Worship, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
+- During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
@@ -116,7 +116,7 @@ npm run typecheck
 - English captions continue even if Chinese translation temporarily fails.
 - On macOS, grant microphone permission to the app when prompted.
 - `F8` is registered as a global shortcut while the app is running.
-- `F7` toggles worship mode (pause/resume translation quickly).
+- `F7` toggles translation suspend/resume quickly.
 - `F6` toggles translation mode (subtitle-focused layout).
 - `Esc` exits translation mode quickly.
 - `Delete`/`Backspace` returns from `Settings` back to the live view.

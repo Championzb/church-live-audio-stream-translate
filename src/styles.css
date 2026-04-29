@@ -476,6 +476,10 @@ h1 {
   color: var(--accent);
 }
 
+.chip-value[data-state='suspended'] {
+  color: var(--status);
+}
+
 .chip-value[data-state='stopped'],
 .chip-value[data-state='off'],
 .chip-value[data-state='locked'] {

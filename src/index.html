@@ -37,15 +37,15 @@
             <h1>Church Live Translate</h1>
             <p>Real-time captioning pipeline: source speech -> English -> target language.</p>
             <div class="status-stack">
-              <p id="modeSummary">Mode: stopped | Source: korean | Worship: off | Translation Mode: off</p>
+              <p id="modeSummary">Mode: stopped | Translation: stopped | Translation Mode: off</p>
               <div class="quick-state-bar">
                 <div class="quick-chip">
                   <span id="chipModeLabel" class="chip-label">Mode</span>
                   <strong id="chipModeValue" class="chip-value">Stopped</strong>
                 </div>
                 <div class="quick-chip">
-                  <span id="chipWorshipLabel" class="chip-label">Worship</span>
-                  <strong id="chipWorshipValue" class="chip-value">Off</strong>
+                  <span id="chipWorshipLabel" class="chip-label">Translation</span>
+                  <strong id="chipWorshipValue" class="chip-value">Stopped</strong>
                 </div>
                 <div class="quick-chip">
                   <span id="chipPresentationLabel" class="chip-label">Translation</span>
@@ -62,7 +62,7 @@
               </div>
               <div class="quick-hotkeys" aria-label="Quick keyboard shortcuts">
                 <span id="hintF8" class="hotkey-pill"><kbd>F8</kbd> Start/Stop</span>
-                <span id="hintF7" class="hotkey-pill"><kbd>F7</kbd> Worship</span>
+                <span id="hintF7" class="hotkey-pill"><kbd>F7</kbd> Suspend</span>
                 <span id="hintF6" class="hotkey-pill"><kbd>F6</kbd> Translation</span>
                 <span id="hintF2" class="hotkey-pill"><kbd>F2</kbd> Lock</span>
                 <span id="hintF1" class="hotkey-pill"><kbd>F1</kbd> Help</span>
@@ -87,13 +87,13 @@
             <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
             <button id="liveToggleRun" class="run">Start (F8)</button>
             <button id="liveOpenScriptManager">Script</button>
-            <button id="liveToggleWorshipMode">Worship Mode Off (F7)</button>
+            <button id="liveToggleWorshipMode">Suspend Translation (F7)</button>
             <button id="liveToggleHelp">Help (F1)</button>
             <button id="liveResetSession">Reset Session (F4)</button>
             <label id="labelLiveVadThreshold" for="liveVadThreshold">VAD Threshold</label>
             <input id="liveVadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
             <span id="liveVadValue">0.040</span>
-            <p id="liveModeSummary">Mode: stopped | Worship: off | Translation Mode: off | Queue: 0</p>
+            <p id="liveModeSummary">Mode: stopped | Translation: stopped | Translation Mode: off | Queue: 0</p>
           </section>
 
           <section class="controls">
@@ -121,7 +121,7 @@
                 <div class="row actions-row primary-action-row">
                   <button id="toggleRun" class="run">Start (F8)</button>
                   <button id="openScriptManager">Script</button>
-                  <button id="toggleWorshipMode">Worship Mode Off (F7)</button>
+                  <button id="toggleWorshipMode">Suspend Translation (F7)</button>
                   <button id="togglePresentation">Translation Mode (F6)</button>
                   <button id="toggleHelp">Help (F1)</button>
                   <button id="toggleLockControls">Lock Controls (F2)</button>
@@ -227,7 +227,7 @@
       <div class="overlay-card">
         <h3 id="helpTitle">Quick Controls</h3>
         <p id="helpF8"><strong>F8</strong>: Start/Stop translation</p>
-        <p id="helpF7"><strong>F7</strong>: Toggle worship mode</p>
+        <p id="helpF7"><strong>F7</strong>: Suspend/Resume translation</p>
         <p id="helpF6"><strong>F6</strong>: Toggle translation mode</p>
         <p id="helpF2"><strong>F2</strong>: Lock/unlock config controls</p>
         <p id="helpF4"><strong>F4</strong>: Reset captions + transcript + queue</p>
