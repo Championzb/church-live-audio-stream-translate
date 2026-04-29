@@ -281,8 +281,8 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 14px;
-  padding: 14px;
+  gap: 10px;
+  padding: 10px 12px;
   background: var(--header-bg);
   backdrop-filter: blur(10px);
   border: 1px solid var(--header-border);
@@ -294,7 +294,7 @@ body {
   min-width: 0;
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 6px;
 }
 
 .header-right {
@@ -485,16 +485,10 @@ h1 {
   line-height: 1.12;
 }
 
-.app-header p {
-  margin: 6px 0 0;
-  color: var(--text-subtle);
-  font-size: 0.98rem;
-}
-
 .status-stack {
   width: 100%;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 #modeSummary {
@@ -563,7 +557,7 @@ h1 {
 .quick-hotkeys {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .hotkey-pill {
@@ -572,12 +566,12 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border-radius: 999px;
   background: var(--surface-inset);
   border: 1px solid var(--section-border);
   color: var(--text-subtle);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   line-height: 1;
   white-space: nowrap;
   box-shadow: none;
