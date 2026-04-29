@@ -1252,9 +1252,11 @@ function normalizePairedCardHeights() {
     }
     leftCard.style.height = '';
     rightCard.style.height = '';
+    leftCard.style.minHeight = '';
+    rightCard.style.minHeight = '';
     const rowHeight = Math.max(leftCard.offsetHeight, rightCard.offsetHeight);
-    leftCard.style.height = `${rowHeight}px`;
-    rightCard.style.height = `${rowHeight}px`;
+    leftCard.style.minHeight = `${rowHeight}px`;
+    rightCard.style.minHeight = `${rowHeight}px`;
   }
 }
 
