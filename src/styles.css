@@ -529,6 +529,22 @@ h1 {
   min-width: 0;
 }
 
+.mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .quick-state-bar {
   display: none;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

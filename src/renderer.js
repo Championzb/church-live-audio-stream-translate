@@ -77,6 +77,7 @@ const exportTranscriptTranslatedButton = document.getElementById('exportTranscri
 const statusEl = document.getElementById('status');
 const statusToastEl = document.getElementById('statusToast');
 const modeSummaryEl = document.getElementById('modeSummary');
+const mockModeIndicatorEl = document.getElementById('mockModeIndicator');
 const chipModeLabelEl = document.getElementById('chipModeLabel');
 const chipWorshipLabelEl = document.getElementById('chipWorshipLabel');
 const chipPresentationLabelEl = document.getElementById('chipPresentationLabel');
@@ -355,6 +356,7 @@ const UI_TEXT = {
         'mode.on': 'on',
         'mode.off': 'off',
         'mode.queueProcessing': 'processing',
+        'mode.mockBadge': 'Mock Mode',
         'mode.summary': 'Mode: {mode} | Translation: {translation} | Translation Mode: {presentation} | Queue: {queue}',
         'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
         'cost.project': 'Project: {projectId}',
@@ -551,6 +553,7 @@ const UI_TEXT = {
         'mode.on': '开',
         'mode.off': '关',
         'mode.queueProcessing': '处理中',
+        'mode.mockBadge': '模拟模式',
         'mode.summary': '模式：{mode} | 翻译：{translation} | 翻译模式：{presentation} | 队列：{queue}',
         'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
         'cost.project': 'Project：{projectId}',
@@ -884,7 +887,15 @@ function updateModeSummary() {
     chipQueueValueEl.dataset.state = segmentQueueRunning ? 'processing' : 'idle';
     chipLockValueEl.textContent = controlsLocked ? t('chip.locked') : t('chip.unlocked');
     chipLockValueEl.dataset.state = controlsLocked ? 'locked' : 'unlocked';
+    updateMockModeIndicator();
     syncOutputWindow();
+}
+function updateMockModeIndicator() {
+    if (!mockModeIndicatorEl) {
+        return;
+    }
+    mockModeIndicatorEl.textContent = t('mode.mockBadge');
+    mockModeIndicatorEl.classList.toggle('hidden', !mockModeEnabled);
 }
 function setHelpVisible(nextVisible) {
     helpVisible = Boolean(nextVisible);
@@ -1413,6 +1424,7 @@ function applyUiLanguage() {
     chipPresentationLabelEl.textContent = t('chip.translation');
     chipQueueLabelEl.textContent = t('chip.queue');
     chipLockLabelEl.textContent = t('chip.controls');
+    mockModeIndicatorEl.textContent = t('mode.mockBadge');
     Array.from(uiLanguageSelect.options).forEach((option) => {
         option.textContent = t(`ui.${option.value}`);
     });
@@ -2335,6 +2347,7 @@ themeSelect.addEventListener('change', () => {
 mockModeInput.addEventListener('change', () => {
     mockModeEnabled = Boolean(mockModeInput.checked);
     localStorage.setItem(MOCK_MODE_STORAGE_KEY, mockModeEnabled ? '1' : '0');
+    updateModeSummary();
     setStatusKey(mockModeEnabled ? 'status.mockModeEnabled' : 'status.mockModeDisabled');
 });
 sourceLanguageSelect.addEventListener('change', async () => {
