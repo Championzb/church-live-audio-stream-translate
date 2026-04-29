@@ -2651,6 +2651,14 @@ async function toggleOutputWindow() {
     await invoke('toggle_output_window');
     setStatusKey('status.outputWindowToggled');
     await syncOutputWindow();
+    // New output window can miss the first emit while listeners initialize.
+    // Replay snapshot shortly after opening so projector never appears blank.
+    window.setTimeout(() => {
+      void syncOutputWindow();
+    }, 220);
+    window.setTimeout(() => {
+      void syncOutputWindow();
+    }, 700);
   } catch (err) {
     setStatusKey('status.outputWindowError', { error: err.message || String(err) });
   }
