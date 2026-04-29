@@ -1348,7 +1348,7 @@ body.presentation-mode .app-shell {
 }
 
 body.presentation-mode .app-header,
-body.presentation-mode .controls {
+body.presentation-mode #liveWorkspace > .controls {
   display: none;
 }
 
