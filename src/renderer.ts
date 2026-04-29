@@ -286,6 +286,7 @@ const UI_TEXT = {
     'status.fileTestFailed': 'File test failed: {error}',
     'status.testAudioSelected': 'Test audio input selected: {name}. Press Start (F8) to run.',
     'status.testAudioMissing': 'Select a test audio file before pressing Start (F8).',
+    'status.testAudioPickerBlocked': 'Unable to open test audio file picker. Please retry and check file access permissions.',
     'status.scriptLoaded': 'Reference script loaded: {lines} lines',
     'status.scriptLoadFailed': 'Failed to load script file: {error}',
     'status.scriptPasted': 'Reference script pasted: {lines} lines',
@@ -472,6 +473,7 @@ const UI_TEXT = {
     'status.fileTestFailed': '文件测试失败：{error}',
     'status.testAudioSelected': '测试音频输入已选择：{name}。按开始（F8）运行。',
     'status.testAudioMissing': '请先选择测试音频文件，再按开始（F8）。',
+    'status.testAudioPickerBlocked': '无法打开测试音频文件选择器。请重试并检查文件访问权限。',
     'status.scriptLoaded': '参考讲稿已加载：{lines} 行',
     'status.scriptLoadFailed': '加载讲稿文件失败：{error}',
     'status.scriptPasted': '参考讲稿已粘贴：{lines} 行',
@@ -1630,6 +1632,30 @@ function setSelectedTestAudioFile(file: File | null) {
   }
 }
 
+function openTestAudioFilePicker(restoreValue = '') {
+  const restoreSelection = () => {
+    if (audioInputSelect.value === TEST_AUDIO_PICKER_VALUE) {
+      audioInputSelect.value = restoreValue;
+    }
+  };
+
+  try {
+    if (typeof testAudioFileInput.showPicker === 'function') {
+      testAudioFileInput.showPicker();
+    } else {
+      testAudioFileInput.click();
+    }
+  } catch {
+    try {
+      testAudioFileInput.click();
+    } catch {
+      setStatusKey('status.testAudioPickerBlocked');
+    }
+  } finally {
+    window.setTimeout(restoreSelection, 0);
+  }
+}
+
 async function processReferenceScriptFile(file) {
   if (!file) return;
   try {
@@ -2250,8 +2276,7 @@ refreshDevicesButton.addEventListener('click', () => {
 audioInputSelect.addEventListener('change', () => {
   const selectedValue = audioInputSelect.value || '';
   if (selectedValue === TEST_AUDIO_PICKER_VALUE) {
-    audioInputSelect.value = lastNonPickerAudioInputValue || '';
-    testAudioFileInput.click();
+    openTestAudioFilePicker(lastNonPickerAudioInputValue || '');
     return;
   }
   lastNonPickerAudioInputValue = selectedValue;
