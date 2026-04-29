@@ -113,7 +113,7 @@ npm run typecheck
 - Utility actions are distributed for faster access: `Test Audio File...` is available directly from the `Audio Input` dropdown, `Export Transcript` is available as an icon on both transcription and translated panel headers, and `Reset Session (F4)` stays in the hotkey strip and translation-mode live bar.
 - The bottom status bar now includes a projector health indicator (`Projector: Off / Waiting / Connected / Stale`) so operators can verify output-window link health quickly.
 - Projector window now bootstraps with the latest caption snapshot from backend state, so it can render transcript content immediately even if opened after recent segments.
-- Projector view is now audience-focused: both language columns auto-pin to the latest subtitle line, keep only the most recent 2 transcript cards, and visually highlight the latest card.
+- Projector view is now audience-focused: both language columns keep the latest transcript at the top, keep only the most recent 2 transcript cards, highlight the latest card, and render the second-latest in a smaller/background style when space is tight.
 - Projector mode summary now uses a shared-style bottom overlay status bar (`Mode | Translation | Translation Mode | Queue`) for consistency with home and translation pages.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.

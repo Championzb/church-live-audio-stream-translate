@@ -25,22 +25,38 @@ async function resolveTauriApis(maxWaitMs = 5000) {
 }
 
 function pinPanelToLatest(panel) {
-  panel.scrollTop = panel.scrollHeight;
+  panel.scrollTop = 0;
 }
 
 function renderLines(panel, lines) {
   panel.innerHTML = '';
   const recentLines = Array.isArray(lines)
-    ? lines.filter((text) => Boolean(text)).slice(-PROJECTOR_MAX_HISTORY_LINES)
+    ? lines.filter((text) => Boolean(text)).slice(-PROJECTOR_MAX_HISTORY_LINES).reverse()
     : [];
+  const previousLatest = panel.dataset.latestText || '';
+  const currentLatest = recentLines[0] || '';
+  const hasNewLatest = Boolean(currentLatest && currentLatest !== previousLatest);
+  panel.dataset.latestText = currentLatest;
+
   recentLines.forEach((text, index) => {
     if (!text) return;
     const div = document.createElement('div');
-    const isLatest = index === recentLines.length - 1;
-    div.className = `line ${isLatest ? 'line-latest' : ''}`;
+    const isTopLatest = index === 0;
+    const isSecondLatest = index === 1;
+    div.className = `line ${isTopLatest ? 'line-latest' : ''} ${isSecondLatest ? 'line-second-latest' : ''}`;
+    if (isSecondLatest && hasNewLatest) {
+      div.classList.add('line-roll-back');
+    }
     div.textContent = text;
     panel.appendChild(div);
   });
+
+  // If two cards still overflow, shrink only the second-latest card.
+  const secondLatest = panel.querySelector('.line-second-latest');
+  if (panel.scrollHeight > panel.clientHeight && secondLatest instanceof HTMLElement) {
+    secondLatest.classList.add('line-second-compact');
+  }
+
   pinPanelToLatest(panel);
 }
 
