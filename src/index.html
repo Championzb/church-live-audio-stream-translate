@@ -134,13 +134,6 @@
                   <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
                   <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
                 </div>
-                <div class="row actions-row secondary-action-row">
-                  <button id="testAudioFile">Test Audio File</button>
-                  <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
-                  <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
-                  <button id="resetSession">Reset Session (F4)</button>
-                  <button id="exportTranscript">Export Transcript</button>
-                </div>
               </div>
             </details>
           </section>
@@ -214,6 +207,19 @@
                   <button id="exportGlossary">Export</button>
                   <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
                   <input id="autoSaveOnStop" type="checkbox" checked />
+                </div>
+              </div>
+            </details>
+
+            <details class="control-card" open>
+              <summary>Session Tools</summary>
+              <div class="card-body">
+                <div class="row actions-row secondary-action-row">
+                  <button id="testAudioFile">Test Audio File</button>
+                  <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
+                  <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
+                  <button id="resetSession">Reset Session (F4)</button>
+                  <button id="exportTranscript">Export Transcript</button>
                 </div>
               </div>
             </details>
