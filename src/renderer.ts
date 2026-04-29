@@ -37,6 +37,7 @@ const translationLiveBarEl = document.getElementById('translationLiveBar') as an
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode') as any;
 const liveToggleRunButton = document.getElementById('liveToggleRun') as any;
 const liveOpenScriptManagerButton = document.getElementById('liveOpenScriptManager') as any;
+const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow') as any;
 const liveToggleWorshipModeButton = document.getElementById('liveToggleWorshipMode') as any;
 const liveToggleHelpButton = document.getElementById('liveToggleHelp') as any;
 const liveResetSessionButton = document.getElementById('liveResetSession') as any;
@@ -57,7 +58,6 @@ const toggleHelpButton = document.getElementById('toggleHelp') as any;
 const toggleLockControlsButton = document.getElementById('toggleLockControls') as any;
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
-const openScriptManagerButton = document.getElementById('openScriptManager') as any;
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
 const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript') as any;
 const referenceScriptInput = document.getElementById('referenceScriptInput') as any;
@@ -897,7 +897,6 @@ function setControlsLocked(nextLocked) {
     sourceLanguageSelect,
     targetLanguageSelect,
     refreshDevicesButton,
-    openScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
     vadThresholdInput,
@@ -1049,7 +1048,7 @@ function setStaticButtonTooltips() {
   }
   liveToggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
-  openScriptManagerButton.title = t('tooltip.scriptManager');
+  liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
   liveOpenScriptManagerButton.title = t('tooltip.scriptManager');
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
@@ -1311,6 +1310,7 @@ function applyUiLanguage() {
   cancelMainApiKeyButton.textContent = t('button.cancel');
   setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
   setIconButton(toggleOutputWindowButton, '🖥', t('button.outputWindow'));
+  setIconButton(liveToggleOutputWindowButton, '🖥', t('button.outputWindow'));
   setIconButton(backToLivePageButton, '←', t('button.back'));
   setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
   settingsHeadingEl.textContent = t('heading.settings');
@@ -1321,7 +1321,6 @@ function applyUiLanguage() {
     toggleHelpButton.textContent = t('button.help');
   }
   liveToggleHelpButton.textContent = t('button.help');
-  setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
   liveOpenScriptManagerButton.textContent = t('button.scriptManager');
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
   pasteReferenceScriptButton.textContent = t('button.pasteScript');
@@ -2373,7 +2372,7 @@ if (toggleLockControlsButton) {
   });
 }
 
-toggleOutputWindowButton.addEventListener('click', async () => {
+async function toggleOutputWindow() {
   try {
     await invoke('toggle_output_window');
     setStatusKey('status.outputWindowToggled');
@@ -2381,10 +2380,14 @@ toggleOutputWindowButton.addEventListener('click', async () => {
   } catch (err) {
     setStatusKey('status.outputWindowError', { error: err.message || String(err) });
   }
+}
+
+toggleOutputWindowButton.addEventListener('click', async () => {
+  await toggleOutputWindow();
 });
 
-openScriptManagerButton.addEventListener('click', () => {
-  setScriptModalVisible(true);
+liveToggleOutputWindowButton.addEventListener('click', async () => {
+  await toggleOutputWindow();
 });
 
 liveOpenScriptManagerButton.addEventListener('click', () => {
