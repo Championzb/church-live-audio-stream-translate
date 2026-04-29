@@ -464,20 +464,22 @@ body {
 }
 
 #maskedApiKey {
-  margin: 0 6px 0 0;
-  padding: 8px 12px;
+  margin: 0;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
-  border: none;
-  background: var(--key-bg);
-  font-size: 0.88rem;
+  border: 1px solid color-mix(in srgb, var(--section-border) 70%, transparent);
+  background: transparent;
+  font-size: 0.84rem;
   color: var(--key-fg);
   font-weight: 600;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  white-space: nowrap;
+  pointer-events: auto;
 }
 
 #maskedApiKey:hover {
-  background: var(--surface-alt);
+  background: transparent;
 }
 
 h1 {
@@ -516,7 +518,15 @@ h1 {
   transform: translateX(-50%);
   width: min(1400px, calc(100vw - 24px));
   z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   pointer-events: none;
+}
+
+.global-status-bar #modeSummary {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .quick-state-bar {
@@ -702,11 +712,6 @@ h1 {
 }
 
 .settings-form-row > label {
-  justify-self: start;
-}
-
-.settings-form-row > #maskedApiKey {
-  grid-column: 1 / -1;
   justify-self: start;
 }
 
