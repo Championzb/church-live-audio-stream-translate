@@ -36,11 +36,7 @@ const translationControlsSummaryEl = document.getElementById('translationControl
 const liveWorkspaceEl = document.getElementById('liveWorkspace') as any;
 const translationLiveBarEl = document.getElementById('translationLiveBar') as any;
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode') as any;
-const liveToggleRunButton = document.getElementById('liveToggleRun') as any;
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow') as any;
-const liveToggleWorshipModeButton = document.getElementById('liveToggleWorshipMode') as any;
-const liveToggleHelpButton = document.getElementById('liveToggleHelp') as any;
-const liveResetSessionButton = document.getElementById('liveResetSession') as any;
 const liveVadThresholdInput = document.getElementById('liveVadThreshold') as any;
 const liveVadValueEl = document.getElementById('liveVadValue') as any;
 const liveSilenceMsInput = document.getElementById('liveSilenceMs') as any;
@@ -292,12 +288,6 @@ const UI_TEXT = {
     'hint.f2.unlock': 'Unlock',
     'hint.f1.open': 'Help',
     'hint.f1.close': 'Close Help',
-    'map.f8': 'Start/Stop',
-    'map.f7': 'Suspend/Resume',
-    'map.f6': 'Translation Mode',
-    'map.f4': 'Reset',
-    'map.f2': 'Lock/Unlock',
-    'map.f1': 'Help',
     'status.idle': 'Idle',
     'status.controlsLocked': 'Config controls locked',
     'status.controlsUnlocked': 'Config controls unlocked',
@@ -492,12 +482,6 @@ const UI_TEXT = {
     'hint.f2.unlock': '解锁',
     'hint.f1.open': '帮助',
     'hint.f1.close': '关闭帮助',
-    'map.f8': '开始/停止',
-    'map.f7': '暂停/恢复',
-    'map.f6': '翻译模式',
-    'map.f4': '重置',
-    'map.f2': '锁定/解锁',
-    'map.f1': '帮助',
     'status.idle': '空闲',
     'status.controlsLocked': '配置控件已锁定',
     'status.controlsUnlocked': '配置控件已解锁',
@@ -970,23 +954,16 @@ function setRunningButtonState() {
       toggleRunButton.classList.add('stop');
       toggleRunButton.classList.remove('run');
     }
-    liveToggleRunButton.textContent = t('button.stopShort');
-    liveToggleRunButton.classList.add('stop');
-    liveToggleRunButton.classList.remove('run');
   } else {
     if (toggleRunButton) {
       toggleRunButton.textContent = t('button.start');
       toggleRunButton.classList.add('run');
       toggleRunButton.classList.remove('stop');
     }
-    liveToggleRunButton.textContent = t('button.startShort');
-    liveToggleRunButton.classList.add('run');
-    liveToggleRunButton.classList.remove('stop');
   }
   if (toggleRunButton) {
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   }
-  liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   setSuspendButtonState();
 }
 
@@ -994,16 +971,13 @@ function setSuspendButtonState() {
   if (toggleWorshipModeButton) {
     toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
   }
-  liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOnShort') : t('button.worshipOffShort');
   if (toggleWorshipModeButton) {
     toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
   }
-  liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
   const canToggleSuspend = running || worshipMode;
   if (toggleWorshipModeButton) {
     toggleWorshipModeButton.disabled = !canToggleSuspend;
   }
-  liveToggleWorshipModeButton.disabled = !canToggleSuspend;
   updateHotkeyPills();
 }
 
@@ -1020,19 +994,25 @@ function setHotkeyPill(button: any, hotkey: string, label: string, options: any 
   }
 }
 
-function setLiveHotkeyChip(chip: any, hotkey: string, label: string) {
-  if (!chip) return;
-  chip.innerHTML = `<kbd>${hotkey}</kbd> ${label}`;
-}
-
 function updateHotkeyPills() {
   setHotkeyPill(hintF8El, 'F8', running ? t('hint.f8.stop') : t('hint.f8.start'), {
+    title: running ? t('tooltip.stop') : t('tooltip.start'),
+    state: running ? 'danger' : 'run'
+  });
+  setHotkeyPill(liveHotkeyF8El, 'F8', running ? t('hint.f8.stop') : t('hint.f8.start'), {
     title: running ? t('tooltip.stop') : t('tooltip.start'),
     state: running ? 'danger' : 'run'
   });
 
   const canToggleSuspend = running || worshipMode;
   setHotkeyPill(hintF7El, 'F7', worshipMode ? t('hint.f7.resume') : t('hint.f7.suspend'), {
+    title: worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff'),
+    active: worshipMode,
+    pressed: worshipMode,
+    disabled: !canToggleSuspend,
+    state: worshipMode ? 'suspended' : running ? 'active' : 'idle'
+  });
+  setHotkeyPill(liveHotkeyF7El, 'F7', worshipMode ? t('hint.f7.resume') : t('hint.f7.suspend'), {
     title: worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff'),
     active: worshipMode,
     pressed: worshipMode,
@@ -1046,8 +1026,20 @@ function updateHotkeyPills() {
     pressed: presentationMode,
     state: presentationMode ? 'active' : 'idle'
   });
+  setHotkeyPill(liveHotkeyF6El, 'F6', presentationMode ? t('hint.f6.exit') : t('hint.f6.enter'), {
+    title: presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff'),
+    active: presentationMode,
+    pressed: presentationMode,
+    state: presentationMode ? 'active' : 'idle'
+  });
 
   setHotkeyPill(hintF2El, 'F2', controlsLocked ? t('hint.f2.unlock') : t('hint.f2.lock'), {
+    title: controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff'),
+    active: controlsLocked,
+    pressed: controlsLocked,
+    state: controlsLocked ? 'locked' : 'idle'
+  });
+  setHotkeyPill(liveHotkeyF2El, 'F2', controlsLocked ? t('hint.f2.unlock') : t('hint.f2.lock'), {
     title: controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff'),
     active: controlsLocked,
     pressed: controlsLocked,
@@ -1060,13 +1052,16 @@ function updateHotkeyPills() {
     pressed: helpVisible,
     state: helpVisible ? 'active' : 'idle'
   });
-
-  setLiveHotkeyChip(liveHotkeyF8El, 'F8', t('map.f8'));
-  setLiveHotkeyChip(liveHotkeyF7El, 'F7', t('map.f7'));
-  setLiveHotkeyChip(liveHotkeyF6El, 'F6', t('map.f6'));
-  setLiveHotkeyChip(liveHotkeyF4El, 'F4', t('map.f4'));
-  setLiveHotkeyChip(liveHotkeyF2El, 'F2', t('map.f2'));
-  setLiveHotkeyChip(liveHotkeyF1El, 'F1', t('map.f1'));
+  setHotkeyPill(liveHotkeyF1El, 'F1', helpVisible ? t('hint.f1.close') : t('hint.f1.open'), {
+    title: t('tooltip.help'),
+    active: helpVisible,
+    pressed: helpVisible,
+    state: helpVisible ? 'active' : 'idle'
+  });
+  setHotkeyPill(liveHotkeyF4El, 'F4', t('button.resetSessionShort'), {
+    title: t('tooltip.resetSession'),
+    state: 'idle'
+  });
 }
 
 function refreshToggleButtonLabels() {
@@ -1081,7 +1076,6 @@ function refreshToggleButtonLabels() {
   if (toggleRunButton) {
     toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   }
-  liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   if (togglePresentationButton) {
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
   }
@@ -1100,7 +1094,6 @@ function setStaticButtonTooltips() {
   if (toggleHelpButton) {
     toggleHelpButton.title = t('tooltip.help');
   }
-  liveToggleHelpButton.title = t('tooltip.help');
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
   openScriptManagerButton.title = t('tooltip.scriptManager');
@@ -1109,7 +1102,6 @@ function setStaticButtonTooltips() {
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
   resetSessionButton.title = t('tooltip.resetSession');
-  liveResetSessionButton.title = t('tooltip.resetSession');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
   exportTranscriptTranslatedButton.title = t('tooltip.exportTranscript');
   saveGlossaryButton.title = t('tooltip.saveGlossary');
@@ -1378,14 +1370,12 @@ function applyUiLanguage() {
   if (toggleHelpButton) {
     toggleHelpButton.textContent = t('button.help');
   }
-  liveToggleHelpButton.textContent = t('button.helpShort');
   setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(scriptPanelOpenScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
   setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
   setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
   resetSessionButton.textContent = t('button.resetSession');
-  liveResetSessionButton.textContent = t('button.resetSessionShort');
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveGlossary');
@@ -2373,19 +2363,11 @@ if (toggleRunButton) {
   });
 }
 
-liveToggleRunButton.addEventListener('click', async () => {
-  await setRunning(!running);
-});
-
 if (toggleWorshipModeButton) {
   toggleWorshipModeButton.addEventListener('click', () => {
     toggleSuspendMode();
   });
 }
-
-liveToggleWorshipModeButton.addEventListener('click', () => {
-  toggleSuspendMode();
-});
 
 if (togglePresentationButton) {
   togglePresentationButton.addEventListener('click', () => {
@@ -2402,10 +2384,6 @@ if (toggleHelpButton) {
     setHelpVisible(!helpVisible);
   });
 }
-
-liveToggleHelpButton.addEventListener('click', () => {
-  setHelpVisible(!helpVisible);
-});
 
 hintF8El.addEventListener('click', async () => {
   await setRunning(!running);
@@ -2424,6 +2402,30 @@ hintF2El.addEventListener('click', () => {
 });
 
 hintF1El.addEventListener('click', () => {
+  setHelpVisible(!helpVisible);
+});
+
+liveHotkeyF8El.addEventListener('click', async () => {
+  await setRunning(!running);
+});
+
+liveHotkeyF7El.addEventListener('click', () => {
+  toggleSuspendMode();
+});
+
+liveHotkeyF6El.addEventListener('click', () => {
+  togglePresentationModeDebounced();
+});
+
+liveHotkeyF4El.addEventListener('click', () => {
+  resetSessionState();
+});
+
+liveHotkeyF2El.addEventListener('click', () => {
+  setControlsLocked(!controlsLocked);
+});
+
+liveHotkeyF1El.addEventListener('click', () => {
   setHelpVisible(!helpVisible);
 });
 
@@ -2550,10 +2552,6 @@ autoSaveOnStopInput.addEventListener('change', () => {
 });
 
 resetSessionButton.addEventListener('click', () => {
-  resetSessionState();
-});
-
-liveResetSessionButton.addEventListener('click', () => {
   resetSessionState();
 });
 

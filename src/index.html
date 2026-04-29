@@ -86,11 +86,7 @@
           <section id="translationLiveBar" class="translation-live-bar hidden">
             <div class="live-bar-actions">
               <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
-              <button id="liveToggleRun" class="run">Start (F8)</button>
               <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
-              <button id="liveToggleWorshipMode">Suspend Translation (F7)</button>
-              <button id="liveToggleHelp">Help (F1)</button>
-              <button id="liveResetSession">Reset Session (F4)</button>
             </div>
             <div class="live-bar-tuning">
               <label id="labelLiveVadThreshold" for="liveVadThreshold">VAD Threshold</label>
@@ -103,12 +99,12 @@
             </div>
             <p id="liveModeSummary">Mode: stopped | Translation: stopped | Translation Mode: off | Queue: 0</p>
             <div class="live-hotkey-map" aria-label="Translation mode hotkeys">
-              <span id="liveHotkeyF8" class="live-hotkey-chip"><kbd>F8</kbd> Start/Stop</span>
-              <span id="liveHotkeyF7" class="live-hotkey-chip"><kbd>F7</kbd> Suspend/Resume</span>
-              <span id="liveHotkeyF6" class="live-hotkey-chip"><kbd>F6</kbd> Translation Mode</span>
-              <span id="liveHotkeyF4" class="live-hotkey-chip"><kbd>F4</kbd> Reset</span>
-              <span id="liveHotkeyF2" class="live-hotkey-chip"><kbd>F2</kbd> Lock/Unlock</span>
-              <span id="liveHotkeyF1" class="live-hotkey-chip"><kbd>F1</kbd> Help</span>
+              <button id="liveHotkeyF8" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F8</kbd> Start/Stop</button>
+              <button id="liveHotkeyF7" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F7</kbd> Suspend/Resume</button>
+              <button id="liveHotkeyF6" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F6</kbd> Translation Mode</button>
+              <button id="liveHotkeyF4" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F4</kbd> Reset</button>
+              <button id="liveHotkeyF2" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F2</kbd> Lock/Unlock</button>
+              <button id="liveHotkeyF1" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F1</kbd> Help</button>
             </div>
           </section>
 
