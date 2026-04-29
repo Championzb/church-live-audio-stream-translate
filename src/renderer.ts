@@ -910,6 +910,7 @@ function setControlsLocked(nextLocked) {
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
   setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
+  updateHotkeyPills();
   updateModeSummary();
 }
 
