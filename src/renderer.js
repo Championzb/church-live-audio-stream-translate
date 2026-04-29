@@ -1257,7 +1257,7 @@ function applyUiLanguage() {
         toggleHelpButton.textContent = t('button.help');
     }
     liveToggleHelpButton.textContent = t('button.help');
-    openScriptManagerButton.textContent = t('button.scriptManager');
+    setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
     uploadReferenceScriptButton.textContent = t('button.uploadScript');
     pasteReferenceScriptButton.textContent = t('button.pasteScript');
     clearReferenceScriptButton.textContent = t('button.clearScript');
