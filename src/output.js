@@ -21,6 +21,16 @@ function renderLines(panel, lines) {
   });
 }
 
+function applyCaptionPayload(payload) {
+  const data = payload || {};
+  modeSummaryEl.textContent = data.modeSummary || 'Waiting for captions...';
+  translatedHeadingEl.textContent = data.targetLabel || 'Translation';
+  englishLiveEl.textContent = data.englishLive || '';
+  chineseLiveEl.textContent = data.chineseLive || '';
+  renderLines(englishPanel, data.englishLines || []);
+  renderLines(chinesePanel, data.chineseLines || []);
+}
+
 async function boot() {
   if (!listen) {
     console.error('[output] Tauri event API unavailable; output listener not attached.');
@@ -42,14 +52,20 @@ async function boot() {
 
   await listen('output-caption', (event) => {
     const payload = event.payload || {};
-    modeSummaryEl.textContent = payload.modeSummary || 'Waiting for captions...';
-    translatedHeadingEl.textContent = payload.targetLabel || 'Translation';
-    englishLiveEl.textContent = payload.englishLive || '';
-    chineseLiveEl.textContent = payload.chineseLive || '';
-    renderLines(englishPanel, payload.englishLines || []);
-    renderLines(chinesePanel, payload.chineseLines || []);
+    applyCaptionPayload(payload);
     sendHeartbeat();
   });
+
+  if (invoke) {
+    try {
+      const latestPayload = await invoke('get_latest_output_caption');
+      if (latestPayload) {
+        applyCaptionPayload(latestPayload);
+      }
+    } catch {
+      // ignore bootstrap snapshot errors
+    }
+  }
 
   sendReady();
   window.setTimeout(() => {

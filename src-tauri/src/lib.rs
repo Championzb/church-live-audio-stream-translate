@@ -23,6 +23,7 @@ struct AppState {
     reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
+    latest_output_caption: Mutex<Option<OutputCaptionPayload>>,
     running: AtomicBool,
 }
 
@@ -1540,7 +1541,11 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
 fn push_output_caption(
     payload: OutputCaptionPayload,
     app: tauri::AppHandle,
+    state: tauri::State<AppState>,
 ) -> Result<PushOutputCaptionResponse, String> {
+    if let Ok(mut latest) = state.latest_output_caption.lock() {
+        *latest = Some(payload.clone());
+    }
     if let Some(window) = app.get_webview_window("output") {
         let emitted = window.emit("output-caption", payload).is_ok();
         return Ok(PushOutputCaptionResponse {
@@ -1567,6 +1572,14 @@ fn notify_output_window_state(state: String, app: tauri::AppHandle) -> Result<Ok
     Ok(OkResponse { ok: true })
 }
 
+#[tauri::command]
+fn get_latest_output_caption(state: tauri::State<AppState>) -> Result<Option<OutputCaptionPayload>, String> {
+    match state.latest_output_caption.lock() {
+        Ok(latest) => Ok(latest.clone()),
+        Err(_) => Ok(None),
+    }
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(
@@ -1587,6 +1600,7 @@ pub fn run() {
             reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
+            latest_output_caption: Mutex::new(None),
             running: AtomicBool::new(false),
         })
         .setup(|app| {
@@ -1686,7 +1700,8 @@ pub fn run() {
             toggle_output_window,
             push_output_caption,
             is_output_window_open,
-            notify_output_window_state
+            notify_output_window_state,
+            get_latest_output_caption
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
