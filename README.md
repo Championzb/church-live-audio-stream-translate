@@ -62,8 +62,8 @@ npm run typecheck
 3. Select the desired audio input device, source language, and output language.
 4. Set `UI Language` to English or Simplified Chinese for operator controls.
 5. Add glossary terms (optional), one term per line as `EN=ZH`, then click `Save Glossary` (or use Import/Export).
-6. In the `Translation Mode` control panel, adjust VAD threshold, silence hold, and max segment duration for lower latency.
-7. Use `Script` (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
+6. In the `Translation Controls` panel, adjust VAD threshold, silence hold, and max segment duration for lower latency.
+7. Use `Script` in the `Translation Controls` panel (optional), then choose `Upload Script` or `Paste Script` to load a target-language sermon script before starting.
 8. Click `Start (F8)`.
 9. Toggle `Suspend Translation (F7)` during songs to pause/resume translation without stopping capture controls.
 10. Use `Translation Mode (F6)` for a subtitle-focused layout.
@@ -99,9 +99,9 @@ npm run typecheck
 - Settings includes OpenAI key access, UI language, and a Theme picker (`Broadcast Clean`, `Paper Light`, `Minimal Mono`).
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
-- During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Script, Projector Window icon, Reset, and live VAD slider), while admin controls are hidden.
+- During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Projector Window icon, Reset, and live VAD slider), while admin controls are hidden.
 - The Translation Mode settings card no longer duplicates start/suspend/mode/lock controls that already exist in the header hotkey strip.
-- `Script` is available in Translation Mode live controls for quick in-service access without returning to settings.
+- `Script` is available in the home-page `Translation Controls` panel for quick setup access.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.

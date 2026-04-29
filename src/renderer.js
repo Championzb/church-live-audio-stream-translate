@@ -28,11 +28,11 @@ const openSettingsPageButton = document.getElementById('openSettingsPage');
 const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
+const translationControlsSummaryEl = document.getElementById('translationControlsSummary');
 const liveWorkspaceEl = document.getElementById('liveWorkspace');
 const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
 const liveToggleRunButton = document.getElementById('liveToggleRun');
-const liveOpenScriptManagerButton = document.getElementById('liveOpenScriptManager');
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow');
 const liveToggleWorshipModeButton = document.getElementById('liveToggleWorshipMode');
 const liveToggleHelpButton = document.getElementById('liveToggleHelp');
@@ -53,6 +53,7 @@ const togglePresentationButton = document.getElementById('togglePresentation');
 const toggleHelpButton = document.getElementById('toggleHelp');
 const toggleLockControlsButton = document.getElementById('toggleLockControls');
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow');
+const openScriptManagerButton = document.getElementById('openScriptManager');
 const testAudioFileInput = document.getElementById('testAudioFileInput');
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript');
 const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript');
@@ -209,6 +210,7 @@ const UI_TEXT = {
         'button.back': 'Back',
         'heading.settings': 'Settings',
         'heading.appearance': 'Appearance',
+        'heading.translationControls': 'Translation Controls',
         'heading.referenceScript': 'Reference Script',
         'apiKey.masked': 'OpenAI Key: {masked}',
         'apiKey.hidden': 'OpenAI Key: hidden',
@@ -395,6 +397,7 @@ const UI_TEXT = {
         'button.back': '返回',
         'heading.settings': '设置',
         'heading.appearance': '外观',
+        'heading.translationControls': '翻译控制',
         'heading.referenceScript': '参考讲稿',
         'apiKey.masked': 'OpenAI 密钥：{masked}',
         'apiKey.hidden': 'OpenAI 密钥：隐藏',
@@ -871,6 +874,7 @@ function setControlsLocked(nextLocked) {
         sourceLanguageSelect,
         targetLanguageSelect,
         refreshDevicesButton,
+        openScriptManagerButton,
         uploadReferenceScriptButton,
         pasteReferenceScriptButton,
         vadThresholdInput,
@@ -1013,7 +1017,7 @@ function setStaticButtonTooltips() {
     liveToggleHelpButton.title = t('tooltip.help');
     toggleOutputWindowButton.title = t('tooltip.outputWindow');
     liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
-    liveOpenScriptManagerButton.title = t('tooltip.scriptManager');
+    openScriptManagerButton.title = t('tooltip.scriptManager');
     uploadReferenceScriptButton.title = t('tooltip.uploadScript');
     pasteReferenceScriptButton.title = t('tooltip.pasteScript');
     clearReferenceScriptButton.title = t('tooltip.clearScript');
@@ -1246,13 +1250,14 @@ function applyUiLanguage() {
     setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
+    translationControlsSummaryEl.textContent = t('heading.translationControls');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
     }
     liveToggleHelpButton.textContent = t('button.help');
-    liveOpenScriptManagerButton.textContent = t('button.scriptManager');
+    openScriptManagerButton.textContent = t('button.scriptManager');
     uploadReferenceScriptButton.textContent = t('button.uploadScript');
     pasteReferenceScriptButton.textContent = t('button.pasteScript');
     clearReferenceScriptButton.textContent = t('button.clearScript');
@@ -2229,7 +2234,7 @@ toggleOutputWindowButton.addEventListener('click', async () => {
 liveToggleOutputWindowButton.addEventListener('click', async () => {
     await toggleOutputWindow();
 });
-liveOpenScriptManagerButton.addEventListener('click', () => {
+openScriptManagerButton.addEventListener('click', () => {
     setScriptModalVisible(true);
 });
 uploadReferenceScriptButton.addEventListener('click', () => {

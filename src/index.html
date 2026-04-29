@@ -87,7 +87,6 @@
           <section id="translationLiveBar" class="translation-live-bar hidden">
             <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
             <button id="liveToggleRun" class="run">Start (F8)</button>
-            <button id="liveOpenScriptManager">Script</button>
             <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
             <button id="liveToggleWorshipMode">Suspend Translation (F7)</button>
             <button id="liveToggleHelp">Help (F1)</button>
@@ -100,7 +99,7 @@
 
           <section class="controls">
             <details class="control-card" open>
-              <summary>Translation Mode</summary>
+              <summary id="translationControlsSummary">Translation Controls</summary>
               <div class="card-body">
                 <div class="row">
                   <label id="labelSourceLanguage" for="sourceLanguage">Source Language</label>
@@ -128,6 +127,9 @@
                   <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
                   <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
                   <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+                </div>
+                <div class="row actions-row">
+                  <button id="openScriptManager">Script</button>
                 </div>
               </div>
             </details>
