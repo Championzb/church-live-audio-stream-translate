@@ -198,11 +198,16 @@ const UI_TEXT = {
     'button.refresh': 'Refresh',
     'button.start': 'Start (F8)',
     'button.stop': 'Stop (F8)',
+    'button.startShort': 'Start',
+    'button.stopShort': 'Stop',
     'button.worshipOn': 'Resume Translation (F7)',
     'button.worshipOff': 'Suspend Translation (F7)',
+    'button.worshipOnShort': 'Resume',
+    'button.worshipOffShort': 'Suspend',
     'button.presentationOn': 'Exit Translation Mode (F6)',
     'button.presentationOff': 'Translation Mode (F6)',
     'button.help': 'Help (F1)',
+    'button.helpShort': 'Help',
     'button.lockOn': 'Unlock Controls (F2)',
     'button.lockOff': 'Lock Controls (F2)',
     'button.outputWindow': 'Projector Window',
@@ -211,6 +216,7 @@ const UI_TEXT = {
     'button.pasteScript': 'Paste Script',
     'button.clearScript': 'Clear Script',
     'button.resetSession': 'Reset Session (F4)',
+    'button.resetSessionShort': 'Reset',
     'button.copyLine': 'Copy line',
     'button.exportTranscript': 'Export Transcript',
     'button.saveGlossary': 'Save Glossary',
@@ -386,11 +392,16 @@ const UI_TEXT = {
     'button.refresh': '刷新',
     'button.start': '开始（F8）',
     'button.stop': '停止（F8）',
+    'button.startShort': '开始',
+    'button.stopShort': '停止',
     'button.worshipOn': '恢复翻译（F7）',
     'button.worshipOff': '暂停翻译（F7）',
+    'button.worshipOnShort': '恢复',
+    'button.worshipOffShort': '暂停',
     'button.presentationOn': '退出翻译模式（F6）',
     'button.presentationOff': '翻译模式（F6）',
     'button.help': '帮助（F1）',
+    'button.helpShort': '帮助',
     'button.lockOn': '解锁控制项（F2）',
     'button.lockOff': '锁定控制项（F2）',
     'button.outputWindow': '投影窗口',
@@ -399,6 +410,7 @@ const UI_TEXT = {
     'button.pasteScript': '粘贴讲稿',
     'button.clearScript': '清除讲稿',
     'button.resetSession': '重置会话（F4）',
+    'button.resetSessionShort': '重置',
     'button.copyLine': '复制本行',
     'button.exportTranscript': '导出转录',
     'button.saveGlossary': '保存术语表',
@@ -940,7 +952,7 @@ function setRunningButtonState() {
       toggleRunButton.classList.add('stop');
       toggleRunButton.classList.remove('run');
     }
-    liveToggleRunButton.textContent = t('button.stop');
+    liveToggleRunButton.textContent = t('button.stopShort');
     liveToggleRunButton.classList.add('stop');
     liveToggleRunButton.classList.remove('run');
   } else {
@@ -949,7 +961,7 @@ function setRunningButtonState() {
       toggleRunButton.classList.add('run');
       toggleRunButton.classList.remove('stop');
     }
-    liveToggleRunButton.textContent = t('button.start');
+    liveToggleRunButton.textContent = t('button.startShort');
     liveToggleRunButton.classList.add('run');
     liveToggleRunButton.classList.remove('stop');
   }
@@ -964,7 +976,7 @@ function setSuspendButtonState() {
   if (toggleWorshipModeButton) {
     toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
   }
-  liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+  liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOnShort') : t('button.worshipOffShort');
   if (toggleWorshipModeButton) {
     toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
   }
@@ -1336,14 +1348,14 @@ function applyUiLanguage() {
   if (toggleHelpButton) {
     toggleHelpButton.textContent = t('button.help');
   }
-  liveToggleHelpButton.textContent = t('button.help');
+  liveToggleHelpButton.textContent = t('button.helpShort');
   setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(scriptPanelOpenScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
   setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
   setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
   resetSessionButton.textContent = t('button.resetSession');
-  liveResetSessionButton.textContent = t('button.resetSession');
+  liveResetSessionButton.textContent = t('button.resetSessionShort');
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveGlossary');
