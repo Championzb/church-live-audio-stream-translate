@@ -222,7 +222,7 @@ body {
 .app-shell {
   max-width: 1520px;
   margin: 0 auto;
-  padding: 24px 22px 84px;
+  padding: 24px 22px 34px;
 }
 
 .landing-page {
@@ -317,8 +317,9 @@ body {
     "hotkeys actions"
     "tuning tuning";
   align-items: center;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   gap: 10px 12px;
   padding: 10px 12px;
   border-radius: var(--radius-lg);
@@ -485,7 +486,7 @@ h1 {
   bottom: 10px;
   transform: translateX(-50%);
   width: min(1400px, calc(100vw - 24px));
-  z-index: 130;
+  z-index: 1200;
   pointer-events: none;
 }
 
@@ -1243,7 +1244,7 @@ button:disabled {
 
 @media (max-width: 760px) {
   .app-shell {
-    padding: 14px 12px 84px;
+    padding: 14px 12px 20px;
   }
 
   .app-header {
