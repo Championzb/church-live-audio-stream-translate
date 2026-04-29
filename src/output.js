@@ -61,6 +61,18 @@ async function boot() {
     if (!invoke) return;
     void invoke('notify_output_window_state', { state: 'ready' });
   };
+  const fetchLatestSnapshot = async () => {
+    if (!invoke) return;
+    try {
+      const latestPayload = await invoke('get_latest_output_caption');
+      if (latestPayload) {
+        applyCaptionPayload(latestPayload);
+        sendHeartbeat();
+      }
+    } catch {
+      // ignore snapshot fetch errors
+    }
+  };
 
   if (listen) {
     await listen('output-caption', (event) => {
@@ -70,16 +82,16 @@ async function boot() {
     });
   }
 
-  if (invoke) {
-    try {
-      const latestPayload = await invoke('get_latest_output_caption');
-      if (latestPayload) {
-        applyCaptionPayload(latestPayload);
-      }
-    } catch {
-      // ignore bootstrap snapshot errors
-    }
-  }
+  await fetchLatestSnapshot();
+  window.setTimeout(() => {
+    void fetchLatestSnapshot();
+  }, 180);
+  window.setTimeout(() => {
+    void fetchLatestSnapshot();
+  }, 520);
+  window.setInterval(() => {
+    void fetchLatestSnapshot();
+  }, 1200);
 
   sendReady();
   window.setTimeout(() => {
