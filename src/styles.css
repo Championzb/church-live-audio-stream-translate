@@ -335,20 +335,21 @@ body {
 
 .live-bar-tuning {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 8px 10px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--section-border);
   background: var(--surface-inset);
   flex: 0 1 auto;
-  min-width: 320px;
+  min-width: 0;
   max-width: 100%;
 }
 
 .live-bar-tuning label {
   font-size: 0.72rem;
+  white-space: nowrap;
 }
 
 #liveModeSummary {
@@ -856,15 +857,16 @@ button:disabled {
 }
 
 #liveVadThreshold {
-  min-width: 160px;
-  flex: 1 1 180px;
+  min-width: 132px;
+  width: clamp(132px, 16vw, 180px);
+  flex: 0 0 auto;
 }
 
 #silenceMs,
 #maxSegmentMs,
 #liveSilenceMs,
 #liveMaxSegmentMs {
-  width: 96px;
+  width: 86px;
 }
 
 #glossary {
@@ -1223,6 +1225,10 @@ button:disabled {
   .translation-live-bar {
     display: flex;
     width: 100%;
+  }
+
+  .live-bar-tuning {
+    flex-wrap: wrap;
   }
 
   #liveModeSummary {
