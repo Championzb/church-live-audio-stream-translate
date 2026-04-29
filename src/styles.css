@@ -1084,12 +1084,19 @@ button:disabled {
 }
 
 .compact-overlay-card {
+  position: relative;
   width: min(460px, 92vw);
 }
 
 .compact-overlay-card p {
   margin: 0 0 10px;
   color: var(--muted);
+}
+
+.script-modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 #mainApiKeyInput {
