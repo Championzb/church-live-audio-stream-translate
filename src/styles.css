@@ -685,13 +685,14 @@ h1 {
 }
 
 .settings-page {
-  margin-top: 16px;
+  margin: 16px auto 0;
+  width: min(1200px, 100%);
 }
 
 .settings-controls {
   margin-top: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
@@ -700,8 +701,8 @@ h1 {
   min-height: 0;
 }
 
-.settings-card--glossary {
-  grid-column: 1 / -1;
+.settings-card--appearance {
+  max-width: 760px;
 }
 
 .settings-form-row {
@@ -721,19 +722,42 @@ h1 {
   min-width: 0;
 }
 
+.settings-form-row--stack {
+  grid-template-columns: 1fr;
+}
+
+.settings-form-row--stack > label {
+  margin-bottom: 2px;
+}
+
 .settings-actions-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(124px, max-content)) auto auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
 
 .settings-actions-row > button {
-  justify-self: stretch;
+  min-height: 40px;
 }
 
-.settings-actions-row > label {
+.settings-toggle-inline {
   margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-toggle-inline > label {
+  margin: 0;
+}
+
+.settings-toggle-inline > input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  box-shadow: none;
 }
 
 .settings-header {
@@ -1338,21 +1362,12 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .settings-card--glossary {
-    grid-column: 1;
+  .settings-card--appearance {
+    max-width: none;
   }
 
-  .settings-actions-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .settings-actions-row > label {
+  .settings-toggle-inline {
     margin-left: 0;
-    grid-column: 1 / span 2;
-  }
-
-  .settings-actions-row > input[type='checkbox'] {
-    justify-self: start;
   }
 }
 
@@ -1404,11 +1419,7 @@ button:disabled {
   }
 
   .settings-actions-row {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-actions-row > label {
-    grid-column: 1;
+    gap: 8px;
   }
 
   .landing-card {

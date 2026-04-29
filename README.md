@@ -97,7 +97,7 @@ npm run typecheck
 - A dedicated `Settings` page keeps advanced controls separate from live captions, with a back button to return.
 - Settings includes UI language and a Theme picker (`Broadcast Clean`, `Paper Light`, `Minimal Mono`).
 - OpenAI key access is available from the right side of the bottom status bar for one-click updates.
-- Settings now uses a responsive structured layout: Appearance on top with a full-width Glossary card and cleaner aligned controls.
+- Settings now uses a responsive structured layout with tighter width, a compact Appearance card, and a cleaner Glossary editor/action row.
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (back icon, `Projector Window`, `Settings`, `Audio Input`, `Refresh`, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.

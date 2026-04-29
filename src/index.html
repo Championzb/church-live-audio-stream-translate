@@ -218,7 +218,7 @@
             <details class="control-card settings-card settings-card--glossary glossary-card" open>
               <summary>Glossary</summary>
               <div class="card-body">
-                <div class="row settings-form-row">
+                <div class="row settings-form-row settings-form-row--stack">
                   <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
                   <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
                 </div>
@@ -226,8 +226,10 @@
                   <button id="saveGlossary">Save Glossary</button>
                   <button id="importGlossary">Import</button>
                   <button id="exportGlossary">Export</button>
-                  <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
-                  <input id="autoSaveOnStop" type="checkbox" checked />
+                  <div class="settings-toggle-inline">
+                    <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
+                    <input id="autoSaveOnStop" type="checkbox" checked />
+                  </div>
                 </div>
               </div>
             </details>
