@@ -74,7 +74,7 @@ npm run typecheck
 15. Keep `Auto-save on stop` enabled if you want transcripts saved automatically to Desktop sessions folder.
 16. Use `Projector Window` to open a second subtitle-only display for projector/monitor output.
 17. Use `Lock Controls (F2)` after setup to avoid accidental config changes mid-service.
-18. Use `Test Audio File` to run one audio file through the same translation pipeline.
+18. Use `Test Audio File` to choose a file as the current audio input, then click `Start (F8)` to run it through the same translation pipeline as live stream mode.
 
 ## Notes
 
@@ -108,6 +108,7 @@ npm run typecheck
 - Utility actions are distributed for faster access: `Test Audio File` is an icon in the main header setup row, `Export Transcript` is available as an icon on both transcription and translated panel headers, and `Reset Session (F4)` stays in the hotkey strip and translation-mode live bar.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
+- Selecting `Test Audio File` now arms that file as an `Audio Input` source; translation starts when `Start (F8)` is pressed, matching live stream control flow.
 - `Test Audio File` now shows a running state (`Testing Audio File...`) and disables itself while a file test is active.
 - Uploaded/pasted reference scripts are stored locally, sent as soft translation context for each segment, and can be cleared with `Clear Script`.
 - In translation mode, script panel scrolling is independent from caption panel scrolling.

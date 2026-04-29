@@ -135,6 +135,7 @@ const MAX_LINES = 200;
 const SEGMENT_MAX_RETRIES = 2;
 const RETRY_DELAYS_MS = [300, 700];
 const TEST_FILE_SEGMENT_MS = 12000;
+const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
 const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
 let running = false;
@@ -164,6 +165,7 @@ let totalEnglishChars = 0;
 let totalTranslatedChars = 0;
 let pendingSegmentDurationMs = 0;
 let testStreamActive = false;
+let selectedTestAudioFile: File | null = null;
 let lineSequence = 0;
 let activePairLineId = 0;
 
@@ -284,6 +286,8 @@ const UI_TEXT = {
     'status.testingFile': 'Testing file: {name}',
     'status.fileTestFinished': 'Finished file test: {name}',
     'status.fileTestFailed': 'File test failed: {error}',
+    'status.testAudioSelected': 'Test audio input selected: {name}. Press Start (F8) to run.',
+    'status.testAudioMissing': 'Select a test audio file before pressing Start (F8).',
     'status.scriptLoaded': 'Reference script loaded: {lines} lines',
     'status.scriptLoadFailed': 'Failed to load script file: {error}',
     'status.scriptPasted': 'Reference script pasted: {lines} lines',
@@ -351,7 +355,8 @@ const UI_TEXT = {
     'source.japanese': '{language}',
     'source.chinese': '{language}',
     'device.default': 'System Default',
-    'device.input': 'Input {index}'
+    'device.input': 'Input {index}',
+    'device.testAudioInput': 'Test Audio: {name}'
   },
   'zh-hans': {
     'landing.title': '连接 OpenAI API 密钥',
@@ -469,6 +474,8 @@ const UI_TEXT = {
     'status.testingFile': '正在测试文件：{name}',
     'status.fileTestFinished': '文件测试完成：{name}',
     'status.fileTestFailed': '文件测试失败：{error}',
+    'status.testAudioSelected': '测试音频输入已选择：{name}。按开始（F8）运行。',
+    'status.testAudioMissing': '请先选择测试音频文件，再按开始（F8）。',
     'status.scriptLoaded': '参考讲稿已加载：{lines} 行',
     'status.scriptLoadFailed': '加载讲稿文件失败：{error}',
     'status.scriptPasted': '参考讲稿已粘贴：{lines} 行',
@@ -536,7 +543,8 @@ const UI_TEXT = {
     'source.japanese': '{language}',
     'source.chinese': '{language}',
     'device.default': '系统默认',
-    'device.input': '输入 {index}'
+    'device.input': '输入 {index}',
+    'device.testAudioInput': '测试音频：{name}'
   }
 };
 const LANGUAGE_DISPLAY = {
@@ -1558,6 +1566,9 @@ async function processTestAudioFile(file) {
     const totalSegmentsForFile = Math.max(1, Math.ceil(totalSamples / segmentSamples));
 
     for (let i = 0; i < totalSegmentsForFile; i += 1) {
+      if (!running) {
+        break;
+      }
       const startSample = i * segmentSamples;
       const endSample = Math.min(totalSamples, startSample + segmentSamples);
       const durationMs = Math.round(((endSample - startSample) / decoded.sampleRate) * 1000);
@@ -1575,10 +1586,12 @@ async function processTestAudioFile(file) {
       }
     }
 
-    while (pendingSegments.length || segmentQueueRunning) {
+    while (running && (pendingSegments.length || segmentQueueRunning)) {
       await waitMs(120);
     }
-    setStatusKey('status.fileTestFinished', { name: file.name });
+    if (running) {
+      setStatusKey('status.fileTestFinished', { name: file.name });
+    }
     updateModeSummary();
   } catch (err) {
     const error = err.message || String(err);
@@ -1591,6 +1604,35 @@ async function processTestAudioFile(file) {
     testStreamActive = false;
     updateTestAudioFileButtonState();
     testAudioFileInput.value = '';
+  }
+}
+
+function syncTestAudioInputOption() {
+  const existingOption = audioInputSelect.querySelector(`option[value="${TEST_AUDIO_INPUT_VALUE}"]`) as HTMLOptionElement | null;
+  if (!selectedTestAudioFile) {
+    if (existingOption) {
+      existingOption.remove();
+    }
+    if (audioInputSelect.value === TEST_AUDIO_INPUT_VALUE) {
+      audioInputSelect.value = '';
+    }
+    return;
+  }
+
+  const option = existingOption || document.createElement('option');
+  option.value = TEST_AUDIO_INPUT_VALUE;
+  option.textContent = t('device.testAudioInput', { name: selectedTestAudioFile.name });
+  if (!existingOption) {
+    audioInputSelect.appendChild(option);
+  }
+}
+
+function setSelectedTestAudioFile(file: File | null) {
+  selectedTestAudioFile = file;
+  syncTestAudioInputOption();
+  if (selectedTestAudioFile) {
+    audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
+    setStatusKey('status.testAudioSelected', { name: selectedTestAudioFile.name });
   }
 }
 
@@ -1714,6 +1756,10 @@ async function loadDevices() {
       if (audioInputSelect.value !== previousValue) {
         audioInputSelect.value = '';
       }
+    }
+    syncTestAudioInputOption();
+    if (previousValue === TEST_AUDIO_INPUT_VALUE && selectedTestAudioFile) {
+      audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
     }
   } catch (err) {
     setStatusKey('status.audioDeviceAccessError', { error: err.message || String(err) });
@@ -1878,12 +1924,28 @@ async function setRunning(nextRunning) {
   if (running) {
     setWorshipMode(false, { silentStatus: true });
     try {
-      await setupAudioPipeline();
-      setStatusKey('status.running', {
-        source: languageName(sourceLanguageSelect.value || 'korean'),
-        target: languageName(targetLanguageSelect.value || 'zh-hans')
-      });
-      drainSegmentQueue();
+      if (audioInputSelect.value === TEST_AUDIO_INPUT_VALUE) {
+        if (!selectedTestAudioFile) {
+          throw new Error(t('status.testAudioMissing'));
+        }
+        setStatusKey('status.running', {
+          source: languageName(sourceLanguageSelect.value || 'korean'),
+          target: languageName(targetLanguageSelect.value || 'zh-hans')
+        });
+        drainSegmentQueue();
+        await processTestAudioFile(selectedTestAudioFile);
+        if (running) {
+          await setRunning(false);
+          return;
+        }
+      } else {
+        await setupAudioPipeline();
+        setStatusKey('status.running', {
+          source: languageName(sourceLanguageSelect.value || 'korean'),
+          target: languageName(targetLanguageSelect.value || 'zh-hans')
+        });
+        drainSegmentQueue();
+      }
     } catch (err) {
       setStatusKey('status.startFailed', { error: err.message || String(err) });
       running = false;
@@ -2331,7 +2393,8 @@ scriptModal.addEventListener('click', (event) => {
 testAudioFileInput.addEventListener('change', async (event) => {
   const input = event.target as HTMLInputElement | null;
   const file = input?.files?.[0];
-  await processTestAudioFile(file);
+  setSelectedTestAudioFile(file || null);
+  testAudioFileInput.value = '';
 });
 
 referenceScriptInput.addEventListener('change', async (event) => {
