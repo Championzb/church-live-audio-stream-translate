@@ -4,6 +4,8 @@ const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
+const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
+const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
 
 async function resolveTauriApis(maxWaitMs = 5000) {
   const startedAt = Date.now();
@@ -40,6 +42,19 @@ function applyCaptionPayload(payload) {
   chineseLiveEl.textContent = data.chineseLive || '';
   renderLines(englishPanel, data.englishLines || []);
   renderLines(chinesePanel, data.chineseLines || []);
+}
+
+function applySnapshotFromStorage() {
+  try {
+    const raw = localStorage.getItem(OUTPUT_SNAPSHOT_STORAGE_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return false;
+    applyCaptionPayload(parsed);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function boot() {
@@ -82,15 +97,30 @@ async function boot() {
     });
   }
 
+  try {
+    const channel = new BroadcastChannel(OUTPUT_BROADCAST_CHANNEL_NAME);
+    channel.onmessage = (event) => {
+      if (!event || !event.data) return;
+      applyCaptionPayload(event.data);
+      sendHeartbeat();
+    };
+  } catch {
+    // ignore unsupported BroadcastChannel
+  }
+
   await fetchLatestSnapshot();
+  applySnapshotFromStorage();
   window.setTimeout(() => {
     void fetchLatestSnapshot();
+    applySnapshotFromStorage();
   }, 180);
   window.setTimeout(() => {
     void fetchLatestSnapshot();
+    applySnapshotFromStorage();
   }, 520);
   window.setInterval(() => {
     void fetchLatestSnapshot();
+    applySnapshotFromStorage();
   }, 1200);
 
   sendReady();

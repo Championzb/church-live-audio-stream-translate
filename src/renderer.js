@@ -185,8 +185,10 @@ let outputWindowOpen = false;
 let outputWindowReady = false;
 let lastOutputHeartbeatAt = 0;
 let projectorStateTimerId = 0;
+let outputBroadcastChannel = null;
 const PROJECTOR_STALE_MS = 7000;
 const PROJECTOR_STATE_POLL_MS = 2500;
+const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
 const UI_TEXT = {
     en: {
         'landing.title': 'Connect OpenAI API Key',
@@ -617,6 +619,7 @@ const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
 const UI_THEME_STORAGE_KEY = 'church-ui-theme';
 const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
 const MOCK_MODE_STORAGE_KEY = 'church-mock-mode';
+const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
 let uiLanguage = 'en';
 let mainInitialized = false;
@@ -927,6 +930,18 @@ function updateProjectorIndicator() {
     const state = projectorStateKey();
     projectorStatusIndicatorEl.dataset.state = state;
     projectorStatusIndicatorEl.textContent = t(`projector.state.${state}`);
+}
+function getOutputBroadcastChannel() {
+    if (outputBroadcastChannel) {
+        return outputBroadcastChannel;
+    }
+    try {
+        outputBroadcastChannel = new BroadcastChannel(OUTPUT_BROADCAST_CHANNEL_NAME);
+    }
+    catch {
+        outputBroadcastChannel = null;
+    }
+    return outputBroadcastChannel;
 }
 async function refreshProjectorOpenState() {
     try {
@@ -1543,16 +1558,32 @@ function applyUiLanguage() {
     updateReferenceScriptUi();
 }
 async function syncOutputWindow() {
+    const payload = {
+        englishLines: pairedLines.map((line) => line.englishText).filter(Boolean),
+        chineseLines: pairedLines.map((line) => line.chineseText).filter(Boolean),
+        englishLive: englishLiveEl.textContent || '',
+        chineseLive: chineseLiveEl.textContent || '',
+        modeSummary: modeSummaryEl.textContent || '',
+        targetLabel: languageName(targetLanguageSelect.value || 'zh-hans')
+    };
+    try {
+        localStorage.setItem(OUTPUT_SNAPSHOT_STORAGE_KEY, JSON.stringify(payload));
+    }
+    catch {
+        // ignore storage errors
+    }
+    const channel = getOutputBroadcastChannel();
+    if (channel) {
+        try {
+            channel.postMessage(payload);
+        }
+        catch {
+            // ignore broadcast errors
+        }
+    }
     try {
         const result = await invoke('push_output_caption', {
-            payload: {
-                englishLines: pairedLines.map((line) => line.englishText).filter(Boolean),
-                chineseLines: pairedLines.map((line) => line.chineseText).filter(Boolean),
-                englishLive: englishLiveEl.textContent || '',
-                chineseLive: chineseLiveEl.textContent || '',
-                modeSummary: modeSummaryEl.textContent || '',
-                targetLabel: languageName(targetLanguageSelect.value || 'zh-hans')
-            }
+            payload
         });
         if (result && result.delivered) {
             outputWindowOpen = true;
