@@ -1588,6 +1588,14 @@ fn get_latest_output_caption(state: tauri::State<AppState>) -> Result<Option<Out
     }
 }
 
+#[tauri::command]
+fn start_dragging_window(window: tauri::WebviewWindow) -> Result<OkResponse, String> {
+    window
+        .start_dragging()
+        .map_err(|e| format!("Failed to start window dragging: {e}"))?;
+    Ok(OkResponse { ok: true })
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(
@@ -1709,7 +1717,8 @@ pub fn run() {
             push_output_caption,
             is_output_window_open,
             notify_output_window_state,
-            get_latest_output_caption
+            get_latest_output_caption,
+            start_dragging_window
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

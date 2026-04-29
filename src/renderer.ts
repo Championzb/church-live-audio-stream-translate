@@ -698,9 +698,17 @@ function bindDragBars() {
   const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
   dragBars.forEach((bar) => {
     if (!(bar instanceof HTMLElement)) return;
-    bar.addEventListener('pointerdown', (event) => {
+    bar.addEventListener('pointerdown', async (event) => {
       if (event.button !== 0) return;
-      void currentWindow.startDragging();
+      try {
+        await invoke('start_dragging_window');
+        return;
+      } catch {
+        // fallback to frontend API below
+      }
+      if (currentWindow && typeof currentWindow.startDragging === 'function') {
+        void currentWindow.startDragging();
+      }
     });
   });
 }

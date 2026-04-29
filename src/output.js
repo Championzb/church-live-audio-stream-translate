@@ -89,7 +89,7 @@ function applySnapshotFromStorage() {
   }
 }
 
-function bindDragBars() {
+function bindDragBars(invoke) {
   const currentWindow =
     window.__TAURI__
     && window.__TAURI__.window
@@ -102,16 +102,26 @@ function bindDragBars() {
   const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
   dragBars.forEach((bar) => {
     if (!(bar instanceof HTMLElement)) return;
-    bar.addEventListener('pointerdown', (event) => {
+    bar.addEventListener('pointerdown', async (event) => {
       if (event.button !== 0) return;
-      void currentWindow.startDragging();
+      if (invoke) {
+        try {
+          await invoke('start_dragging_window');
+          return;
+        } catch {
+          // fallback to frontend API below
+        }
+      }
+      if (currentWindow && typeof currentWindow.startDragging === 'function') {
+        void currentWindow.startDragging();
+      }
     });
   });
 }
 
 async function boot() {
-  bindDragBars();
   const { invoke, listen } = await resolveTauriApis();
+  bindDragBars(invoke);
   if (!invoke && !listen) {
     console.error('[output] Tauri APIs unavailable; output listener and bootstrap fetch not attached.');
     return;
