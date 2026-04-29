@@ -1629,6 +1629,7 @@ async function loadDevices() {
     defaultOption.value = '';
     defaultOption.textContent = t('device.default');
     audioInputSelect.appendChild(defaultOption);
+    syncTestAudioInputOption();
     let permissionError = null;
     try {
         const probe = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -1652,7 +1653,6 @@ async function loadDevices() {
                 audioInputSelect.value = '';
             }
         }
-        syncTestAudioInputOption();
         if (previousValue === TEST_AUDIO_INPUT_VALUE && selectedTestAudioFile) {
             audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
         }
@@ -1661,6 +1661,7 @@ async function loadDevices() {
         }
     }
     catch (err) {
+        syncTestAudioInputOption();
         setStatusKey('status.audioDeviceAccessError', { error: err.message || String(err) });
         return;
     }

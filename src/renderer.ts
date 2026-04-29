@@ -1725,6 +1725,7 @@ async function loadDevices() {
   defaultOption.value = '';
   defaultOption.textContent = t('device.default');
   audioInputSelect.appendChild(defaultOption);
+  syncTestAudioInputOption();
 
   let permissionError = null;
   try {
@@ -1751,7 +1752,6 @@ async function loadDevices() {
         audioInputSelect.value = '';
       }
     }
-    syncTestAudioInputOption();
     if (previousValue === TEST_AUDIO_INPUT_VALUE && selectedTestAudioFile) {
       audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
     }
@@ -1759,6 +1759,7 @@ async function loadDevices() {
       lastNonPickerAudioInputValue = audioInputSelect.value;
     }
   } catch (err) {
+    syncTestAudioInputOption();
     setStatusKey('status.audioDeviceAccessError', { error: err.message || String(err) });
     return;
   }
