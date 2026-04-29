@@ -678,6 +678,59 @@ h1 {
   margin-top: 16px;
 }
 
+.settings-controls {
+  margin-top: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.settings-card {
+  min-height: 0;
+}
+
+.settings-card--glossary {
+  grid-column: 1 / -1;
+}
+
+.settings-form-row {
+  display: grid;
+  grid-template-columns: auto minmax(210px, 1fr);
+  align-items: center;
+  gap: 10px 12px;
+}
+
+.settings-form-row > label {
+  justify-self: start;
+}
+
+.settings-form-row > #maskedApiKey {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.settings-form-row > select,
+.settings-form-row > textarea {
+  width: 100%;
+  min-width: 0;
+}
+
+.settings-actions-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(124px, max-content)) auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-actions-row > button {
+  justify-self: stretch;
+}
+
+.settings-actions-row > label {
+  margin-left: 8px;
+}
+
 .settings-header {
   display: flex;
   align-items: center;
@@ -1275,6 +1328,27 @@ button:disabled {
   .live-hotkey-map {
     width: 100%;
   }
+
+  .settings-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-card--glossary {
+    grid-column: 1;
+  }
+
+  .settings-actions-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .settings-actions-row > label {
+    margin-left: 0;
+    grid-column: 1 / span 2;
+  }
+
+  .settings-actions-row > input[type='checkbox'] {
+    justify-self: start;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1317,6 +1391,19 @@ button:disabled {
 
   .inline-input-action {
     width: 100%;
+  }
+
+  .settings-form-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .settings-actions-row {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-actions-row > label {
+    grid-column: 1;
   }
 
   .landing-card {

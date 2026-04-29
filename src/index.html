@@ -194,11 +194,11 @@
             <h2 id="settingsHeading">Settings</h2>
             <button id="backToLivePage" class="icon-btn" aria-label="Back">←</button>
           </div>
-          <section class="controls">
-            <details class="control-card" open>
+          <section class="controls settings-controls">
+            <details class="control-card settings-card settings-card--access" open>
               <summary>Operator Access</summary>
               <div class="card-body">
-                <div class="row">
+                <div class="row settings-form-row">
                   <button id="maskedApiKey" type="button">OpenAI Key: hidden</button>
                   <label id="labelUiLanguage" for="uiLanguage">UI Language</label>
                   <select id="uiLanguage">
@@ -209,10 +209,10 @@
               </div>
             </details>
 
-            <details class="control-card" open>
+            <details class="control-card settings-card settings-card--appearance" open>
               <summary id="appearanceSummary">Appearance</summary>
               <div class="card-body">
-                <div class="row">
+                <div class="row settings-form-row">
                   <label id="labelTheme" for="themeSelect">Theme</label>
                   <select id="themeSelect">
                     <option value="broadcast-clean">Broadcast Clean</option>
@@ -223,14 +223,14 @@
               </div>
             </details>
 
-            <details class="control-card glossary-card" open>
+            <details class="control-card settings-card settings-card--glossary glossary-card" open>
               <summary>Glossary</summary>
               <div class="card-body">
-                <div class="row">
+                <div class="row settings-form-row">
                   <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
                   <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
                 </div>
-                <div class="row actions-row">
+                <div class="row actions-row settings-actions-row">
                   <button id="saveGlossary">Save Glossary</button>
                   <button id="importGlossary">Import</button>
                   <button id="exportGlossary">Export</button>
