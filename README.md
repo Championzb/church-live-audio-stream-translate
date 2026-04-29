@@ -100,7 +100,8 @@ npm run typecheck
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Script, Reset, and live VAD slider), while admin controls are hidden.
-- The duplicate `Help (F1)` button was removed from the Translation Mode card because the header `F1` hotkey pill now acts as a clickable help toggle.
+- The Translation Mode settings card no longer duplicates start/suspend/mode/lock controls that already exist in the header hotkey strip.
+- `Script` is now an icon in the main header setup row for faster access outside the settings card.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.

@@ -876,8 +876,10 @@ function setHelpVisible(nextVisible) {
 
 function setControlsLocked(nextLocked) {
   controlsLocked = Boolean(nextLocked);
-  toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
-  toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+  if (toggleLockControlsButton) {
+    toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
+    toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+  }
 
   const lockTargets = [
     maskedApiKeyEl,
@@ -917,32 +919,44 @@ function setControlsLocked(nextLocked) {
 
 function setRunningButtonState() {
   if (running) {
-    toggleRunButton.textContent = t('button.stop');
-    toggleRunButton.classList.add('stop');
-    toggleRunButton.classList.remove('run');
+    if (toggleRunButton) {
+      toggleRunButton.textContent = t('button.stop');
+      toggleRunButton.classList.add('stop');
+      toggleRunButton.classList.remove('run');
+    }
     liveToggleRunButton.textContent = t('button.stop');
     liveToggleRunButton.classList.add('stop');
     liveToggleRunButton.classList.remove('run');
   } else {
-    toggleRunButton.textContent = t('button.start');
-    toggleRunButton.classList.add('run');
-    toggleRunButton.classList.remove('stop');
+    if (toggleRunButton) {
+      toggleRunButton.textContent = t('button.start');
+      toggleRunButton.classList.add('run');
+      toggleRunButton.classList.remove('stop');
+    }
     liveToggleRunButton.textContent = t('button.start');
     liveToggleRunButton.classList.add('run');
     liveToggleRunButton.classList.remove('stop');
   }
-  toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+  if (toggleRunButton) {
+    toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+  }
   liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   setSuspendButtonState();
 }
 
 function setSuspendButtonState() {
-  toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+  if (toggleWorshipModeButton) {
+    toggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
+  }
   liveToggleWorshipModeButton.textContent = worshipMode ? t('button.worshipOn') : t('button.worshipOff');
-  toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+  if (toggleWorshipModeButton) {
+    toggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
+  }
   liveToggleWorshipModeButton.title = worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff');
   const canToggleSuspend = running || worshipMode;
-  toggleWorshipModeButton.disabled = !canToggleSuspend;
+  if (toggleWorshipModeButton) {
+    toggleWorshipModeButton.disabled = !canToggleSuspend;
+  }
   liveToggleWorshipModeButton.disabled = !canToggleSuspend;
   updateHotkeyPills();
 }
@@ -1011,12 +1025,22 @@ function updateTestAudioFileButtonState() {
 function refreshToggleButtonLabels() {
   setRunningButtonState();
   setSuspendButtonState();
-  togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
-  toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
-  toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+  if (togglePresentationButton) {
+    togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
+  }
+  if (toggleLockControlsButton) {
+    toggleLockControlsButton.textContent = controlsLocked ? t('button.lockOn') : t('button.lockOff');
+  }
+  if (toggleRunButton) {
+    toggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
+  }
   liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
-  togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
-  toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+  if (togglePresentationButton) {
+    togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
+  }
+  if (toggleLockControlsButton) {
+    toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+  }
   updateHotkeyPills();
 }
 
@@ -1054,8 +1078,10 @@ function setPresentationMode(nextMode) {
   presentationMode = Boolean(nextMode);
   document.body.classList.toggle('presentation-mode', presentationMode);
   translationLiveBarEl.classList.toggle('hidden', !presentationMode);
-  togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
-  togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
+  if (togglePresentationButton) {
+    togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
+    togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
+  }
   if (presentationMode) {
     renderPanels(activePairLineId);
   }
@@ -1303,7 +1329,7 @@ function applyUiLanguage() {
   }
   liveToggleHelpButton.textContent = t('button.help');
   updateTestAudioFileButtonState();
-  openScriptManagerButton.textContent = t('button.scriptManager');
+  setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
   liveOpenScriptManagerButton.textContent = t('button.scriptManager');
   uploadReferenceScriptButton.textContent = t('button.uploadScript');
   pasteReferenceScriptButton.textContent = t('button.pasteScript');
@@ -2186,25 +2212,31 @@ targetLanguageSelect.addEventListener('change', async () => {
   updateModeSummary();
 });
 
-toggleRunButton.addEventListener('click', async () => {
-  await setRunning(!running);
-});
+if (toggleRunButton) {
+  toggleRunButton.addEventListener('click', async () => {
+    await setRunning(!running);
+  });
+}
 
 liveToggleRunButton.addEventListener('click', async () => {
   await setRunning(!running);
 });
 
-toggleWorshipModeButton.addEventListener('click', () => {
-  toggleSuspendMode();
-});
+if (toggleWorshipModeButton) {
+  toggleWorshipModeButton.addEventListener('click', () => {
+    toggleSuspendMode();
+  });
+}
 
 liveToggleWorshipModeButton.addEventListener('click', () => {
   toggleSuspendMode();
 });
 
-togglePresentationButton.addEventListener('click', () => {
-  togglePresentationModeDebounced();
-});
+if (togglePresentationButton) {
+  togglePresentationButton.addEventListener('click', () => {
+    togglePresentationModeDebounced();
+  });
+}
 
 liveExitTranslationModeButton.addEventListener('click', () => {
   setPresentationMode(false);
@@ -2240,9 +2272,11 @@ hintF1El.addEventListener('click', () => {
   setHelpVisible(!helpVisible);
 });
 
-toggleLockControlsButton.addEventListener('click', () => {
-  setControlsLocked(!controlsLocked);
-});
+if (toggleLockControlsButton) {
+  toggleLockControlsButton.addEventListener('click', () => {
+    setControlsLocked(!controlsLocked);
+  });
+}
 
 toggleOutputWindowButton.addEventListener('click', async () => {
   try {
