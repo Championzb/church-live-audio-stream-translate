@@ -46,6 +46,12 @@ const liveVadValueEl = document.getElementById('liveVadValue') as any;
 const liveSilenceMsInput = document.getElementById('liveSilenceMs') as any;
 const liveMaxSegmentMsInput = document.getElementById('liveMaxSegmentMs') as any;
 const liveModeSummaryEl = document.getElementById('liveModeSummary') as any;
+const liveHotkeyF8El = document.getElementById('liveHotkeyF8') as any;
+const liveHotkeyF7El = document.getElementById('liveHotkeyF7') as any;
+const liveHotkeyF6El = document.getElementById('liveHotkeyF6') as any;
+const liveHotkeyF4El = document.getElementById('liveHotkeyF4') as any;
+const liveHotkeyF2El = document.getElementById('liveHotkeyF2') as any;
+const liveHotkeyF1El = document.getElementById('liveHotkeyF1') as any;
 const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
 const themeSelect = document.getElementById('themeSelect') as any;
@@ -286,6 +292,12 @@ const UI_TEXT = {
     'hint.f2.unlock': 'Unlock',
     'hint.f1.open': 'Help',
     'hint.f1.close': 'Close Help',
+    'map.f8': 'Start/Stop',
+    'map.f7': 'Suspend/Resume',
+    'map.f6': 'Translation Mode',
+    'map.f4': 'Reset',
+    'map.f2': 'Lock/Unlock',
+    'map.f1': 'Help',
     'status.idle': 'Idle',
     'status.controlsLocked': 'Config controls locked',
     'status.controlsUnlocked': 'Config controls unlocked',
@@ -480,6 +492,12 @@ const UI_TEXT = {
     'hint.f2.unlock': '解锁',
     'hint.f1.open': '帮助',
     'hint.f1.close': '关闭帮助',
+    'map.f8': '开始/停止',
+    'map.f7': '暂停/恢复',
+    'map.f6': '翻译模式',
+    'map.f4': '重置',
+    'map.f2': '锁定/解锁',
+    'map.f1': '帮助',
     'status.idle': '空闲',
     'status.controlsLocked': '配置控件已锁定',
     'status.controlsUnlocked': '配置控件已解锁',
@@ -1002,6 +1020,11 @@ function setHotkeyPill(button: any, hotkey: string, label: string, options: any 
   }
 }
 
+function setLiveHotkeyChip(chip: any, hotkey: string, label: string) {
+  if (!chip) return;
+  chip.innerHTML = `<kbd>${hotkey}</kbd> ${label}`;
+}
+
 function updateHotkeyPills() {
   setHotkeyPill(hintF8El, 'F8', running ? t('hint.f8.stop') : t('hint.f8.start'), {
     title: running ? t('tooltip.stop') : t('tooltip.start'),
@@ -1037,6 +1060,13 @@ function updateHotkeyPills() {
     pressed: helpVisible,
     state: helpVisible ? 'active' : 'idle'
   });
+
+  setLiveHotkeyChip(liveHotkeyF8El, 'F8', t('map.f8'));
+  setLiveHotkeyChip(liveHotkeyF7El, 'F7', t('map.f7'));
+  setLiveHotkeyChip(liveHotkeyF6El, 'F6', t('map.f6'));
+  setLiveHotkeyChip(liveHotkeyF4El, 'F4', t('map.f4'));
+  setLiveHotkeyChip(liveHotkeyF2El, 'F2', t('map.f2'));
+  setLiveHotkeyChip(liveHotkeyF1El, 'F1', t('map.f1'));
 }
 
 function refreshToggleButtonLabels() {

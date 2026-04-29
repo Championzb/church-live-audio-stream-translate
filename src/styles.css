@@ -415,6 +415,40 @@ body {
   overflow-wrap: anywhere;
 }
 
+.live-hotkey-map {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.live-hotkey-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--section-border);
+  background: var(--surface-inset);
+  color: var(--text-subtle);
+  font-size: 0.76rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.live-hotkey-chip kbd {
+  font-family: var(--font-main);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--summary-fg);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
 .control-pill {
   border: 1px solid var(--section-border);
   background: var(--surface-soft);
@@ -1264,6 +1298,10 @@ button:disabled {
     min-width: 0;
     white-space: normal;
     margin-left: 0;
+  }
+
+  .live-hotkey-map {
+    width: 100%;
   }
 }
 

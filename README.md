@@ -100,6 +100,7 @@ npm run typecheck
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (Start/Stop, Suspend/Resume, Help, Projector Window icon, Reset, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.
 - Translation Mode live bar now uses a compact wrap layout so action/tuning/summary blocks stay tight and avoid large empty horizontal space.
+- Translation Mode live bar also keeps a compact hotkey map visible (F8/F7/F6/F4/F2/F1) so operators can confirm shortcuts without leaving the mode.
 - The Translation Mode settings card no longer duplicates start/suspend/mode/lock controls that already exist in the header hotkey strip.
 - `Script` is available in the home-page `Translation Controls` panel for quick setup access.
 - Translation Mode includes a dedicated live-bar back icon (`←`) to exit quickly without scrolling.
