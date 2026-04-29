@@ -98,7 +98,7 @@ npm run typecheck
 - Settings includes OpenAI key access, UI language, and a Theme picker (`Broadcast Clean`, `Paper Light`, `Minimal Mono`).
 - Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
-- During Translation Mode, the app switches to a sticky Live Control Bar (back icon, projector icon, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.
+- During Translation Mode, the app switches to a sticky Live Control Bar (back icon, `Projector Window`, `Settings`, `Audio Input`, `Refresh`, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.
 - Translation Mode live bar now uses a compact wrap layout so action/tuning/summary blocks stay tight and avoid large empty horizontal space.
 - Translation Mode live bar also keeps a compact clickable hotkey map (F8/F7/F6/F4/F2/F1) so operators can trigger controls directly without leaving the mode.
 - The Translation Mode settings card no longer duplicates start/suspend/mode/lock controls that already exist in the header hotkey strip.

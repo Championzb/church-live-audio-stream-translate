@@ -364,15 +364,20 @@ body {
   justify-self: center;
 }
 
+#translationLiveBar .live-session-setup {
+  grid-area: output;
+  justify-self: end;
+  align-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 0;
+}
+
 #liveExitTranslationMode {
   grid-area: exit;
   justify-self: start;
-  align-self: start;
-}
-
-#liveToggleOutputWindow {
-  grid-area: output;
-  justify-self: end;
   align-self: start;
 }
 
@@ -420,7 +425,9 @@ body {
 }
 
 #refreshDevices.icon-btn,
+#liveRefreshDevices.icon-btn,
 #openSettingsPage.icon-btn,
+#liveOpenSettingsPage.icon-btn,
 #toggleOutputWindow.icon-btn,
 #liveToggleOutputWindow.icon-btn,
 #liveExitTranslationMode.icon-btn {
@@ -434,12 +441,25 @@ body {
   font-size: 0.96rem;
 }
 
+#liveRefreshDevices.icon-btn {
+  font-size: 0.96rem;
+}
+
 #refreshDevices.icon-btn:hover {
   background: rgba(148, 163, 184, 0.14);
   box-shadow: none;
 }
 
+#liveRefreshDevices.icon-btn:hover {
+  background: rgba(148, 163, 184, 0.14);
+  box-shadow: none;
+}
+
 .audio-input-group #audioInput {
+  min-width: 220px;
+}
+
+.audio-input-group #liveAudioInput {
   min-width: 220px;
 }
 
@@ -1242,6 +1262,10 @@ button:disabled {
       "hotkeys hotkeys"
       "tuning tuning";
     width: 100%;
+  }
+
+  #translationLiveBar .live-session-setup {
+    justify-self: end;
   }
 
   .live-bar-tuning {

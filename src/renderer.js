@@ -33,6 +33,9 @@ const liveWorkspaceEl = document.getElementById('liveWorkspace');
 const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow');
+const liveOpenSettingsPageButton = document.getElementById('liveOpenSettingsPage');
+const liveAudioInputSelect = document.getElementById('liveAudioInput');
+const liveRefreshDevicesButton = document.getElementById('liveRefreshDevices');
 const liveVadThresholdInput = document.getElementById('liveVadThreshold');
 const liveVadValueEl = document.getElementById('liveVadValue');
 const liveSilenceMsInput = document.getElementById('liveSilenceMs');
@@ -113,6 +116,7 @@ const labelAdminApiKeyEl = document.getElementById('labelAdminApiKey');
 const labelProjectIdEl = document.getElementById('labelProjectId');
 const labelUiLanguageEl = document.getElementById('labelUiLanguage');
 const labelAudioInputEl = document.getElementById('labelAudioInput');
+const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput');
 const labelThemeEl = document.getElementById('labelTheme');
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
@@ -885,12 +889,15 @@ function setControlsLocked(nextLocked) {
     const lockTargets = [
         maskedApiKeyEl,
         openSettingsPageButton,
+        liveOpenSettingsPageButton,
         backToLivePageButton,
         audioInputSelect,
+        liveAudioInputSelect,
         themeSelect,
         sourceLanguageSelect,
         targetLanguageSelect,
         refreshDevicesButton,
+        liveRefreshDevicesButton,
         openScriptManagerButton,
         scriptPanelOpenScriptManagerButton,
         uploadReferenceScriptButton,
@@ -915,6 +922,42 @@ function setControlsLocked(nextLocked) {
     setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
     updateHotkeyPills();
     updateModeSummary();
+}
+function hasSelectOption(selectEl, value) {
+    return Array.from(selectEl?.options || []).some((option) => option.value === value);
+}
+function syncLiveAudioInputMirror() {
+    if (!liveAudioInputSelect)
+        return;
+    liveAudioInputSelect.innerHTML = audioInputSelect.innerHTML;
+    const selectedValue = audioInputSelect.value || '';
+    if (selectedValue && hasSelectOption(liveAudioInputSelect, selectedValue)) {
+        liveAudioInputSelect.value = selectedValue;
+        return;
+    }
+    liveAudioInputSelect.value = '';
+}
+function setAudioInputSelection(selectedValue) {
+    const nextValue = selectedValue || '';
+    if (nextValue && hasSelectOption(audioInputSelect, nextValue)) {
+        audioInputSelect.value = nextValue;
+    }
+    else {
+        audioInputSelect.value = '';
+    }
+    if (audioInputSelect.value && audioInputSelect.value !== TEST_AUDIO_PICKER_VALUE) {
+        lastNonPickerAudioInputValue = audioInputSelect.value;
+    }
+    syncLiveAudioInputMirror();
+}
+function handleAudioInputSelection(selectedValue) {
+    const nextValue = selectedValue || '';
+    if (nextValue === TEST_AUDIO_PICKER_VALUE) {
+        openTestAudioFilePicker(lastNonPickerAudioInputValue || '');
+        syncLiveAudioInputMirror();
+        return;
+    }
+    setAudioInputSelection(nextValue);
 }
 function setRunningButtonState() {
     if (running) {
@@ -1050,9 +1093,11 @@ function refreshToggleButtonLabels() {
 function setStaticButtonTooltips() {
     saveKeyButton.title = t('tooltip.saveKey');
     openSettingsPageButton.title = t('tooltip.settings');
+    liveOpenSettingsPageButton.title = t('tooltip.settings');
     backToLivePageButton.title = t('tooltip.back');
     liveExitTranslationModeButton.title = t('tooltip.presentationOn');
     refreshDevicesButton.title = t('tooltip.refresh');
+    liveRefreshDevicesButton.title = t('tooltip.refresh');
     if (toggleHelpButton) {
         toggleHelpButton.title = t('tooltip.help');
     }
@@ -1271,6 +1316,7 @@ function applyUiLanguage() {
     labelProjectIdEl.textContent = t('label.projectId');
     labelUiLanguageEl.textContent = t('label.uiLanguage');
     labelAudioInputEl.textContent = t('label.audioInput');
+    labelLiveAudioInputEl.textContent = t('label.audioInput');
     labelThemeEl.textContent = t('label.theme');
     labelSourceLanguageEl.textContent = t('label.sourceLanguage');
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
@@ -1287,6 +1333,7 @@ function applyUiLanguage() {
     saveMainApiKeyButton.textContent = t('button.saveKey');
     cancelMainApiKeyButton.textContent = t('button.cancel');
     setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
+    setIconButton(liveOpenSettingsPageButton, '⚙', t('button.settings'));
     setIconButton(toggleOutputWindowButton, '🖥', t('button.outputWindow'));
     setIconButton(liveToggleOutputWindowButton, '🖥', t('button.outputWindow'));
     setIconButton(backToLivePageButton, '←', t('button.back'));
@@ -1296,6 +1343,7 @@ function applyUiLanguage() {
     translationControlsSummaryEl.textContent = t('heading.translationControls');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
+    setIconButton(liveRefreshDevicesButton, '↻', t('button.refresh'));
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
     }
@@ -1346,6 +1394,7 @@ function applyUiLanguage() {
         }
     });
     syncTestAudioInputOption();
+    syncLiveAudioInputMirror();
     updateSourceLanguageOptionLabels();
     updateTargetLanguageOptionLabels();
     updateTranslatedHeading();
@@ -1566,6 +1615,7 @@ function syncTestAudioInputOption() {
         if (audioInputSelect.value === TEST_AUDIO_INPUT_VALUE) {
             audioInputSelect.value = '';
         }
+        syncLiveAudioInputMirror();
         return;
     }
     const option = existingOption || document.createElement('option');
@@ -1574,20 +1624,20 @@ function syncTestAudioInputOption() {
     if (!existingOption) {
         audioInputSelect.appendChild(option);
     }
+    syncLiveAudioInputMirror();
 }
 function setSelectedTestAudioFile(file) {
     selectedTestAudioFile = file;
     syncTestAudioInputOption();
     if (selectedTestAudioFile) {
-        audioInputSelect.value = TEST_AUDIO_INPUT_VALUE;
-        lastNonPickerAudioInputValue = TEST_AUDIO_INPUT_VALUE;
+        setAudioInputSelection(TEST_AUDIO_INPUT_VALUE);
         setStatusKey('status.testAudioSelected', { name: selectedTestAudioFile.name });
     }
 }
 function openTestAudioFilePicker(restoreValue = '') {
     const restoreSelection = () => {
-        if (audioInputSelect.value === TEST_AUDIO_PICKER_VALUE) {
-            audioInputSelect.value = restoreValue;
+        if (audioInputSelect.value === TEST_AUDIO_PICKER_VALUE || liveAudioInputSelect.value === TEST_AUDIO_PICKER_VALUE) {
+            setAudioInputSelection(restoreValue);
         }
     };
     try {
@@ -1742,6 +1792,7 @@ async function loadDevices() {
     if (permissionError) {
         setStatusKey('status.audioDeviceAccessError', { error: permissionError.message || String(permissionError) });
     }
+    syncLiveAudioInputMirror();
 }
 function flushRecorderChunk() {
     if (!mediaRecorder || mediaRecorder.state !== 'recording')
@@ -2120,6 +2171,9 @@ saveMainApiKeyButton.addEventListener('click', async () => {
 openSettingsPageButton.addEventListener('click', () => {
     setMainView('settings');
 });
+liveOpenSettingsPageButton.addEventListener('click', () => {
+    setMainView('settings');
+});
 backToLivePageButton.addEventListener('click', () => {
     setMainView('live');
 });
@@ -2181,13 +2235,14 @@ exportGlossaryButton.addEventListener('click', async () => {
 refreshDevicesButton.addEventListener('click', () => {
     loadDevices();
 });
+liveRefreshDevicesButton.addEventListener('click', () => {
+    loadDevices();
+});
 audioInputSelect.addEventListener('change', () => {
-    const selectedValue = audioInputSelect.value || '';
-    if (selectedValue === TEST_AUDIO_PICKER_VALUE) {
-        openTestAudioFilePicker(lastNonPickerAudioInputValue || '');
-        return;
-    }
-    lastNonPickerAudioInputValue = selectedValue;
+    handleAudioInputSelection(audioInputSelect.value || '');
+});
+liveAudioInputSelect.addEventListener('change', () => {
+    handleAudioInputSelection(liveAudioInputSelect.value || '');
 });
 uiLanguageSelect.addEventListener('change', () => {
     applyUiLanguage();
@@ -2321,7 +2376,7 @@ testAudioFileInput.addEventListener('change', async (event) => {
     const file = input?.files?.[0];
     if (!file) {
         testAudioFileInput.value = '';
-        audioInputSelect.value = lastNonPickerAudioInputValue || '';
+        setAudioInputSelection(lastNonPickerAudioInputValue || '');
         return;
     }
     setSelectedTestAudioFile(file);

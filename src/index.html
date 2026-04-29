@@ -101,7 +101,15 @@
               <button id="liveHotkeyF2" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F2</kbd> Lock/Unlock</button>
               <button id="liveHotkeyF1" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F1</kbd> Help</button>
             </div>
-            <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
+            <div class="live-session-setup control-pill">
+              <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
+              <button id="liveOpenSettingsPage" class="icon-btn" aria-label="Settings">⚙</button>
+              <div class="audio-input-group">
+                <label id="labelLiveAudioInput" for="liveAudioInput">Audio Input</label>
+                <select id="liveAudioInput"></select>
+                <button id="liveRefreshDevices" class="icon-btn" aria-label="Refresh audio devices">↻</button>
+              </div>
+            </div>
           </section>
 
           <section class="controls">
