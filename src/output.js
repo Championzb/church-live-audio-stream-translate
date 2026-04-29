@@ -1,5 +1,7 @@
-const { invoke } = window.__TAURI__.core;
-const { listen } = window.__TAURI__.event;
+const tauriCore = window.__TAURI__ && window.__TAURI__.core ? window.__TAURI__.core : null;
+const tauriEvent = window.__TAURI__ && window.__TAURI__.event ? window.__TAURI__.event : null;
+const invoke = tauriCore && typeof tauriCore.invoke === 'function' ? tauriCore.invoke.bind(tauriCore) : null;
+const listen = tauriEvent && typeof tauriEvent.listen === 'function' ? tauriEvent.listen.bind(tauriEvent) : null;
 
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
@@ -20,14 +22,21 @@ function renderLines(panel, lines) {
 }
 
 async function boot() {
+  if (!listen) {
+    console.error('[output] Tauri event API unavailable; output listener not attached.');
+    return;
+  }
+
   let lastHeartbeatAt = 0;
   const sendHeartbeat = () => {
+    if (!invoke) return;
     const now = Date.now();
     if (now - lastHeartbeatAt < 450) return;
     lastHeartbeatAt = now;
     void invoke('notify_output_window_state', { state: 'rendered' });
   };
   const sendReady = () => {
+    if (!invoke) return;
     void invoke('notify_output_window_state', { state: 'ready' });
   };
 
