@@ -20,6 +20,13 @@ main {
   gap: 10px;
 }
 
+.window-drag-bar {
+  height: 20px;
+  width: 100%;
+  -webkit-app-region: drag;
+  border-radius: 10px;
+}
+
 .mode-summary {
   margin: 0;
   color: #ccfbf1;

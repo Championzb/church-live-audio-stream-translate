@@ -220,6 +220,13 @@ body[data-theme='minimal-mono'] {
   display: none !important;
 }
 
+.window-drag-bar {
+  height: 20px;
+  width: 100%;
+  -webkit-app-region: drag;
+  border-radius: 10px;
+}
+
 body {
   margin: 0;
   font-family: var(--font-main);
