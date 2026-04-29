@@ -1528,7 +1528,8 @@ body.presentation-mode .live-line {
 body.presentation-mode .line {
   font-size: 1.7rem;
   line-height: 1.62;
-  min-height: calc(1.7rem * 1.62);
+  min-height: auto !important;
+  height: auto !important;
   display: block;
 }
 
