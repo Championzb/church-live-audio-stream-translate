@@ -999,7 +999,11 @@ function updateHotkeyPills() {
 function updateTestAudioFileButtonState() {
   const busy = Boolean(testStreamActive);
   testAudioFileButton.classList.toggle('busy', busy);
-  testAudioFileButton.textContent = busy ? t('button.testAudioFileRunning') : t('button.testAudioFile');
+  setIconButton(
+    testAudioFileButton,
+    busy ? '⏳' : '🎧',
+    busy ? t('button.testAudioFileRunning') : t('button.testAudioFile')
+  );
   testAudioFileButton.disabled = controlsLocked || busy;
 }
 
@@ -1304,7 +1308,7 @@ function applyUiLanguage() {
   clearReferenceScriptButton.textContent = t('button.clearScript');
   resetSessionButton.textContent = t('button.resetSession');
   liveResetSessionButton.textContent = t('button.resetSession');
-  exportTranscriptButton.textContent = t('button.exportTranscript');
+  setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveGlossary');
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');

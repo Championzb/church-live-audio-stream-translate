@@ -921,6 +921,30 @@ button:disabled {
   letter-spacing: 0.015em;
 }
 
+.caption-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.caption-card-header h2 {
+  margin-bottom: 0;
+}
+
+.caption-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-tool-btn {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  font-size: 0.96rem;
+}
+
 .live-line {
   min-height: 24px;
   margin-bottom: 12px;
