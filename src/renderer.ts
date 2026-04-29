@@ -262,11 +262,16 @@ const UI_TEXT = {
     'chip.controls': 'Controls',
     'chip.locked': 'Locked',
     'chip.unlocked': 'Unlocked',
-    'hint.f8': '<kbd>F8</kbd> Start/Stop',
-    'hint.f7': '<kbd>F7</kbd> Suspend',
-    'hint.f6': '<kbd>F6</kbd> Translation',
-    'hint.f2': '<kbd>F2</kbd> Lock',
-    'hint.f1': '<kbd>F1</kbd> Help',
+    'hint.f8.start': 'Start',
+    'hint.f8.stop': 'Stop',
+    'hint.f7.suspend': 'Suspend',
+    'hint.f7.resume': 'Resume',
+    'hint.f6.enter': 'Translation Mode',
+    'hint.f6.exit': 'Exit Mode',
+    'hint.f2.lock': 'Lock',
+    'hint.f2.unlock': 'Unlock',
+    'hint.f1.open': 'Help',
+    'hint.f1.close': 'Close Help',
     'status.idle': 'Idle',
     'status.controlsLocked': 'Config controls locked',
     'status.controlsUnlocked': 'Config controls unlocked',
@@ -442,11 +447,16 @@ const UI_TEXT = {
     'chip.controls': '控制',
     'chip.locked': '已锁定',
     'chip.unlocked': '未锁定',
-    'hint.f8': '<kbd>F8</kbd> 开始/停止',
-    'hint.f7': '<kbd>F7</kbd> 暂停',
-    'hint.f6': '<kbd>F6</kbd> 翻译',
-    'hint.f2': '<kbd>F2</kbd> 锁定',
-    'hint.f1': '<kbd>F1</kbd> 帮助',
+    'hint.f8.start': '开始',
+    'hint.f8.stop': '停止',
+    'hint.f7.suspend': '暂停',
+    'hint.f7.resume': '恢复',
+    'hint.f6.enter': '翻译模式',
+    'hint.f6.exit': '退出模式',
+    'hint.f2.lock': '锁定',
+    'hint.f2.unlock': '解锁',
+    'hint.f1.open': '帮助',
+    'hint.f1.close': '关闭帮助',
     'status.idle': '空闲',
     'status.controlsLocked': '配置控件已锁定',
     'status.controlsUnlocked': '配置控件已解锁',
@@ -860,6 +870,7 @@ function updateModeSummary() {
 function setHelpVisible(nextVisible) {
   helpVisible = Boolean(nextVisible);
   helpOverlay.classList.toggle('hidden', !helpVisible);
+  updateHotkeyPills();
 }
 
 function setControlsLocked(nextLocked) {
@@ -931,6 +942,57 @@ function setSuspendButtonState() {
   const canToggleSuspend = running || worshipMode;
   toggleWorshipModeButton.disabled = !canToggleSuspend;
   liveToggleWorshipModeButton.disabled = !canToggleSuspend;
+  updateHotkeyPills();
+}
+
+function setHotkeyPill(button: any, hotkey: string, label: string, options: any = {}) {
+  button.innerHTML = `<kbd>${hotkey}</kbd> ${label}`;
+  button.title = options.title || '';
+  button.disabled = Boolean(options.disabled);
+  button.classList.toggle('is-active', Boolean(options.active));
+  button.dataset.state = options.state || '';
+  if (typeof options.pressed === 'boolean') {
+    button.setAttribute('aria-pressed', options.pressed ? 'true' : 'false');
+  } else {
+    button.removeAttribute('aria-pressed');
+  }
+}
+
+function updateHotkeyPills() {
+  setHotkeyPill(hintF8El, 'F8', running ? t('hint.f8.stop') : t('hint.f8.start'), {
+    title: running ? t('tooltip.stop') : t('tooltip.start'),
+    state: running ? 'danger' : 'run'
+  });
+
+  const canToggleSuspend = running || worshipMode;
+  setHotkeyPill(hintF7El, 'F7', worshipMode ? t('hint.f7.resume') : t('hint.f7.suspend'), {
+    title: worshipMode ? t('tooltip.worshipOn') : t('tooltip.worshipOff'),
+    active: worshipMode,
+    pressed: worshipMode,
+    disabled: !canToggleSuspend,
+    state: worshipMode ? 'suspended' : running ? 'active' : 'idle'
+  });
+
+  setHotkeyPill(hintF6El, 'F6', presentationMode ? t('hint.f6.exit') : t('hint.f6.enter'), {
+    title: presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff'),
+    active: presentationMode,
+    pressed: presentationMode,
+    state: presentationMode ? 'active' : 'idle'
+  });
+
+  setHotkeyPill(hintF2El, 'F2', controlsLocked ? t('hint.f2.unlock') : t('hint.f2.lock'), {
+    title: controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff'),
+    active: controlsLocked,
+    pressed: controlsLocked,
+    state: controlsLocked ? 'locked' : 'idle'
+  });
+
+  setHotkeyPill(hintF1El, 'F1', helpVisible ? t('hint.f1.close') : t('hint.f1.open'), {
+    title: t('tooltip.help'),
+    active: helpVisible,
+    pressed: helpVisible,
+    state: helpVisible ? 'active' : 'idle'
+  });
 }
 
 function updateTestAudioFileButtonState() {
@@ -949,6 +1011,7 @@ function refreshToggleButtonLabels() {
   liveToggleRunButton.title = running ? t('tooltip.stop') : t('tooltip.start');
   togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
   toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
+  updateHotkeyPills();
 }
 
 function setStaticButtonTooltips() {
@@ -1266,12 +1329,6 @@ function applyUiLanguage() {
   chipPresentationLabelEl.textContent = t('chip.translation');
   chipQueueLabelEl.textContent = t('chip.queue');
   chipLockLabelEl.textContent = t('chip.controls');
-  hintF8El.innerHTML = t('hint.f8');
-  hintF7El.innerHTML = t('hint.f7');
-  hintF6El.innerHTML = t('hint.f6');
-  hintF2El.innerHTML = t('hint.f2');
-  hintF1El.innerHTML = t('hint.f1');
-
   Array.from(uiLanguageSelect.options).forEach((option: any) => {
     option.textContent = t(`ui.${option.value}`);
   });

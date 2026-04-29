@@ -508,6 +508,7 @@ h1 {
   white-space: nowrap;
   box-shadow: none;
   transform: none;
+  cursor: pointer;
 }
 
 .hotkey-pill:hover {
@@ -517,6 +518,33 @@ h1 {
 
 .hotkey-pill:focus-visible {
   box-shadow: var(--ring-focus);
+}
+
+.hotkey-pill.is-active {
+  background: var(--surface-soft);
+  border-color: var(--active-border);
+  color: var(--summary-fg);
+}
+
+.hotkey-pill[data-state='run'] {
+  border-color: var(--accent);
+}
+
+.hotkey-pill[data-state='danger'] {
+  border-color: var(--danger);
+}
+
+.hotkey-pill[data-state='suspended'] {
+  border-color: var(--status);
+}
+
+.hotkey-pill[data-state='locked'] {
+  border-color: var(--warning-border);
+}
+
+.hotkey-pill:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .hotkey-pill kbd {
