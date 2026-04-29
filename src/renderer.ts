@@ -1774,29 +1774,6 @@ function waitMs(ms) {
   });
 }
 
-const MOCK_TRANSLATION_PAIRS = [
-  {
-    english: 'Mock: This is a sample translated segment for panel testing.',
-    chinese: '模拟：这是用于面板测试的示例翻译片段。'
-  },
-  {
-    english: 'Mock: Scroll behavior and line wrapping should match live mode.',
-    chinese: '模拟：滚动行为和换行效果应与真实模式一致。'
-  },
-  {
-    english: 'Mock: Long sentence preview to test clipping, spacing, and card growth under dense content.',
-    chinese: '模拟：这是一段较长文本，用于测试密集内容下的裁切、间距和卡片自适应高度。'
-  },
-  {
-    english: 'Mock: Highlight, export, and copy actions remain available in this mode.',
-    chinese: '模拟：高亮、导出和复制功能在该模式下仍然可用。'
-  },
-  {
-    english: 'Mock: Deterministic output keeps repeated tests stable and comparable.',
-    chinese: '模拟：确定性输出可让重复测试保持稳定、便于对比。'
-  }
-];
-
 function hashSeedText(seedText: string) {
   let hash = 0;
   for (let i = 0; i < seedText.length; i += 1) {
@@ -1805,14 +1782,76 @@ function hashSeedText(seedText: string) {
   return hash;
 }
 
+function createDeterministicRng(seed: number) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function sampleDeterministic<T>(items: T[], rand: () => number) {
+  const index = Math.floor(rand() * items.length);
+  return items[Math.max(0, Math.min(index, items.length - 1))];
+}
+
+const MOCK_ENGLISH_OPENERS = [
+  'Mock: We are testing subtitle cadence and readability in a dynamic live-like flow.',
+  'Mock: This segment simulates sermon pacing with pauses, emphasis, and denser vocabulary.',
+  'Mock: Live rendering test begins with a mixed-length paragraph to stretch the card layout.',
+  'Mock: A new sample line checks how quickly transcript cards adapt as content grows.'
+];
+
+const MOCK_ENGLISH_DETAILS = [
+  'The panel should preserve comfortable spacing while text wraps naturally across multiple visual rows.',
+  'Operators should still be able to click, align, and compare paired cards without losing context.',
+  'This sentence intentionally adds descriptive wording so the English side can become noticeably longer.',
+  'We also include repeated concepts and connective phrases to simulate natural spoken transitions.',
+  'During rapid updates, highlight and selection states must remain stable and easy to follow.',
+  'Longer cards should remain readable rather than collapsing visual rhythm in the column.',
+  'This block is useful for checking scroll anchoring when fresh segments arrive continuously.',
+  'In real services, sentence length shifts unpredictably, so mock mode should mimic that variation.'
+];
+
+const MOCK_ENGLISH_CLOSERS = [
+  'Please keep this deterministic so each test run is comparable.',
+  'The goal is realistic diversity without introducing random instability between sessions.',
+  'This closes the sample with a calm ending similar to spoken teaching cadence.',
+  'Use this as a stress case for wrapping, spacing, and scroll behavior.'
+];
+
+const MOCK_CHINESE_LINES = [
+  '模拟：当前片段用于测试排版与滚动。',
+  '模拟：检查高亮、对齐和滚动稳定性。',
+  '模拟：英文更长，中文保持精简。',
+  '模拟：用于验证卡片高度与换行表现。',
+  '模拟：此段强调字幕可读性。'
+];
+
 function buildMockSegmentResult(payload: any) {
   const audioSeed = String(payload?.audio_base64 || '').slice(0, 512);
   const seedText = `${payload?.durationMs || 0}:${audioSeed}`;
-  const pair = MOCK_TRANSLATION_PAIRS[hashSeedText(seedText) % MOCK_TRANSLATION_PAIRS.length];
+  const rand = createDeterministicRng(hashSeedText(seedText));
+  const detailCount = 2 + Math.floor(rand() * 5); // 2..6 sentences, more line-count variety
+  const englishParts = [sampleDeterministic(MOCK_ENGLISH_OPENERS, rand)];
+  for (let i = 0; i < detailCount; i += 1) {
+    englishParts.push(sampleDeterministic(MOCK_ENGLISH_DETAILS, rand));
+  }
+  englishParts.push(sampleDeterministic(MOCK_ENGLISH_CLOSERS, rand));
+  const englishText = englishParts.join(' ');
+
+  // Keep Chinese concise so EN cards are often much taller than ZH cards.
+  const chineseCount = rand() < 0.7 ? 1 : 2;
+  const chineseParts = [];
+  for (let i = 0; i < chineseCount; i += 1) {
+    chineseParts.push(sampleDeterministic(MOCK_CHINESE_LINES, rand));
+  }
+  const chineseText = chineseParts.join('');
+
   return {
-    english: pair.english,
-    translated: pair.chinese,
-    chinese: pair.chinese,
+    english: englishText,
+    translated: chineseText,
+    chinese: chineseText,
     warning: ''
   };
 }
