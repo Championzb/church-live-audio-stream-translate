@@ -85,19 +85,23 @@
 
         <section id="liveWorkspace">
           <section id="translationLiveBar" class="translation-live-bar hidden">
-            <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
-            <button id="liveToggleRun" class="run">Start (F8)</button>
-            <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
-            <button id="liveToggleWorshipMode">Suspend Translation (F7)</button>
-            <button id="liveToggleHelp">Help (F1)</button>
-            <button id="liveResetSession">Reset Session (F4)</button>
-            <label id="labelLiveVadThreshold" for="liveVadThreshold">VAD Threshold</label>
-            <input id="liveVadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
-            <span id="liveVadValue">0.040</span>
-            <label id="labelLiveSilenceMs" for="liveSilenceMs">Silence Hold (ms)</label>
-            <input id="liveSilenceMs" type="number" min="200" max="3000" step="100" value="600" />
-            <label id="labelLiveMaxSegmentMs" for="liveMaxSegmentMs">Max Segment (ms)</label>
-            <input id="liveMaxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+            <div class="live-bar-actions">
+              <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
+              <button id="liveToggleRun" class="run">Start (F8)</button>
+              <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
+              <button id="liveToggleWorshipMode">Suspend Translation (F7)</button>
+              <button id="liveToggleHelp">Help (F1)</button>
+              <button id="liveResetSession">Reset Session (F4)</button>
+            </div>
+            <div class="live-bar-tuning">
+              <label id="labelLiveVadThreshold" for="liveVadThreshold">VAD Threshold</label>
+              <input id="liveVadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
+              <span id="liveVadValue">0.040</span>
+              <label id="labelLiveSilenceMs" for="liveSilenceMs">Silence Hold (ms)</label>
+              <input id="liveSilenceMs" type="number" min="200" max="3000" step="100" value="600" />
+              <label id="labelLiveMaxSegmentMs" for="liveMaxSegmentMs">Max Segment (ms)</label>
+              <input id="liveMaxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+            </div>
             <p id="liveModeSummary">Mode: stopped | Translation: stopped | Translation Mode: off | Queue: 0</p>
           </section>
 
