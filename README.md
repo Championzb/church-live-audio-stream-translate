@@ -88,7 +88,7 @@ npm run typecheck
 - The selected UI language is saved locally for future sessions.
 - The selected UI theme is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
-- A live mode summary line shows current run/translation/translation-mode state.
+- In Translation Mode, the live control bar shows current run/translation/translation-mode state.
 - The mode summary also shows current queue size so operators can watch backlog.
 - A compact state-chip row near the mode summary shows at-a-glance run/translation state/translation mode/queue/control-lock state without opening help or settings.
 - A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding, and each pill is clickable as a quick action.
