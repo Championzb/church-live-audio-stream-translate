@@ -343,10 +343,46 @@ body {
 }
 
 .translation-live-bar .live-bar-actions > button:not(.icon-btn) {
+  appearance: none;
+  border: 1px solid var(--section-border);
+  border-radius: 999px;
+  background: var(--surface-inset);
+  color: var(--text-subtle);
+  box-shadow: none;
+  transform: none;
   min-height: 40px;
   padding: 8px 12px;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   line-height: 1;
+  white-space: nowrap;
+}
+
+.translation-live-bar .live-bar-actions > button:not(.icon-btn):hover {
+  background: var(--surface-soft);
+  transform: none;
+}
+
+.translation-live-bar .live-bar-actions > button:not(.icon-btn):focus-visible {
+  box-shadow: var(--ring-focus);
+}
+
+.translation-live-bar .live-bar-actions > button:not(.icon-btn):disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.translation-live-bar #liveToggleRun.run {
+  border-color: var(--accent);
+  color: var(--summary-fg);
+  background: var(--surface-inset);
+  box-shadow: none;
+}
+
+.translation-live-bar #liveToggleRun.stop {
+  border-color: var(--danger);
+  color: var(--summary-fg);
+  background: var(--surface-inset);
+  box-shadow: none;
 }
 
 #liveToggleRun {
