@@ -62,6 +62,13 @@ struct OutputWindowStatePayload {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
+struct PushOutputCaptionResponse {
+    ok: bool,
+    delivered: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 struct ApiKeyConfigResponse {
     ok: bool,
     masked_key: String,
@@ -1530,11 +1537,21 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
 }
 
 #[tauri::command]
-fn push_output_caption(payload: OutputCaptionPayload, app: tauri::AppHandle) -> Result<OkResponse, String> {
+fn push_output_caption(
+    payload: OutputCaptionPayload,
+    app: tauri::AppHandle,
+) -> Result<PushOutputCaptionResponse, String> {
     if let Some(window) = app.get_webview_window("output") {
-        let _ = window.emit("output-caption", payload);
+        let emitted = window.emit("output-caption", payload).is_ok();
+        return Ok(PushOutputCaptionResponse {
+            ok: true,
+            delivered: emitted,
+        });
     }
-    Ok(OkResponse { ok: true })
+    Ok(PushOutputCaptionResponse {
+        ok: true,
+        delivered: false,
+    })
 }
 
 #[tauri::command]

@@ -1620,7 +1620,7 @@ function applyUiLanguage() {
 
 async function syncOutputWindow() {
   try {
-    await invoke('push_output_caption', {
+    const result = await invoke('push_output_caption', {
       payload: {
         englishLines: pairedLines.map((line) => line.englishText).filter(Boolean),
         chineseLines: pairedLines.map((line) => line.chineseText).filter(Boolean),
@@ -1630,6 +1630,12 @@ async function syncOutputWindow() {
         targetLabel: languageName(targetLanguageSelect.value || 'zh-hans')
       }
     });
+    if (result && result.delivered) {
+      outputWindowOpen = true;
+      outputWindowReady = true;
+      lastOutputHeartbeatAt = Date.now();
+      updateProjectorIndicator();
+    }
   } catch {
     // Ignore sync errors when output window is closed.
   }
@@ -2407,6 +2413,9 @@ async function ensureMainInitialized() {
   }
   projectorStateTimerId = window.setInterval(() => {
     void refreshProjectorOpenState();
+    if (outputWindowOpen) {
+      void syncOutputWindow();
+    }
   }, PROJECTOR_STATE_POLL_MS);
 
   mainInitialized = true;
