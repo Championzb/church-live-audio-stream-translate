@@ -1711,14 +1711,14 @@ const MOCK_ENGLISH_OPENERS = [
     'Mock: A new sample line checks how quickly transcript cards adapt as content grows.'
 ];
 const MOCK_ENGLISH_DETAILS = [
-    'The panel should preserve comfortable spacing while text wraps naturally across multiple visual rows.',
-    'Operators should still be able to click, align, and compare paired cards without losing context.',
-    'This sentence intentionally adds descriptive wording so the English side can become noticeably longer.',
-    'We also include repeated concepts and connective phrases to simulate natural spoken transitions.',
-    'During rapid updates, highlight and selection states must remain stable and easy to follow.',
-    'Longer cards should remain readable rather than collapsing visual rhythm in the column.',
-    'This block is useful for checking scroll anchoring when fresh segments arrive continuously.',
-    'In real services, sentence length shifts unpredictably, so mock mode should mimic that variation.'
+    'The panel should keep clear spacing while text wraps naturally.',
+    'Operators should compare paired cards without losing context.',
+    'This sentence is slightly longer to simulate natural variation.',
+    'Spoken delivery often changes pace and sentence length.',
+    'Highlight and selection should stay stable during updates.',
+    'Scroll behavior should remain predictable as cards grow.',
+    'This sample helps test alignment between both language panels.',
+    'The goal is realistic variation, not extreme length differences.'
 ];
 const MOCK_ENGLISH_CLOSERS = [
     'Please keep this deterministic so each test run is comparable.',
@@ -1727,25 +1727,31 @@ const MOCK_ENGLISH_CLOSERS = [
     'Use this as a stress case for wrapping, spacing, and scroll behavior.'
 ];
 const MOCK_CHINESE_LINES = [
-    '模拟：当前片段用于测试排版与滚动。',
-    '模拟：检查高亮、对齐和滚动稳定性。',
-    '模拟：英文更长，中文保持精简。',
-    '模拟：用于验证卡片高度与换行表现。',
-    '模拟：此段强调字幕可读性。'
+    '模拟：用于测试排版与滚动稳定性。',
+    '模拟：检查高亮、对齐与同步体验。',
+    '模拟：英文可略长，中文适度精简。',
+    '模拟：验证换行与卡片高度表现。',
+    '模拟：保持可读性与节奏变化。',
+    '模拟：用于比对双语面板卡片。'
 ];
 function buildMockSegmentResult(payload) {
     const audioSeed = String(payload?.audio_base64 || '').slice(0, 512);
     const seedText = `${payload?.durationMs || 0}:${audioSeed}`;
     const rand = createDeterministicRng(hashSeedText(seedText));
-    const detailCount = 2 + Math.floor(rand() * 5); // 2..6 sentences, more line-count variety
+    const detailCount = 1 + Math.floor(rand() * 3); // 1..3 detail sentences, moderate variety
     const englishParts = [sampleDeterministic(MOCK_ENGLISH_OPENERS, rand)];
     for (let i = 0; i < detailCount; i += 1) {
         englishParts.push(sampleDeterministic(MOCK_ENGLISH_DETAILS, rand));
     }
-    englishParts.push(sampleDeterministic(MOCK_ENGLISH_CLOSERS, rand));
+    if (rand() < 0.72) {
+        englishParts.push(sampleDeterministic(MOCK_ENGLISH_CLOSERS, rand));
+    }
     const englishText = englishParts.join(' ');
-    // Keep Chinese concise so EN cards are often much taller than ZH cards.
-    const chineseCount = rand() < 0.7 ? 1 : 2;
+    // Keep EN/ZH line counts varied but closer (same, -1, or -2 lines).
+    const englishSentenceCount = englishParts.length;
+    const deltaRoll = rand();
+    const lineDelta = deltaRoll < 0.38 ? 0 : deltaRoll < 0.82 ? 1 : 2;
+    const chineseCount = Math.max(1, englishSentenceCount - lineDelta);
     const chineseParts = [];
     for (let i = 0; i < chineseCount; i += 1) {
         chineseParts.push(sampleDeterministic(MOCK_CHINESE_LINES, rand));
