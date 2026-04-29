@@ -1214,6 +1214,16 @@ function normalizePairedCardHeights() {
         rightCard.style.minHeight = `${rowHeight}px`;
     }
 }
+function clearPairedCardHeights() {
+    const englishCards = Array.from(englishPanel.querySelectorAll('.line'));
+    const chineseCards = Array.from(chinesePanel.querySelectorAll('.line'));
+    [...englishCards, ...chineseCards].forEach((card) => {
+        if (!(card instanceof HTMLElement))
+            return;
+        card.style.height = '';
+        card.style.minHeight = '';
+    });
+}
 function alignPresentationPanels() {
     if (!presentationMode)
         return;
@@ -1253,6 +1263,9 @@ function renderPanels(activeLineId = 0) {
     });
     if (!presentationMode) {
         normalizePairedCardHeights();
+    }
+    else {
+        clearPairedCardHeights();
     }
     if (transcriptPanelsAutoPin) {
         pinPanelsToLatest();
