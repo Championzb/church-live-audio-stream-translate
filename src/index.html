@@ -36,7 +36,6 @@
           <div class="header-left">
             <h1>Church Live Translate</h1>
             <div class="status-stack">
-              <p id="modeSummary">Mode: stopped | Translation: stopped | Translation Mode: off</p>
               <div class="quick-state-bar">
                 <div class="quick-chip">
                   <span id="chipModeLabel" class="chip-label">Mode</span>
@@ -97,7 +96,6 @@
               <label id="labelLiveMaxSegmentMs" for="liveMaxSegmentMs">Max Segment (ms)</label>
               <input id="liveMaxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
             </div>
-            <p id="liveModeSummary">Mode: stopped | Translation: stopped | Translation Mode: off | Queue: 0</p>
             <div class="live-hotkey-map" aria-label="Translation mode hotkeys">
               <button id="liveHotkeyF8" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F8</kbd> Start/Stop</button>
               <button id="liveHotkeyF7" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F7</kbd> Suspend/Resume</button>
@@ -180,6 +178,10 @@
           </section>
 
         </section>
+
+        <div id="globalStatusBar" class="global-status-bar">
+          <p id="modeSummary">Mode: stopped | Translation: stopped | Translation Mode: off | Queue: 0</p>
+        </div>
 
         <section id="settingsPage" class="settings-page hidden">
           <div class="settings-header">

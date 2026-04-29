@@ -37,7 +37,6 @@ const liveVadThresholdInput = document.getElementById('liveVadThreshold');
 const liveVadValueEl = document.getElementById('liveVadValue');
 const liveSilenceMsInput = document.getElementById('liveSilenceMs');
 const liveMaxSegmentMsInput = document.getElementById('liveMaxSegmentMs');
-const liveModeSummaryEl = document.getElementById('liveModeSummary');
 const liveHotkeyF8El = document.getElementById('liveHotkeyF8');
 const liveHotkeyF7El = document.getElementById('liveHotkeyF7');
 const liveHotkeyF6El = document.getElementById('liveHotkeyF6');
@@ -860,7 +859,6 @@ function updateModeSummary() {
         queue: queueText
     });
     modeSummaryEl.textContent = summaryText;
-    liveModeSummaryEl.textContent = summaryText;
     chipModeValueEl.textContent = running ? t('mode.running') : t('mode.stopped');
     chipModeValueEl.dataset.state = running ? 'running' : 'stopped';
     chipWorshipValueEl.textContent = translationState;

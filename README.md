@@ -88,8 +88,8 @@ npm run typecheck
 - The selected UI language is saved locally for future sessions.
 - The selected UI theme is saved locally for future sessions.
 - VAD threshold, silence hold, and max segment settings are saved locally.
-- A concise mode summary line shows current run/translation/translation-mode state.
-- The mode summary also shows current queue size so operators can watch backlog.
+- A concise mode summary line is shown as a shared bottom status bar (visible in both home and translation mode) with current run/translation/translation-mode state.
+- The status bar also shows current queue size so operators can watch backlog.
 - A persistent hotkey pill row keeps F8/F7/F6/F2/F1 actions visible for faster operator onboarding, and each pill is clickable as a quick action.
 - Hotkey pills now update dynamically by state (for example Start/Stop, Suspend/Resume, Enter/Exit Mode, Lock/Unlock, Help/Close Help), including active/disabled visuals.
 - Cost is shown on the masked OpenAI key tooltip. When `Project ID` is set, the app fetches real project cost from OpenAI Organization Costs API using the configured key; if unavailable (for example non-admin key), it falls back to local estimate.
