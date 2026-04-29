@@ -1258,9 +1258,9 @@ function applyUiLanguage() {
     }
     liveToggleHelpButton.textContent = t('button.help');
     setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
-    uploadReferenceScriptButton.textContent = t('button.uploadScript');
-    pasteReferenceScriptButton.textContent = t('button.pasteScript');
-    clearReferenceScriptButton.textContent = t('button.clearScript');
+    setIconButton(uploadReferenceScriptButton, '⤴', t('button.uploadScript'));
+    setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
+    setIconButton(clearReferenceScriptButton, '🧹', t('button.clearScript'));
     resetSessionButton.textContent = t('button.resetSession');
     liveResetSessionButton.textContent = t('button.resetSession');
     setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
@@ -1269,7 +1269,7 @@ function applyUiLanguage() {
     importGlossaryButton.textContent = t('button.import');
     exportGlossaryButton.textContent = t('button.export');
     closeHelpButton.textContent = t('button.close');
-    closeScriptModalButton.textContent = t('button.close');
+    setIconButton(closeScriptModalButton, '✕', t('button.close'));
     apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
     apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
     scriptModalTitleEl.textContent = t('modal.scriptTitle');
