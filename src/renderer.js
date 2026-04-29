@@ -1258,9 +1258,9 @@ function applyUiLanguage() {
     }
     liveToggleHelpButton.textContent = t('button.help');
     setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
-    setIconButton(uploadReferenceScriptButton, '📤', t('button.uploadScript'));
+    setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
     setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
-    setIconButton(clearReferenceScriptButton, '🧹', t('button.clearScript'));
+    setIconButton(clearReferenceScriptButton, '🗑', t('button.clearScript'));
     resetSessionButton.textContent = t('button.resetSession');
     liveResetSessionButton.textContent = t('button.resetSession');
     setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
