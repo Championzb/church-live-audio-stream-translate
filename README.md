@@ -118,6 +118,7 @@ npm run typecheck
 - In translation mode, script panel scrolling is independent from caption panel scrolling.
 - In Translation Mode, the script panel header includes a `Script` icon for quick script popup access.
 - The newest target-language lines are highlighted in the main panel; transcript panels auto-pin to latest lines only when already near bottom, and manual scroll-up is preserved.
+- Clicking any transcript card (English or target language) now selects that paired row, applies a separate selection highlight color, and jumps both panels to the corresponding cards for side-by-side review.
 - Hover a caption line in the transcription/translation panels to reveal a copy icon for quick per-line clipboard copy.
 - VAD threshold can be adjusted during live streaming and takes effect immediately.
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.

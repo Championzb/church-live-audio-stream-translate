@@ -43,6 +43,11 @@
   --active-shadow: 0 10px 22px rgba(20, 184, 166, 0.22);
   --active-pulse-a: 0 10px 22px rgba(20, 184, 166, 0.18);
   --active-pulse-b: 0 12px 26px rgba(20, 184, 166, 0.28);
+  --selected-border: #38bdf8;
+  --selected-left: #0ea5e9;
+  --selected-grad-a: #102c45;
+  --selected-grad-b: #0f2539;
+  --selected-shadow: 0 8px 18px rgba(14, 165, 233, 0.2);
   --warning-border: #f59e0b;
   --warning-fg: #fef3c7;
   --warning-bg: #3b2b11;
@@ -109,6 +114,11 @@ body[data-theme='paper-light'] {
   --active-shadow: 0 10px 22px rgba(143, 75, 22, 0.16);
   --active-pulse-a: 0 10px 22px rgba(143, 75, 22, 0.14);
   --active-pulse-b: 0 12px 26px rgba(143, 75, 22, 0.21);
+  --selected-border: #3b82f6;
+  --selected-left: #2563eb;
+  --selected-grad-a: #e8efff;
+  --selected-grad-b: #dbe8ff;
+  --selected-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
   --warning-border: #d97706;
   --warning-fg: #6f3a10;
   --warning-bg: #fff7ed;
@@ -175,6 +185,11 @@ body[data-theme='minimal-mono'] {
   --active-shadow: 0 10px 22px rgba(71, 85, 105, 0.14);
   --active-pulse-a: 0 10px 22px rgba(71, 85, 105, 0.11);
   --active-pulse-b: 0 12px 26px rgba(71, 85, 105, 0.18);
+  --selected-border: #1d4ed8;
+  --selected-left: #1e40af;
+  --selected-grad-a: #e8eefc;
+  --selected-grad-b: #dbe6fa;
+  --selected-shadow: 0 8px 18px rgba(30, 64, 175, 0.15);
   --warning-border: #b45309;
   --warning-fg: #78350f;
   --warning-bg: #fffbeb;
@@ -1203,6 +1218,10 @@ button:disabled {
   box-shadow: 0 8px 16px rgba(2, 6, 23, 0.1);
 }
 
+.line[data-line-id] {
+  cursor: pointer;
+}
+
 .line-text {
   display: block;
   white-space: pre-wrap;
@@ -1239,6 +1258,17 @@ button:disabled {
   box-shadow: var(--active-shadow);
   transform: translateX(1px);
   animation: active-line-pulse 1.4s ease-in-out infinite;
+}
+
+.line.active-selected {
+  border-color: var(--selected-border);
+  border-left: 5px solid var(--selected-left);
+  background: linear-gradient(90deg, var(--selected-grad-a), var(--selected-grad-b));
+  box-shadow: var(--selected-shadow);
+}
+
+.line.active-current.active-selected {
+  animation: none;
 }
 
 @keyframes active-line-pulse {

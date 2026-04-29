@@ -183,6 +183,7 @@ let selectedTestAudioFile: File | null = null;
 let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
 let activePairLineId = 0;
+let selectedPairLineId = 0;
 let transcriptPanelsAutoPin = true;
 let mockModeEnabled = false;
 
@@ -1191,7 +1192,7 @@ function setPresentationMode(nextMode) {
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
   }
   if (presentationMode) {
-    renderPanels(activePairLineId);
+    renderPanels(activePairLineId, selectedPairLineId);
   }
   updateModeSummary();
 }
@@ -1234,10 +1235,45 @@ function toggleSuspendMode() {
   setWorshipMode(!worshipMode);
 }
 
-function buildLineCard(text, warning, isActive) {
+function centerCardInPanel(panelEl: HTMLElement, cardEl: HTMLElement) {
+  const targetRatio = presentationMode ? 0.52 : 0.4;
+  const targetY = panelEl.clientHeight * targetRatio;
+  const cardCenter = cardEl.offsetTop + cardEl.offsetHeight / 2;
+  panelEl.scrollTop = Math.max(0, Math.min(cardCenter - targetY, panelEl.scrollHeight - panelEl.clientHeight));
+}
+
+function scrollToPairedLine(lineId: number) {
+  if (!lineId) return;
+  const englishCard = englishPanel.querySelector(`.line[data-line-id="${lineId}"]`);
+  const chineseCard = chinesePanel.querySelector(`.line[data-line-id="${lineId}"]`);
+  if (englishCard instanceof HTMLElement) {
+    centerCardInPanel(englishPanel, englishCard);
+  }
+  if (chineseCard instanceof HTMLElement) {
+    centerCardInPanel(chinesePanel, chineseCard);
+  }
+}
+
+function selectPairedLine(lineId: number) {
+  if (!lineId) return;
+  selectedPairLineId = lineId;
+  transcriptPanelsAutoPin = false;
+  renderPanels(activePairLineId, selectedPairLineId);
+  window.requestAnimationFrame(() => {
+    scrollToPairedLine(lineId);
+  });
+}
+
+function buildLineCard(text, warning, isActive, isSelected, lineId) {
   const div = document.createElement('div');
   const empty = !text;
-  div.className = `line ${warning ? 'warning' : ''} ${isActive ? 'active-current' : ''} ${empty ? 'empty' : ''}`;
+  div.className = `line ${warning ? 'warning' : ''} ${isActive ? 'active-current' : ''} ${isSelected ? 'active-selected' : ''} ${empty ? 'empty' : ''}`;
+  if (!warning && lineId) {
+    div.dataset.lineId = String(lineId);
+    div.addEventListener('click', () => {
+      selectPairedLine(lineId);
+    });
+  }
   if (empty) {
     div.textContent = ' ';
     return div;
@@ -1332,14 +1368,19 @@ function updateTranscriptAutoPinState() {
   transcriptPanelsAutoPin = isPanelNearBottom(englishPanel) && isPanelNearBottom(chinesePanel);
 }
 
-function renderPanels(activeLineId = 0) {
+function renderPanels(activeLineId = 0, selectedLineId = 0) {
+  if (selectedLineId && !pairedLines.some((line) => line.id === selectedLineId)) {
+    selectedPairLineId = 0;
+    selectedLineId = 0;
+  }
   englishPanel.innerHTML = '';
   chinesePanel.innerHTML = '';
 
   pairedLines.forEach((line) => {
     const isActive = line.id === activeLineId;
-    const englishCard = buildLineCard(line.englishText, line.englishWarning, isActive);
-    const chineseCard = buildLineCard(line.chineseText, line.chineseWarning, isActive);
+    const isSelected = line.id === selectedLineId;
+    const englishCard = buildLineCard(line.englishText, line.englishWarning, isActive, isSelected, line.id);
+    const chineseCard = buildLineCard(line.chineseText, line.chineseWarning, isActive, isSelected, line.id);
     englishPanel.appendChild(englishCard);
     chinesePanel.appendChild(chineseCard);
   });
@@ -1353,6 +1394,10 @@ function renderPanels(activeLineId = 0) {
     pinPanelsToLatest();
     window.requestAnimationFrame(() => {
       pinPanelsToLatest();
+    });
+  } else if (selectedLineId) {
+    window.requestAnimationFrame(() => {
+      scrollToPairedLine(selectedLineId);
     });
   }
 }
@@ -1375,7 +1420,7 @@ function appendPairedLine(
   if (options.highlight !== false && !entry.englishWarning && !entry.chineseWarning) {
     activePairLineId = entry.id;
   }
-  renderPanels(activePairLineId);
+  renderPanels(activePairLineId, selectedPairLineId);
   syncOutputWindow();
 }
 
@@ -1548,8 +1593,9 @@ async function syncOutputWindow() {
 function clearPanels() {
   pairedLines.length = 0;
   activePairLineId = 0;
+  selectedPairLineId = 0;
   transcriptPanelsAutoPin = true;
-  renderPanels(activePairLineId);
+  renderPanels(activePairLineId, selectedPairLineId);
   clearCurrentLiveTranslation();
   syncOutputWindow();
 }
@@ -2835,7 +2881,7 @@ window.addEventListener('keydown', (event) => {
 
 window.addEventListener('resize', () => {
   if (!pairedLines.length) return;
-  renderPanels(activePairLineId);
+  renderPanels(activePairLineId, selectedPairLineId);
 });
 
 boot();
