@@ -6,6 +6,7 @@ const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
+const PROJECTOR_MAX_HISTORY_LINES = 6;
 
 async function resolveTauriApis(maxWaitMs = 5000) {
   const startedAt = Date.now();
@@ -23,15 +24,23 @@ async function resolveTauriApis(maxWaitMs = 5000) {
   return { invoke: null, listen: null };
 }
 
+function pinPanelToLatest(panel) {
+  panel.scrollTop = panel.scrollHeight;
+}
+
 function renderLines(panel, lines) {
   panel.innerHTML = '';
-  lines.forEach((text) => {
+  const recentLines = Array.isArray(lines)
+    ? lines.filter((text) => Boolean(text)).slice(-PROJECTOR_MAX_HISTORY_LINES)
+    : [];
+  recentLines.forEach((text) => {
     if (!text) return;
     const div = document.createElement('div');
     div.className = 'line';
     div.textContent = text;
     panel.appendChild(div);
   });
+  pinPanelToLatest(panel);
 }
 
 function applyCaptionPayload(payload) {
@@ -42,6 +51,10 @@ function applyCaptionPayload(payload) {
   chineseLiveEl.textContent = data.chineseLive || '';
   renderLines(englishPanel, data.englishLines || []);
   renderLines(chinesePanel, data.chineseLines || []);
+  window.requestAnimationFrame(() => {
+    pinPanelToLatest(englishPanel);
+    pinPanelToLatest(chinesePanel);
+  });
 }
 
 window.__applyOutputCaption = applyCaptionPayload;
