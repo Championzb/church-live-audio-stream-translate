@@ -1,14 +1,25 @@
-const tauriCore = window.__TAURI__ && window.__TAURI__.core ? window.__TAURI__.core : null;
-const tauriEvent = window.__TAURI__ && window.__TAURI__.event ? window.__TAURI__.event : null;
-const invoke = tauriCore && typeof tauriCore.invoke === 'function' ? tauriCore.invoke.bind(tauriCore) : null;
-const listen = tauriEvent && typeof tauriEvent.listen === 'function' ? tauriEvent.listen.bind(tauriEvent) : null;
-
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
+
+async function resolveTauriApis(maxWaitMs = 5000) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < maxWaitMs) {
+    const tauri = window.__TAURI__;
+    const core = tauri && tauri.core;
+    const event = tauri && tauri.event;
+    const invoke = core && typeof core.invoke === 'function' ? core.invoke.bind(core) : null;
+    const listen = event && typeof event.listen === 'function' ? event.listen.bind(event) : null;
+    if (invoke || listen) {
+      return { invoke, listen };
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 80));
+  }
+  return { invoke: null, listen: null };
+}
 
 function renderLines(panel, lines) {
   panel.innerHTML = '';
@@ -32,8 +43,9 @@ function applyCaptionPayload(payload) {
 }
 
 async function boot() {
-  if (!listen) {
-    console.error('[output] Tauri event API unavailable; output listener not attached.');
+  const { invoke, listen } = await resolveTauriApis();
+  if (!invoke && !listen) {
+    console.error('[output] Tauri APIs unavailable; output listener and bootstrap fetch not attached.');
     return;
   }
 
@@ -50,11 +62,13 @@ async function boot() {
     void invoke('notify_output_window_state', { state: 'ready' });
   };
 
-  await listen('output-caption', (event) => {
-    const payload = event.payload || {};
-    applyCaptionPayload(payload);
-    sendHeartbeat();
-  });
+  if (listen) {
+    await listen('output-caption', (event) => {
+      const payload = event.payload || {};
+      applyCaptionPayload(payload);
+      sendHeartbeat();
+    });
+  }
 
   if (invoke) {
     try {
