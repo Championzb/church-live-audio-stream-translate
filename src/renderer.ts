@@ -1311,7 +1311,9 @@ function renderPanels(activeLineId = 0) {
     chinesePanel.appendChild(chineseCard);
   });
 
-  normalizePairedCardHeights();
+  if (!presentationMode) {
+    normalizePairedCardHeights();
+  }
   if (transcriptPanelsAutoPin) {
     pinPanelsToLatest();
     window.requestAnimationFrame(() => {

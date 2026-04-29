@@ -1251,7 +1251,9 @@ function renderPanels(activeLineId = 0) {
         englishPanel.appendChild(englishCard);
         chinesePanel.appendChild(chineseCard);
     });
-    normalizePairedCardHeights();
+    if (!presentationMode) {
+        normalizePairedCardHeights();
+    }
     if (transcriptPanelsAutoPin) {
         pinPanelsToLatest();
         window.requestAnimationFrame(() => {
