@@ -39,6 +39,8 @@ const liveToggleHelpButton = document.getElementById('liveToggleHelp');
 const liveResetSessionButton = document.getElementById('liveResetSession');
 const liveVadThresholdInput = document.getElementById('liveVadThreshold');
 const liveVadValueEl = document.getElementById('liveVadValue');
+const liveSilenceMsInput = document.getElementById('liveSilenceMs');
+const liveMaxSegmentMsInput = document.getElementById('liveMaxSegmentMs');
 const liveModeSummaryEl = document.getElementById('liveModeSummary');
 const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
@@ -115,6 +117,8 @@ const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
 const labelVadThresholdEl = document.getElementById('labelVadThreshold');
 const labelLiveVadThresholdEl = document.getElementById('labelLiveVadThreshold');
+const labelLiveSilenceMsEl = document.getElementById('labelLiveSilenceMs');
+const labelLiveMaxSegmentMsEl = document.getElementById('labelLiveMaxSegmentMs');
 const labelSilenceMsEl = document.getElementById('labelSilenceMs');
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs');
 const labelGlossaryEl = document.getElementById('labelGlossary');
@@ -882,7 +886,9 @@ function setControlsLocked(nextLocked) {
         vadThresholdInput,
         liveVadThresholdInput,
         silenceMsInput,
+        liveSilenceMsInput,
         maxSegmentMsInput,
+        liveMaxSegmentMsInput,
         glossaryInput,
         saveGlossaryButton,
         importGlossaryButton,
@@ -1238,6 +1244,8 @@ function applyUiLanguage() {
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
     labelVadThresholdEl.textContent = t('label.vadThreshold');
     labelLiveVadThresholdEl.textContent = t('label.vadThreshold');
+    labelLiveSilenceMsEl.textContent = t('label.silenceMs');
+    labelLiveMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
     labelSilenceMsEl.textContent = t('label.silenceMs');
     labelMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
     labelGlossaryEl.textContent = t('label.glossary');
@@ -1920,7 +1928,9 @@ async function ensureMainInitialized() {
     vadThresholdInput.value = savedVadThreshold.toString();
     liveVadThresholdInput.value = savedVadThreshold.toString();
     silenceMsInput.value = savedSilenceMs.toString();
+    liveSilenceMsInput.value = savedSilenceMs.toString();
     maxSegmentMsInput.value = savedMaxSegmentMs.toString();
+    liveMaxSegmentMsInput.value = savedMaxSegmentMs.toString();
     vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
     liveVadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
     const savedGlossary = localStorage.getItem('church-glossary');
@@ -2301,10 +2311,20 @@ liveVadThresholdInput.addEventListener('input', () => {
     localStorage.setItem('church-vad-threshold', liveVadThresholdInput.value);
 });
 silenceMsInput.addEventListener('change', () => {
+    liveSilenceMsInput.value = silenceMsInput.value;
     localStorage.setItem('church-silence-ms', silenceMsInput.value);
 });
+liveSilenceMsInput.addEventListener('change', () => {
+    silenceMsInput.value = liveSilenceMsInput.value;
+    localStorage.setItem('church-silence-ms', liveSilenceMsInput.value);
+});
 maxSegmentMsInput.addEventListener('change', () => {
+    liveMaxSegmentMsInput.value = maxSegmentMsInput.value;
     localStorage.setItem('church-max-segment-ms', maxSegmentMsInput.value);
+});
+liveMaxSegmentMsInput.addEventListener('change', () => {
+    maxSegmentMsInput.value = liveMaxSegmentMsInput.value;
+    localStorage.setItem('church-max-segment-ms', liveMaxSegmentMsInput.value);
 });
 autoSaveOnStopInput.addEventListener('change', () => {
     localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');

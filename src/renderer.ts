@@ -43,6 +43,8 @@ const liveToggleHelpButton = document.getElementById('liveToggleHelp') as any;
 const liveResetSessionButton = document.getElementById('liveResetSession') as any;
 const liveVadThresholdInput = document.getElementById('liveVadThreshold') as any;
 const liveVadValueEl = document.getElementById('liveVadValue') as any;
+const liveSilenceMsInput = document.getElementById('liveSilenceMs') as any;
+const liveMaxSegmentMsInput = document.getElementById('liveMaxSegmentMs') as any;
 const liveModeSummaryEl = document.getElementById('liveModeSummary') as any;
 const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
@@ -119,6 +121,8 @@ const labelSourceLanguageEl = document.getElementById('labelSourceLanguage') as 
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage') as any;
 const labelVadThresholdEl = document.getElementById('labelVadThreshold') as any;
 const labelLiveVadThresholdEl = document.getElementById('labelLiveVadThreshold') as any;
+const labelLiveSilenceMsEl = document.getElementById('labelLiveSilenceMs') as any;
+const labelLiveMaxSegmentMsEl = document.getElementById('labelLiveMaxSegmentMs') as any;
 const labelSilenceMsEl = document.getElementById('labelSilenceMs') as any;
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs') as any;
 const labelGlossaryEl = document.getElementById('labelGlossary') as any;
@@ -908,7 +912,9 @@ function setControlsLocked(nextLocked) {
     vadThresholdInput,
     liveVadThresholdInput,
     silenceMsInput,
+    liveSilenceMsInput,
     maxSegmentMsInput,
+    liveMaxSegmentMsInput,
     glossaryInput,
     saveGlossaryButton,
     importGlossaryButton,
@@ -1306,6 +1312,8 @@ function applyUiLanguage() {
   labelTargetLanguageEl.textContent = t('label.targetLanguage');
   labelVadThresholdEl.textContent = t('label.vadThreshold');
   labelLiveVadThresholdEl.textContent = t('label.vadThreshold');
+  labelLiveSilenceMsEl.textContent = t('label.silenceMs');
+  labelLiveMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
   labelSilenceMsEl.textContent = t('label.silenceMs');
   labelMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
   labelGlossaryEl.textContent = t('label.glossary');
@@ -2036,7 +2044,9 @@ async function ensureMainInitialized() {
   vadThresholdInput.value = savedVadThreshold.toString();
   liveVadThresholdInput.value = savedVadThreshold.toString();
   silenceMsInput.value = savedSilenceMs.toString();
+  liveSilenceMsInput.value = savedSilenceMs.toString();
   maxSegmentMsInput.value = savedMaxSegmentMs.toString();
+  liveMaxSegmentMsInput.value = savedMaxSegmentMs.toString();
   vadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
   liveVadValueEl.textContent = Number(vadThresholdInput.value).toFixed(3);
 
@@ -2474,11 +2484,23 @@ liveVadThresholdInput.addEventListener('input', () => {
 });
 
 silenceMsInput.addEventListener('change', () => {
+  liveSilenceMsInput.value = silenceMsInput.value;
   localStorage.setItem('church-silence-ms', silenceMsInput.value);
 });
 
+liveSilenceMsInput.addEventListener('change', () => {
+  silenceMsInput.value = liveSilenceMsInput.value;
+  localStorage.setItem('church-silence-ms', liveSilenceMsInput.value);
+});
+
 maxSegmentMsInput.addEventListener('change', () => {
+  liveMaxSegmentMsInput.value = maxSegmentMsInput.value;
   localStorage.setItem('church-max-segment-ms', maxSegmentMsInput.value);
+});
+
+liveMaxSegmentMsInput.addEventListener('change', () => {
+  maxSegmentMsInput.value = liveMaxSegmentMsInput.value;
+  localStorage.setItem('church-max-segment-ms', liveMaxSegmentMsInput.value);
 });
 
 autoSaveOnStopInput.addEventListener('change', () => {

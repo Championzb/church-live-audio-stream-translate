@@ -816,7 +816,9 @@ button:disabled {
 }
 
 #silenceMs,
-#maxSegmentMs {
+#maxSegmentMs,
+#liveSilenceMs,
+#liveMaxSegmentMs {
   width: 100px;
 }
 
