@@ -15,7 +15,8 @@
         "title": "Church Live Translate",
         "width": 1500,
         "height": 920,
-        "resizable": true
+        "resizable": true,
+        "decorations": false
       }
     ],
     "security": {

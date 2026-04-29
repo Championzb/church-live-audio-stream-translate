@@ -1528,7 +1528,8 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
     let builder = WebviewWindowBuilder::new(&app, "output", WebviewUrl::App("output.html".into()))
         .title("Church Subtitle Output")
         .inner_size(1600.0, 900.0)
-        .resizable(true);
+        .resizable(true)
+        .decorations(false);
 
     builder
         .build()
