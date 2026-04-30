@@ -1488,6 +1488,21 @@ button:disabled {
   word-break: break-word;
 }
 
+.line-meta {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  color: var(--text-subtle);
+}
+
+.line-delay {
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--section-border);
+  background: var(--surface-inset);
+}
+
 .line-copy-btn {
   position: absolute;
   top: 8px;

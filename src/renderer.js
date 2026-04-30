@@ -186,6 +186,7 @@ let totalSegments = 0;
 let totalEnglishChars = 0;
 let totalTranslatedChars = 0;
 let pendingSegmentDurationMs = 0;
+let pendingSegmentEndedAtMs = 0;
 let testStreamActive = false;
 let selectedTestAudioFile = null;
 let lastNonPickerAudioInputValue = '';
@@ -308,6 +309,7 @@ const UI_TEXT = {
         'chip.translation': 'Translation',
         'chip.queue': 'Queue',
         'chip.controls': 'Controls',
+        'meta.delay': 'Delay',
         'chip.locked': 'Locked',
         'chip.unlocked': 'Unlocked',
         'hint.f8.start': 'Start',
@@ -516,6 +518,7 @@ const UI_TEXT = {
         'chip.translation': '翻译',
         'chip.queue': '队列',
         'chip.controls': '控制',
+        'meta.delay': '延迟',
         'chip.locked': '已锁定',
         'chip.unlocked': '未锁定',
         'hint.f8.start': '开始',
@@ -1405,7 +1408,11 @@ function selectPairedLine(lineId) {
         scrollToPairedLine(lineId);
     });
 }
-function buildLineCard(text, warning, isActive, isSelected, lineId) {
+function formatDelayText(delayMs) {
+    const rounded = Math.max(0, Math.round(Number(delayMs) || 0));
+    return `${t('meta.delay')}: ${rounded} ms`;
+}
+function buildLineCard(text, warning, isActive, isSelected, lineId, delayMs = 0) {
     const div = document.createElement('div');
     const empty = !text;
     div.className = `line ${warning ? 'warning' : ''} ${isActive ? 'active-current' : ''} ${isSelected ? 'active-selected' : ''} ${empty ? 'empty' : ''}`;
@@ -1423,6 +1430,12 @@ function buildLineCard(text, warning, isActive, isSelected, lineId) {
     textEl.className = 'line-text';
     textEl.textContent = text;
     div.appendChild(textEl);
+    if (!warning && delayMs > 0) {
+        const delayEl = document.createElement('span');
+        delayEl.className = 'line-meta line-delay';
+        delayEl.textContent = formatDelayText(delayMs);
+        div.appendChild(delayEl);
+    }
     const copyButton = document.createElement('button');
     copyButton.type = 'button';
     copyButton.className = 'line-copy-btn';
@@ -1502,8 +1515,8 @@ function renderPanels(activeLineId = 0, selectedLineId = 0) {
     pairedLines.forEach((line) => {
         const isActive = line.id === activeLineId;
         const isSelected = line.id === selectedLineId;
-        const englishCard = buildLineCard(line.englishText, line.englishWarning, isActive, isSelected, line.id);
-        const chineseCard = buildLineCard(line.chineseText, line.chineseWarning, isActive, isSelected, line.id);
+        const englishCard = buildLineCard(line.englishText, line.englishWarning, isActive, isSelected, line.id, line.delayMs);
+        const chineseCard = buildLineCard(line.chineseText, line.chineseWarning, isActive, isSelected, line.id, line.delayMs);
         englishPanel.appendChild(englishCard);
         chinesePanel.appendChild(chineseCard);
     });
@@ -1533,7 +1546,8 @@ function appendPairedLine(englishText, chineseText, options = {}) {
         englishText: englishText || '',
         chineseText: chineseText || '',
         englishWarning: Boolean(options.englishWarning),
-        chineseWarning: Boolean(options.chineseWarning)
+        chineseWarning: Boolean(options.chineseWarning),
+        delayMs: Math.max(0, Math.round(Number(options.delayMs) || 0))
     };
     pairedLines.push(entry);
     while (pairedLines.length > MAX_LINES)
@@ -1952,7 +1966,8 @@ async function processTestAudioFile(file) {
             const payload = {
                 audio_base64: bytesToBase64(wavBytes),
                 mime_type: 'audio/wav',
-                durationMs
+                durationMs,
+                segmentEndedAtMs: Date.now()
             };
             pendingSegments.push(payload);
             updateModeSummary();
@@ -2093,7 +2108,9 @@ async function drainSegmentQueue() {
             const payload = pendingSegments.shift();
             const result = await processSegmentWithRetry(payload);
             const translatedText = result.translated || result.chinese || '';
-            appendPairedLine(result.english || '', translatedText);
+            const segmentEndedAtMs = Number(payload.segmentEndedAtMs || Date.now());
+            const renderDelayMs = Math.max(0, Date.now() - segmentEndedAtMs);
+            appendPairedLine(result.english || '', translatedText, { delayMs: renderDelayMs });
             if (result.english || translatedText) {
                 transcriptEntries.push({
                     timestamp: new Date().toLocaleTimeString(),
@@ -2218,15 +2235,19 @@ async function setupAudioPipeline() {
         const blob = new Blob(currentChunks, { type: 'audio/webm' });
         currentChunks = [];
         if (worshipMode) {
+            pendingSegmentDurationMs = 0;
+            pendingSegmentEndedAtMs = 0;
             return;
         }
         const audioBuffer = await blob.arrayBuffer();
         pendingSegments.push({
             audio_base64: arrayBufferToBase64(audioBuffer),
             mime_type: blob.type,
-            durationMs: pendingSegmentDurationMs
+            durationMs: pendingSegmentDurationMs,
+            segmentEndedAtMs: pendingSegmentEndedAtMs || Date.now()
         });
         pendingSegmentDurationMs = 0;
+        pendingSegmentEndedAtMs = 0;
         updateModeSummary();
         drainSegmentQueue();
     };
@@ -2264,6 +2285,7 @@ async function setupAudioPipeline() {
             const spokenLongEnough = now - speechDetectedAt > 350;
             if (now - silenceStartedAt > holdMs && spokenLongEnough) {
                 pendingSegmentDurationMs = Math.max(0, now - recordingStartedAt);
+                pendingSegmentEndedAtMs = now;
                 recording = false;
                 recordingStartedAt = 0;
                 silenceStartedAt = 0;
@@ -2274,6 +2296,7 @@ async function setupAudioPipeline() {
             const maxSegmentMs = Number(maxSegmentMsInput.value);
             if (now - recordingStartedAt >= maxSegmentMs) {
                 pendingSegmentDurationMs = Math.max(0, now - recordingStartedAt);
+                pendingSegmentEndedAtMs = now;
                 recording = false;
                 recordingStartedAt = 0;
                 silenceStartedAt = 0;
@@ -2291,6 +2314,7 @@ async function stopAudioPipeline() {
     }
     if (recording) {
         pendingSegmentDurationMs = Math.max(0, Date.now() - recordingStartedAt);
+        pendingSegmentEndedAtMs = Date.now();
         recording = false;
         recordingStartedAt = 0;
         flushRecorderChunk();

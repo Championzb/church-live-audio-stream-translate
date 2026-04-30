@@ -149,6 +149,7 @@ npm run typecheck
 - The newest target-language lines are highlighted in the main panel; transcript panels auto-pin to latest lines only when already near bottom, and manual scroll-up is preserved.
 - Clicking any transcript card (English or target language) now selects that paired row, applies a separate selection highlight color, and jumps both panels to the corresponding cards for side-by-side review.
 - Hover a caption line in the transcription/translation panels to reveal a copy icon for quick per-line clipboard copy.
+- Each transcript card now shows a per-segment delay badge (`Delay: N ms`) measured from segment end to on-screen render.
 - VAD threshold can be adjusted during live streaming and takes effect immediately.
 - If a target translation response is unexpectedly empty, the app now emits a language-specific non-empty fallback string instead of leaving the target panel blank.
 - Auto-save writes transcripts to `~/Desktop/ChurchTranslateSessions` when enabled.
