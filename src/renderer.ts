@@ -695,9 +695,6 @@ function bindDragBars() {
     && typeof window.__TAURI__.window.getCurrentWindow === 'function'
       ? window.__TAURI__.window.getCurrentWindow()
       : null;
-  if (!currentWindow || typeof currentWindow.startDragging !== 'function') {
-    return;
-  }
   const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
   let maximizeToggleInFlight = false;
   let lastMaximizeToggleAt = 0;
