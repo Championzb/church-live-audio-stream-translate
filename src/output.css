@@ -49,6 +49,17 @@ main {
   display: none;
 }
 
+.projector-titlebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 90;
+  pointer-events: auto;
+  -webkit-app-region: drag;
+}
+
 .window-drag-zone {
   position: absolute;
   inset: 0;
