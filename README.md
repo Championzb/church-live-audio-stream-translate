@@ -122,6 +122,7 @@ npm run typecheck
 - Floating window controls and drag region are now anchored inside the rounded app surface so they align with panel borders and do not visually overlap the header.
 - Double-clicking the frameless top drag bar now toggles maximize/restore (same behavior as native title bars).
 - Projector panel columns now use shrink-safe grid tracks so long headings do not push content off-screen or clip the left panel.
+- The rounded app surface now sits flush to window bounds (no outer inset/shadow frame), removing the visible black edge around the window.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
