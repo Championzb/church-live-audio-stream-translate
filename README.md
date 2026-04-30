@@ -115,6 +115,7 @@ npm run typecheck
 - The top action bar is now a slim flat strip (instead of a rounded floating panel) so it visually aligns with VS Code-style titlebar tooling.
 - Top-bar `Audio Input` now uses a compact microphone icon label to reduce titlebar clutter.
 - Top-bar audio picker now opens on icon click, while the selected device is shown as plain text in the titlebar (instead of a permanently visible dropdown box).
+- Top-bar audio controls are now more compact, and device refresh has moved into the opened audio dropdown menu.
 - The bottom status bar now includes a projector health indicator (`Projector: Off / Waiting / Connected / Stale`) so operators can verify output-window link health quickly.
 - Projector window now bootstraps with the latest caption snapshot from backend state, so it can render transcript content immediately even if opened after recent segments.
 - Projector view is now audience-focused: both language columns keep the latest transcript at the top, keep only the most recent 2 transcript cards, highlight the latest card, and render the second-latest in a smaller/background style when space is tight.

@@ -48,9 +48,11 @@
               <label id="labelAudioInput" for="audioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
               <span id="audioInputValue" class="audio-input-value">System Default</span>
               <div id="audioInputMenu" class="audio-input-menu hidden">
+                <div class="audio-input-menu-header">
+                  <button id="refreshDevices" class="icon-btn audio-menu-refresh-btn" aria-label="Refresh audio devices">↻</button>
+                </div>
                 <select id="audioInput" size="8"></select>
               </div>
-              <button id="refreshDevices" class="icon-btn" aria-label="Refresh audio devices">↻</button>
             </div>
           </div>
           <div class="live-session-setup control-pill">
@@ -60,9 +62,11 @@
               <label id="labelLiveAudioInput" for="liveAudioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
               <span id="liveAudioInputValue" class="audio-input-value">System Default</span>
               <div id="liveAudioInputMenu" class="audio-input-menu hidden">
+                <div class="audio-input-menu-header">
+                  <button id="liveRefreshDevices" class="icon-btn audio-menu-refresh-btn" aria-label="Refresh audio devices">↻</button>
+                </div>
                 <select id="liveAudioInput" size="8"></select>
               </div>
-              <button id="liveRefreshDevices" class="icon-btn" aria-label="Refresh audio devices">↻</button>
             </div>
           </div>
         </div>
