@@ -676,6 +676,30 @@ function setIconButton(button, icon, label) {
     button.textContent = icon;
     button.setAttribute('aria-label', label);
 }
+function bindMainTitlebarDragFallback() {
+    const titlebar = document.querySelector('.titlebar-actions');
+    if (!(titlebar instanceof HTMLElement))
+        return;
+    const isNoDragTarget = (target) => {
+        if (!(target instanceof Element))
+            return false;
+        return Boolean(target.closest('button, input, select, textarea, [role="button"], [data-no-drag], .control-pill, .audio-input-menu'));
+    };
+    titlebar.addEventListener('pointerdown', async (event) => {
+        if (event.button !== 0)
+            return;
+        if (event.detail > 1)
+            return;
+        if (isNoDragTarget(event.target))
+            return;
+        try {
+            await invoke('start_dragging_window');
+        }
+        catch {
+            // keep native drag-region behavior as fallback
+        }
+    });
+}
 function bindWindowControls() {
     const runWindowAction = async (action) => {
         try {
@@ -2888,6 +2912,7 @@ async function loadSavedAdminApiKeyIfAvailable() {
     }
 }
 async function boot() {
+    bindMainTitlebarDragFallback();
     bindWindowControls();
     const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
     applyTheme(savedTheme);
