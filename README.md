@@ -126,6 +126,7 @@ npm run typecheck
 - Rounded window corners now use explicit clipping (`clip-path`) with a thin border stroke so bottom corners render correctly without dark corner artifacts.
 - Rounded window surfaces now use direct radius + overflow clipping (without `clip-path`) and matching window background fill to avoid black corner artifacts on macOS compositing.
 - Projector bottom status bar summary is now transparent so it matches the glass style used in other pages.
+- Projector status bar typography/spacing now matches the main window status bar for consistent cross-window UI.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
