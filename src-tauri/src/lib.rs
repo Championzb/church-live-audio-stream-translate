@@ -1532,7 +1532,7 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         .resizable(true)
         .decorations(false)
         .shadow(false)
-        .background_color(Color(4, 13, 29, 255));
+        .background_color(Color(0, 0, 0, 0));
 
     builder
         .build()
@@ -1648,7 +1648,6 @@ pub fn run() {
         })
         .setup(|app| {
             if let Some(main_window) = app.get_webview_window("main") {
-                let _ = main_window.set_background_color(Some(Color(4, 13, 29, 255)));
                 let _ = main_window.set_shadow(false);
             }
 

@@ -128,8 +128,8 @@ npm run typecheck
 - Projector bottom status bar summary is now transparent so it matches the glass style used in other pages.
 - Projector status bar typography/spacing now matches the main window status bar for consistent cross-window UI.
 - Frameless windows disable native window shadow to prevent dark edge/fringe artifacts around rounded corners.
-- Main window transparency is disabled and native background is explicitly set (`#040d1d`) to avoid black corner fill artifacts on macOS compositing.
-- Projector window also sets explicit native background color (`#040d1d`) for consistent edge rendering.
+- Main window now uses native transparency with a transparent root webview layer so rounded corners do not show black fill artifacts.
+- Projector window now uses the same native transparency + transparent root strategy for consistent rounded-corner rendering.
 - Outer rounded shell stroke is removed on main/projector surfaces to prevent dark anti-aliased fringe at corners.
 - Rounded outer window shape now stays flush to the native window bounds (no `6px` inset), preventing the dark navy outer band around rounded corners.
 - Rounded corner cutouts now inherit each window's full layered surface background (including glow/grid layers), preventing black corner fill artifacts.

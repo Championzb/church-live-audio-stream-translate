@@ -293,29 +293,24 @@ body[data-theme='minimal-mono'] {
   border-color: color-mix(in oklab, #ef4444 50%, transparent);
 }
 
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
 body {
   margin: 0;
   font-family: var(--font-main);
   color: var(--text);
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
-    radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),
-    linear-gradient(var(--grid-line-a) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line-b) 1px, transparent 1px),
-    linear-gradient(170deg, var(--bg-top), var(--bg-bottom));
-  background-size:
-    auto,
-    auto,
-    34px 34px,
-    34px 34px,
-    auto;
+  min-height: 100%;
   overflow: hidden;
 }
 
 .app-shell {
   max-width: none;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
   position: relative;
   border-radius: var(--window-radius);
