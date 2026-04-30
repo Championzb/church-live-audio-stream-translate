@@ -676,58 +676,6 @@ function setIconButton(button, icon, label) {
     button.textContent = icon;
     button.setAttribute('aria-label', label);
 }
-function bindDragBars() {
-    const currentWindow = window.__TAURI__
-        && window.__TAURI__.window
-        && typeof window.__TAURI__.window.getCurrentWindow === 'function'
-        ? window.__TAURI__.window.getCurrentWindow()
-        : null;
-    const isNoDragTarget = (target) => {
-        if (!(target instanceof Element))
-            return false;
-        return Boolean(target.closest('button, input, select, textarea, [role="button"], [data-no-drag], .control-pill, .audio-input-menu'));
-    };
-    const toggleMaximize = async () => {
-        try {
-            await invoke('control_window', { action: 'toggle_maximize' });
-            return;
-        }
-        catch {
-            // fall back to frontend window API
-        }
-        if (currentWindow && typeof currentWindow.toggleMaximize === 'function') {
-            void currentWindow.toggleMaximize();
-        }
-    };
-    const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
-    dragBars.forEach((bar) => {
-        if (!(bar instanceof HTMLElement))
-            return;
-        bar.addEventListener('pointerdown', async (event) => {
-            if (event.button !== 0)
-                return;
-            if (isNoDragTarget(event.target))
-                return;
-            if (event.detail > 1)
-                return;
-            try {
-                await invoke('start_dragging_window');
-                return;
-            }
-            catch {
-                // fallback to frontend API below
-            }
-            if (currentWindow && typeof currentWindow.startDragging === 'function') {
-                void currentWindow.startDragging();
-            }
-        });
-        bar.addEventListener('dblclick', (event) => {
-            if (isNoDragTarget(event.target))
-                return;
-            void toggleMaximize();
-        });
-    });
-}
 function bindWindowControls() {
     const runWindowAction = async (action) => {
         try {
@@ -2940,7 +2888,6 @@ async function loadSavedAdminApiKeyIfAvailable() {
     }
 }
 async function boot() {
-    bindDragBars();
     bindWindowControls();
     const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
     applyTheme(savedTheme);
