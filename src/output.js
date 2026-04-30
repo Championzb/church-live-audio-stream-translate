@@ -92,6 +92,48 @@ function applySnapshotFromStorage() {
   }
 }
 
+function bindProjectorTitlebar(invoke) {
+  const titlebar = document.querySelector('.projector-titlebar');
+  if (!(titlebar instanceof HTMLElement)) return;
+
+  const currentWindow =
+    window.__TAURI__
+    && window.__TAURI__.window
+    && typeof window.__TAURI__.window.getCurrentWindow === 'function'
+      ? window.__TAURI__.window.getCurrentWindow()
+      : null;
+
+  titlebar.addEventListener('pointerdown', async (event) => {
+    if (event.button !== 0) return;
+    if (event.detail > 1) return;
+    if (invoke) {
+      try {
+        await invoke('start_dragging_window');
+        return;
+      } catch {
+        // fallback to frontend API below
+      }
+    }
+    if (currentWindow && typeof currentWindow.startDragging === 'function') {
+      void currentWindow.startDragging();
+    }
+  });
+
+  titlebar.addEventListener('dblclick', async () => {
+    if (invoke) {
+      try {
+        await invoke('control_window', { action: 'toggle_maximize' });
+        return;
+      } catch {
+        // fallback to frontend API below
+      }
+    }
+    if (currentWindow && typeof currentWindow.toggleMaximize === 'function') {
+      void currentWindow.toggleMaximize();
+    }
+  });
+}
+
 function bindWindowControls(invoke) {
   if (!invoke) return;
   const runWindowAction = async (action) => {
@@ -120,6 +162,7 @@ function bindWindowControls(invoke) {
 
 async function boot() {
   const { invoke, listen } = await resolveTauriApis();
+  bindProjectorTitlebar(invoke);
   bindWindowControls(invoke);
   if (!invoke && !listen) {
     console.error('[output] Tauri APIs unavailable; output listener and bootstrap fetch not attached.');
