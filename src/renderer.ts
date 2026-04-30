@@ -140,9 +140,13 @@ const labelLiveMaxSegmentMsEl = document.getElementById('labelLiveMaxSegmentMs')
 const labelSilenceMsEl = document.getElementById('labelSilenceMs') as any;
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs') as any;
 const segmentationHelpToggleEl = document.getElementById('segmentationHelpToggle') as any;
+const liveSegmentationHelpToggleEl = document.getElementById('liveSegmentationHelpToggle') as any;
 const vadHelpTextEl = document.getElementById('vadHelpText') as any;
 const silenceHelpTextEl = document.getElementById('silenceHelpText') as any;
 const maxSegmentHelpTextEl = document.getElementById('maxSegmentHelpText') as any;
+const liveVadHelpTextEl = document.getElementById('liveVadHelpText') as any;
+const liveSilenceHelpTextEl = document.getElementById('liveSilenceHelpText') as any;
+const liveMaxSegmentHelpTextEl = document.getElementById('liveMaxSegmentHelpText') as any;
 const labelGlossaryEl = document.getElementById('labelGlossary') as any;
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop') as any;
 const englishHeadingEl = document.getElementById('englishHeading') as any;
@@ -1338,6 +1342,8 @@ function setStaticButtonTooltips() {
   scriptPanelOpenScriptManagerButton.title = t('tooltip.scriptManager');
   segmentationHelpToggleEl.title = t('tooltip.segmentationHelp');
   segmentationHelpToggleEl.setAttribute('aria-label', t('tooltip.segmentationHelp'));
+  liveSegmentationHelpToggleEl.title = t('tooltip.segmentationHelp');
+  liveSegmentationHelpToggleEl.setAttribute('aria-label', t('tooltip.segmentationHelp'));
   labelVadThresholdEl.title = t('tooltip.vadThreshold');
   labelLiveVadThresholdEl.title = t('tooltip.vadThreshold');
   labelSilenceMsEl.title = t('tooltip.silenceMs');
@@ -1667,6 +1673,9 @@ function applyUiLanguage() {
   vadHelpTextEl.textContent = t('help.vadThreshold');
   silenceHelpTextEl.textContent = t('help.silenceMs');
   maxSegmentHelpTextEl.textContent = t('help.maxSegmentMs');
+  liveVadHelpTextEl.textContent = t('help.vadThreshold');
+  liveSilenceHelpTextEl.textContent = t('help.silenceMs');
+  liveMaxSegmentHelpTextEl.textContent = t('help.maxSegmentMs');
   labelGlossaryEl.textContent = t('label.glossary');
   labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
 

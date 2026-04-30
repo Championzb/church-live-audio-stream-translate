@@ -1132,6 +1132,11 @@ h1 {
   overflow: visible;
 }
 
+.segmentation-help-popover--live .tuning-help {
+  top: calc(100% + 10px);
+  bottom: auto;
+}
+
 .tuning-help {
   margin: 0;
   display: grid;

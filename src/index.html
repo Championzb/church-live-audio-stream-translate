@@ -113,6 +113,14 @@
               <input id="liveSilenceMs" type="number" min="200" max="3000" step="100" value="600" />
               <label id="labelLiveMaxSegmentMs" for="liveMaxSegmentMs">Max Segment (ms)</label>
               <input id="liveMaxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+              <details id="liveSegmentationHelpPopover" class="segmentation-help-popover segmentation-help-popover--live">
+                <summary id="liveSegmentationHelpToggle" class="segmentation-help-icon" aria-label="Segmentation Help">ⓘ</summary>
+                <div id="liveSegmentationHelp" class="tuning-help">
+                  <span id="liveVadHelpText">VAD Threshold: lower catches quieter speech but may trigger on noise.</span>
+                  <span id="liveSilenceHelpText">Silence Hold: how long silence must last before ending a segment.</span>
+                  <span id="liveMaxSegmentHelpText">Max Segment: hard cap on segment length for latency control.</span>
+                </div>
+              </details>
             </div>
             <div class="live-hotkey-map" aria-label="Translation mode hotkeys">
               <button id="liveHotkeyF8" class="hotkey-pill live-hotkey-pill" type="button"><kbd>F8</kbd> Start/Stop</button>

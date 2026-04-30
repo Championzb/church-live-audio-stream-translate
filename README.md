@@ -13,7 +13,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Header control hub shows live state chips (mode/translation state/translation mode/queue/control-lock) and always-visible hotkey pills
 - Built-in help overlay for operators (button)
 - Hover hints on each button to explain what it does
-- Translation controls now include a help icon (`ⓘ`) and hover explanations for `VAD Threshold`, `Silence Hold`, and `Max Segment`
+- Translation controls now include a help icon (`ⓘ`) and hover explanations for `VAD Threshold`, `Silence Hold`, and `Max Segment`; the same icon is also available in Translation Mode live bar tuning controls
 - Export transcript to a text file at any time
 - One-tap session reset for queue + captions + transcript (`F4`)
 - Optional auto-save transcript when stopping a session
