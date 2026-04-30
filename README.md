@@ -178,6 +178,44 @@ npm run typecheck
 - Segment processing retries automatically on transient API/network errors.
 - Cost summary estimates STT + translation spend from processed audio/text.
 
+## Translation sequence and latency
+
+```mermaid
+sequenceDiagram
+  participant FE as "Frontend (VAD + Queue)"
+  participant BE as "Tauri Backend"
+  participant OA as "OpenAI Audio API"
+  participant OR as "OpenAI Responses API"
+
+  FE->>FE: "Capture audio + VAD segmentation"
+  Note over FE: "Latency hotspot #1: VAD timers<br/>Silence Hold + Max Segment govern when a chunk can be sent."
+
+  FE->>BE: "invoke(process_segment, audio chunk)"
+  BE->>OA: "POST /v1/audio/translations (whisper-1)<br/>with STT prompt priming"
+  OA-->>BE: "English transcript"
+  Note over OA,BE: "Latency hotspot #2: speech model inference + network RTT"
+
+  BE->>OR: "POST /v1/responses (gpt-4o-mini)<br/>English -> target language"
+  OR-->>BE: "Translated text"
+  Note over OR,BE: "Latency hotspot #3: text model inference + network RTT"
+
+  BE-->>FE: "{ english, translated, warning }"
+  FE->>FE: "Render transcript cards + projector sync"
+  Note over FE: "Small local cost; queue wait can add delay under heavy speech."
+```
+
+### Normal Korean -> Chinese call pattern (2 API calls)
+
+1. Audio translation call: `/v1/audio/translations` (`whisper-1`) for Korean speech -> English text
+2. Text translation call: `/v1/responses` (`gpt-4o-mini`) for English -> Chinese
+
+### Where latency is usually spent
+
+1. **Segmentation wait (frontend):** chunk must wait for silence hold or max segment boundary.
+2. **Audio API inference + network:** first OpenAI call usually dominates under noisy/long chunks.
+3. **Text API inference + network:** second OpenAI call adds additional model time.
+4. **Queue backlog:** sequential queue prevents burst failures but can add wait during fast speech.
+
 ## App logs (for distributed troubleshooting)
 
 - macOS log file: `~/Library/Logs/com.church.live.translate/app.log`
