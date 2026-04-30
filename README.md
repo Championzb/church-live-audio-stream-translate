@@ -112,7 +112,8 @@ npm run typecheck
 - Settings includes a `Mock Mode (No API)` toggle that bypasses OpenAI segment calls and emits deterministic local EN/ZH lines for zero-cost UI testing.
 - Settings includes a `Language Aids` section with:
   - `Glossary` (EN=ZH terms for translation consistency)
-  - `STT Keywords` (English names/places/terms for STT prompt priming)
+  - `STT Keywords` (stable English names/places/terms for STT prompt priming)
+- Script modal includes `Sermon Keywords` upload/paste/clear controls for sermon-specific STT keyword priming on each service.
 - Session setup controls (`Audio Input`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
 - Low-frequency utility controls use compact icon buttons (for example `Settings` and `Back`) with tooltips/labels for cleaner layout.
 - During Translation Mode, the app switches to a sticky Live Control Bar (back icon, `Projector Window`, `Settings`, `Audio Input`, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.

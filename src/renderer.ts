@@ -74,6 +74,11 @@ const uploadReferenceScriptButton = document.getElementById('uploadReferenceScri
 const pasteReferenceScriptButton = document.getElementById('pasteReferenceScript') as any;
 const referenceScriptInput = document.getElementById('referenceScriptInput') as any;
 const clearReferenceScriptButton = document.getElementById('clearReferenceScript') as any;
+const uploadSermonKeywordsButton = document.getElementById('uploadSermonKeywords') as any;
+const pasteSermonKeywordsButton = document.getElementById('pasteSermonKeywords') as any;
+const clearSermonKeywordsButton = document.getElementById('clearSermonKeywords') as any;
+const sermonKeywordsInput = document.getElementById('sermonKeywordsInput') as any;
+const sermonKeywordsMetaEl = document.getElementById('sermonKeywordsMeta') as any;
 const scriptModal = document.getElementById('scriptModal') as any;
 const scriptModalTitleEl = document.getElementById('scriptModalTitle') as any;
 const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as any;
@@ -260,6 +265,9 @@ const UI_TEXT = {
     'button.uploadScript': 'Upload Script',
     'button.pasteScript': 'Paste Script',
     'button.clearScript': 'Clear Script',
+    'button.uploadSermonKeywords': 'Upload Sermon Keywords',
+    'button.pasteSermonKeywords': 'Paste Sermon Keywords',
+    'button.clearSermonKeywords': 'Clear Sermon Keywords',
     'button.resetSession': 'Reset Session (F4)',
     'button.resetSessionShort': 'Reset',
     'button.copyLine': 'Copy line',
@@ -282,7 +290,7 @@ const UI_TEXT = {
     'modal.apiKeyTitle': 'Update OpenAI API Key',
     'modal.apiKeySubtitle': 'Enter API/Admin key or update project ID, then save.',
     'modal.scriptTitle': 'Reference Script',
-    'modal.scriptSubtitle': 'Upload or paste script text, then clear it when needed.',
+    'modal.scriptSubtitle': 'Upload or paste script text and sermon keywords, then clear when needed.',
     'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
     'tooltip.refresh': 'Refresh and re-detect available audio input devices.',
     'tooltip.start': 'Start live capture and translation (F8).',
@@ -301,6 +309,9 @@ const UI_TEXT = {
     'tooltip.uploadScript': 'Upload target-language script text to guide translation and display in translation mode.',
     'tooltip.pasteScript': 'Paste target-language script text directly from clipboard.',
     'tooltip.clearScript': 'Clear the uploaded reference script from this session.',
+    'tooltip.uploadSermonKeywords': 'Upload a sermon-specific keyword list for STT priming.',
+    'tooltip.pasteSermonKeywords': 'Paste a sermon-specific keyword list from clipboard.',
+    'tooltip.clearSermonKeywords': 'Clear sermon-specific STT keywords.',
     'tooltip.resetSession': 'Reset queue, captions, transcript, and cost/session counters (F4).',
     'tooltip.copyLine': 'Copy this caption line.',
     'tooltip.exportTranscript': 'Export the current transcript entries to a text file.',
@@ -358,6 +369,15 @@ const UI_TEXT = {
     'status.scriptPasteFailed': 'Failed to paste script from clipboard: {error}',
     'status.scriptClipboardEmpty': 'Clipboard has no script text',
     'status.scriptCleared': 'Reference script cleared',
+    'status.sermonKeywordsLoaded': 'Sermon keywords loaded: {terms} terms',
+    'status.sermonKeywordsLoadFailed': 'Failed to load sermon keywords file: {error}',
+    'status.sermonKeywordsPasted': 'Sermon keywords pasted: {terms} terms',
+    'status.sermonKeywordsPasteFailed': 'Failed to paste sermon keywords from clipboard: {error}',
+    'status.sermonKeywordsClipboardEmpty': 'Clipboard has no sermon keywords text',
+    'status.sermonKeywordsCleared': 'Sermon keywords cleared',
+    'status.noSermonKeywordsToClear': 'No sermon keywords are loaded',
+    'sermonKeywords.metaNone': 'No sermon keywords loaded.',
+    'sermonKeywords.metaLoaded': 'Sermon keywords loaded: {terms} terms',
     'status.noScriptToClear': 'No reference script is loaded',
     'status.testAudioPlaybackBlocked': 'Test audio playback was blocked by the browser. Streaming test still continues.',
     'status.audioDeviceAccessError': 'Audio device access error: {error}',
@@ -475,6 +495,9 @@ const UI_TEXT = {
     'button.uploadScript': '上传讲稿',
     'button.pasteScript': '粘贴讲稿',
     'button.clearScript': '清除讲稿',
+    'button.uploadSermonKeywords': '上传讲道关键词',
+    'button.pasteSermonKeywords': '粘贴讲道关键词',
+    'button.clearSermonKeywords': '清除讲道关键词',
     'button.resetSession': '重置会话（F4）',
     'button.resetSessionShort': '重置',
     'button.copyLine': '复制本行',
@@ -497,7 +520,7 @@ const UI_TEXT = {
     'modal.apiKeyTitle': '更新 OpenAI API 密钥',
     'modal.apiKeySubtitle': '输入 API/管理员密钥或更新 Project ID，然后保存。',
     'modal.scriptTitle': '参考讲稿',
-    'modal.scriptSubtitle': '可上传或从剪贴板粘贴讲稿文本，需要时可清除。',
+    'modal.scriptSubtitle': '可上传或粘贴讲稿文本与讲道关键词，需要时可清除。',
     'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
     'tooltip.refresh': '刷新并重新检测可用音频输入设备。',
     'tooltip.start': '开始实时采集和翻译（F8）。',
@@ -516,6 +539,9 @@ const UI_TEXT = {
     'tooltip.uploadScript': '上传目标语言讲稿文本，用于辅助翻译并在翻译模式中滚动查看。',
     'tooltip.pasteScript': '从剪贴板直接粘贴目标语言讲稿文本。',
     'tooltip.clearScript': '清除当前会话中的参考讲稿。',
+    'tooltip.uploadSermonKeywords': '上传用于 STT 预热的讲道专用关键词列表。',
+    'tooltip.pasteSermonKeywords': '从剪贴板粘贴讲道专用关键词列表。',
+    'tooltip.clearSermonKeywords': '清除讲道专用 STT 关键词。',
     'tooltip.resetSession': '重置队列、字幕、转录以及会话/费用计数（F4）。',
     'tooltip.copyLine': '复制这一行字幕。',
     'tooltip.exportTranscript': '将当前转录条目导出为文本文件。',
@@ -573,6 +599,15 @@ const UI_TEXT = {
     'status.scriptPasteFailed': '从剪贴板粘贴讲稿失败：{error}',
     'status.scriptClipboardEmpty': '剪贴板中没有可用讲稿文本',
     'status.scriptCleared': '参考讲稿已清除',
+    'status.sermonKeywordsLoaded': '讲道关键词已加载：{terms} 个',
+    'status.sermonKeywordsLoadFailed': '加载讲道关键词文件失败：{error}',
+    'status.sermonKeywordsPasted': '讲道关键词已粘贴：{terms} 个',
+    'status.sermonKeywordsPasteFailed': '从剪贴板粘贴讲道关键词失败：{error}',
+    'status.sermonKeywordsClipboardEmpty': '剪贴板中没有讲道关键词文本',
+    'status.sermonKeywordsCleared': '讲道关键词已清除',
+    'status.noSermonKeywordsToClear': '当前未加载讲道关键词',
+    'sermonKeywords.metaNone': '未加载讲道关键词。',
+    'sermonKeywords.metaLoaded': '已加载讲道关键词：{terms} 个',
     'status.noScriptToClear': '当前没有已加载的参考讲稿',
     'status.testAudioPlaybackBlocked': '浏览器阻止了测试音频播放，流式测试仍会继续。',
     'status.audioDeviceAccessError': '音频设备访问错误：{error}',
@@ -689,6 +724,7 @@ let cachedRealCostError = '';
 let hasConfiguredApiKey = false;
 let hasConfiguredAdminKey = false;
 let referenceScriptText = '';
+let sermonKeywordsText = '';
 
 function loadNumericSetting(key, fallback, minValue, maxValue) {
   const raw = localStorage.getItem(key);
@@ -781,6 +817,29 @@ function languageName(code) {
 function countScriptLines(content) {
   if (!content) return 0;
   return content.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
+}
+
+function countKeywordTerms(content: string) {
+  if (!content) return 0;
+  const tokens = content
+    .split(/[\n,;]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0);
+  return tokens.length;
+}
+
+function updateSermonKeywordsUi() {
+  const hasKeywords = Boolean(sermonKeywordsText.trim());
+  const terms = countKeywordTerms(sermonKeywordsText);
+  sermonKeywordsMetaEl.textContent = hasKeywords
+    ? t('sermonKeywords.metaLoaded', { terms })
+    : t('sermonKeywords.metaNone');
+  clearSermonKeywordsButton.disabled = controlsLocked || !hasKeywords;
+}
+
+function setSermonKeywords(rawKeywordsText) {
+  sermonKeywordsText = String(rawKeywordsText || '').replace(/\r\n/g, '\n').trim();
+  updateSermonKeywordsUi();
 }
 
 function updateReferenceScriptUi() {
@@ -1098,6 +1157,8 @@ function setControlsLocked(nextLocked) {
     scriptPanelOpenScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
+    uploadSermonKeywordsButton,
+    pasteSermonKeywordsButton,
     vadThresholdInput,
     liveVadThresholdInput,
     silenceMsInput,
@@ -1109,7 +1170,8 @@ function setControlsLocked(nextLocked) {
     saveGlossaryButton,
     importGlossaryButton,
     exportGlossaryButton,
-    autoSaveOnStopInput
+    autoSaveOnStopInput,
+    clearSermonKeywordsButton
   ];
 
   lockTargets.forEach((element) => {
@@ -1118,6 +1180,7 @@ function setControlsLocked(nextLocked) {
 
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
+  updateSermonKeywordsUi();
   setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
   updateHotkeyPills();
   updateModeSummary();
@@ -1371,6 +1434,9 @@ function setStaticButtonTooltips() {
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
+  uploadSermonKeywordsButton.title = t('tooltip.uploadSermonKeywords');
+  pasteSermonKeywordsButton.title = t('tooltip.pasteSermonKeywords');
+  clearSermonKeywordsButton.title = t('tooltip.clearSermonKeywords');
   resetSessionButton.title = t('tooltip.resetSession');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
   exportTranscriptTranslatedButton.title = t('tooltip.exportTranscript');
@@ -1735,6 +1801,9 @@ function applyUiLanguage() {
   setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
   setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
   setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
+  uploadSermonKeywordsButton.textContent = t('button.uploadSermonKeywords');
+  pasteSermonKeywordsButton.textContent = t('button.pasteSermonKeywords');
+  clearSermonKeywordsButton.textContent = t('button.clearSermonKeywords');
   resetSessionButton.textContent = t('button.resetSession');
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
@@ -1747,6 +1816,7 @@ function applyUiLanguage() {
   apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
   scriptModalTitleEl.textContent = t('modal.scriptTitle');
   scriptModalSubtitleEl.textContent = t('modal.scriptSubtitle');
+  updateSermonKeywordsUi();
   labelMainApiKeyEl.textContent = t('label.apiKey');
   labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
   labelMainProjectIdEl.textContent = t('label.projectId');
@@ -2215,6 +2285,35 @@ async function pasteReferenceScriptFromClipboard() {
   }
 }
 
+async function processSermonKeywordsFile(file) {
+  if (!file) return;
+  try {
+    const content = await file.text();
+    setSermonKeywords(content);
+    await syncTranslationConfig();
+    setStatusKey('status.sermonKeywordsLoaded', { terms: countKeywordTerms(sermonKeywordsText) });
+  } catch (err) {
+    setStatusKey('status.sermonKeywordsLoadFailed', { error: (err && err.message) || String(err) });
+  } finally {
+    sermonKeywordsInput.value = '';
+  }
+}
+
+async function pasteSermonKeywordsFromClipboard() {
+  try {
+    const content = await navigator.clipboard.readText();
+    if (!content || !content.trim()) {
+      setStatusKey('status.sermonKeywordsClipboardEmpty');
+      return;
+    }
+    setSermonKeywords(content);
+    await syncTranslationConfig();
+    setStatusKey('status.sermonKeywordsPasted', { terms: countKeywordTerms(sermonKeywordsText) });
+  } catch (err) {
+    setStatusKey('status.sermonKeywordsPasteFailed', { error: (err && err.message) || String(err) });
+  }
+}
+
 async function drainSegmentQueue() {
   if (segmentQueueRunning || !pendingSegments.length) {
     return;
@@ -2547,6 +2646,7 @@ async function syncTranslationConfig() {
     config: {
       glossary,
       stt_keywords,
+      sermon_stt_keywords: sermonKeywordsText,
       reference_script: referenceScriptText,
       target_language: targetLanguageSelect.value || 'zh-hans',
       source_language: sourceLanguageSelect.value || 'korean'
@@ -2585,6 +2685,7 @@ async function ensureMainInitialized() {
     sttKeywordsInput.value = savedSttKeywords;
   }
   setReferenceScript(localStorage.getItem(REFERENCE_SCRIPT_STORAGE_KEY) || '', { persist: false });
+  setSermonKeywords('');
 
   const savedSourceLanguage = localStorage.getItem('church-source-language');
   if (savedSourceLanguage === 'english' || savedSourceLanguage === 'korean' || savedSourceLanguage === 'japanese' || savedSourceLanguage === 'chinese') {
@@ -3079,6 +3180,14 @@ pasteReferenceScriptButton.addEventListener('click', async () => {
   await pasteReferenceScriptFromClipboard();
 });
 
+uploadSermonKeywordsButton.addEventListener('click', () => {
+  sermonKeywordsInput.click();
+});
+
+pasteSermonKeywordsButton.addEventListener('click', async () => {
+  await pasteSermonKeywordsFromClipboard();
+});
+
 clearReferenceScriptButton.addEventListener('click', async () => {
   if (!referenceScriptText) {
     setStatusKey('status.noScriptToClear');
@@ -3087,6 +3196,16 @@ clearReferenceScriptButton.addEventListener('click', async () => {
   setReferenceScript('');
   await syncTranslationConfig();
   setStatusKey('status.scriptCleared');
+});
+
+clearSermonKeywordsButton.addEventListener('click', async () => {
+  if (!sermonKeywordsText) {
+    setStatusKey('status.noSermonKeywordsToClear');
+    return;
+  }
+  setSermonKeywords('');
+  await syncTranslationConfig();
+  setStatusKey('status.sermonKeywordsCleared');
 });
 
 closeScriptModalButton.addEventListener('click', () => {
@@ -3115,6 +3234,12 @@ referenceScriptInput.addEventListener('change', async (event) => {
   const input = event.target as HTMLInputElement | null;
   const file = input?.files?.[0];
   await processReferenceScriptFile(file);
+});
+
+sermonKeywordsInput.addEventListener('change', async (event) => {
+  const input = event.target as HTMLInputElement | null;
+  const file = input?.files?.[0];
+  await processSermonKeywordsFile(file);
 });
 
 closeHelpButton.addEventListener('click', () => {

@@ -282,6 +282,7 @@
 
     <input id="testAudioFileInput" type="file" accept="audio/*" hidden />
     <input id="referenceScriptInput" type="file" accept=".txt,.md,.rtf,text/plain,text/markdown,application/rtf" hidden />
+    <input id="sermonKeywordsInput" type="file" accept=".txt,.md,text/plain,text/markdown" hidden />
 
     <div id="helpOverlay" class="overlay hidden">
       <div class="overlay-card">
@@ -329,12 +330,18 @@
       <div class="overlay-card compact-overlay-card">
         <button id="closeScriptModal" class="icon-btn script-modal-close-btn" aria-label="Close">✕</button>
         <h3 id="scriptModalTitle">Reference Script</h3>
-        <p id="scriptModalSubtitle">Upload or paste script text, then clear it when needed.</p>
+        <p id="scriptModalSubtitle">Upload or paste script text and sermon keywords, then clear when needed.</p>
         <div class="row">
           <button id="uploadReferenceScript" class="icon-btn" aria-label="Upload Script">⬆</button>
           <button id="pasteReferenceScript" class="icon-btn" aria-label="Paste Script">📋</button>
           <button id="clearReferenceScript" class="icon-btn" aria-label="Clear Script">❌</button>
         </div>
+        <div class="row">
+          <button id="uploadSermonKeywords" type="button">Upload Sermon Keywords</button>
+          <button id="pasteSermonKeywords" type="button">Paste Sermon Keywords</button>
+          <button id="clearSermonKeywords" type="button">Clear Sermon Keywords</button>
+        </div>
+        <p id="sermonKeywordsMeta" class="input-hint">No sermon keywords loaded.</p>
       </div>
     </div>
 

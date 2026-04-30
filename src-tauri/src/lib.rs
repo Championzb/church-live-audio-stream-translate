@@ -25,6 +25,7 @@ struct AppState {
     admin_api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
     stt_keywords: Mutex<String>,
+    sermon_stt_keywords: Mutex<String>,
     reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
@@ -49,7 +50,10 @@ struct SegmentResult {
 #[derive(Deserialize)]
 struct TranslationConfig {
     glossary: Option<String>,
+    #[serde(alias = "sttKeywords")]
     stt_keywords: Option<String>,
+    #[serde(alias = "sermonSttKeywords")]
+    sermon_stt_keywords: Option<String>,
     #[serde(alias = "referenceScript")]
     reference_script: Option<String>,
     #[serde(alias = "targetLanguage")]
@@ -755,6 +759,7 @@ fn set_translation_config(
 ) -> Result<OkResponse, String> {
     let glossary = config.glossary.unwrap_or_default().trim().to_string();
     let stt_keywords = config.stt_keywords.unwrap_or_default().trim().to_string();
+    let sermon_stt_keywords = config.sermon_stt_keywords.unwrap_or_default().trim().to_string();
     let reference_script = config.reference_script.unwrap_or_default().trim().to_string();
     let target_language = match config.target_language.as_deref() {
         Some("zh-hans") => "zh-hans".to_string(),
@@ -793,6 +798,14 @@ fn set_translation_config(
             .lock()
             .map_err(|_| "Failed to lock STT keywords state".to_string())?;
         *stt_keywords_guard = stt_keywords;
+    }
+
+    {
+        let mut sermon_stt_keywords_guard = state
+            .sermon_stt_keywords
+            .lock()
+            .map_err(|_| "Failed to lock sermon STT keywords state".to_string())?;
+        *sermon_stt_keywords_guard = sermon_stt_keywords;
     }
 
     {
@@ -1048,6 +1061,14 @@ async fn process_segment(
         stt_keywords_guard.clone()
     };
 
+    let sermon_stt_keywords = {
+        let sermon_stt_keywords_guard = state
+            .sermon_stt_keywords
+            .lock()
+            .map_err(|_| "Failed to lock sermon STT keywords state".to_string())?;
+        sermon_stt_keywords_guard.clone()
+    };
+
     let rolling_context_prompt = {
         let context_guard = state
             .rolling_english_context
@@ -1073,7 +1094,14 @@ async fn process_segment(
     };
 
     let manual_keywords_prompt = {
-        let hints = normalize_keywords(&stt_keywords, 64);
+        let combined_keywords = if sermon_stt_keywords.trim().is_empty() {
+            stt_keywords
+        } else if stt_keywords.trim().is_empty() {
+            sermon_stt_keywords
+        } else {
+            format!("{stt_keywords}\n{sermon_stt_keywords}")
+        };
+        let hints = normalize_keywords(&combined_keywords, 64);
         if hints.is_empty() {
             None
         } else {
@@ -1874,6 +1902,7 @@ pub fn run() {
             admin_api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
             stt_keywords: Mutex::new(String::new()),
+            sermon_stt_keywords: Mutex::new(String::new()),
             reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
