@@ -684,13 +684,26 @@ function bindDragBars() {
         return;
     }
     const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
+    let maximizeToggleInFlight = false;
+    let lastMaximizeToggleAt = 0;
     const toggleMaximize = async () => {
+        const now = Date.now();
+        if (maximizeToggleInFlight || now - lastMaximizeToggleAt < 320) {
+            return;
+        }
+        maximizeToggleInFlight = true;
+        lastMaximizeToggleAt = now;
         try {
             await invoke('control_window', { action: 'toggle_maximize' });
             return;
         }
         catch {
             // fallback to frontend API below
+        }
+        finally {
+            window.setTimeout(() => {
+                maximizeToggleInFlight = false;
+            }, 220);
         }
         if (currentWindow && typeof currentWindow.toggleMaximize === 'function') {
             void currentWindow.toggleMaximize();
@@ -701,6 +714,8 @@ function bindDragBars() {
             return;
         bar.addEventListener('pointerdown', async (event) => {
             if (event.button !== 0)
+                return;
+            if (event.detail > 1)
                 return;
             try {
                 await invoke('start_dragging_window');
