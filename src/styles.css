@@ -297,6 +297,17 @@ body {
   font-family: var(--font-main);
   color: var(--text);
   min-height: 100vh;
+  background: transparent;
+  overflow: hidden;
+}
+
+.app-shell {
+  max-width: none;
+  min-height: calc(100vh - 16px);
+  margin: 8px;
+  border-radius: 20px;
+  overflow: hidden;
+  padding: 76px 22px 34px;
   background:
     radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
     radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),
@@ -309,13 +320,9 @@ body {
     34px 34px,
     34px 34px,
     auto;
-  background-attachment: fixed;
-}
-
-.app-shell {
-  max-width: 1520px;
-  margin: 0 auto;
-  padding: 24px 22px 34px;
+  box-shadow:
+    0 20px 44px rgba(2, 6, 23, 0.48),
+    inset 0 0 0 1px rgba(106, 138, 175, 0.34);
 }
 
 .landing-page {

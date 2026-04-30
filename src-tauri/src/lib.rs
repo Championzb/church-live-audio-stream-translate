@@ -1529,7 +1529,8 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         .title("Church Subtitle Output")
         .inner_size(1600.0, 900.0)
         .resizable(true)
-        .decorations(false);
+        .decorations(false)
+        .transparent(true);
 
     builder
         .build()
