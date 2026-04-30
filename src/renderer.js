@@ -75,6 +75,8 @@ const pasteSermonKeywordsButton = document.getElementById('pasteSermonKeywords')
 const clearSermonKeywordsButton = document.getElementById('clearSermonKeywords');
 const sermonKeywordsInput = document.getElementById('sermonKeywordsInput');
 const sermonKeywordsMetaEl = document.getElementById('sermonKeywordsMeta');
+const scriptActionsLabelEl = document.getElementById('scriptActionsLabel');
+const keywordActionsLabelEl = document.getElementById('keywordActionsLabel');
 const scriptModal = document.getElementById('scriptModal');
 const scriptModalTitleEl = document.getElementById('scriptModalTitle');
 const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle');
@@ -233,6 +235,8 @@ const UI_TEXT = {
         'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
         'label.glossary': 'Glossary (one term per line, EN=ZH)',
         'label.sttKeywords': 'STT Keywords (English terms, comma or newline separated)',
+        'label.scriptActions': 'Script',
+        'label.keywordActions': 'Keywords',
         'hint.sttKeywords': 'Used for speech-recognition priming (names, places, theological terms).',
         'label.autoSaveOnStop': 'Auto-save on stop',
         'heading.english': 'English',
@@ -462,6 +466,8 @@ const UI_TEXT = {
         'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
         'label.glossary': '术语表（每行一个，EN=ZH）',
         'label.sttKeywords': 'STT 关键词（英文术语，逗号或换行分隔）',
+        'label.scriptActions': '讲稿',
+        'label.keywordActions': '关键词',
         'hint.sttKeywords': '用于语音识别预热（人名、地名、神学术语）。',
         'label.autoSaveOnStop': '停止时自动保存',
         'heading.english': '英文',
@@ -1726,9 +1732,11 @@ function applyUiLanguage() {
     setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
     setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
     setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
-    uploadSermonKeywordsButton.textContent = t('button.uploadSermonKeywords');
-    pasteSermonKeywordsButton.textContent = t('button.pasteSermonKeywords');
-    clearSermonKeywordsButton.textContent = t('button.clearSermonKeywords');
+    setIconButton(uploadSermonKeywordsButton, '⬆', t('button.uploadSermonKeywords'));
+    setIconButton(pasteSermonKeywordsButton, '📋', t('button.pasteSermonKeywords'));
+    setIconButton(clearSermonKeywordsButton, '❌', t('button.clearSermonKeywords'));
+    scriptActionsLabelEl.textContent = t('label.scriptActions');
+    keywordActionsLabelEl.textContent = t('label.keywordActions');
     resetSessionButton.textContent = t('button.resetSession');
     setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
     setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));

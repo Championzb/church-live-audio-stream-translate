@@ -331,15 +331,17 @@
         <button id="closeScriptModal" class="icon-btn script-modal-close-btn" aria-label="Close">✕</button>
         <h3 id="scriptModalTitle">Reference Script</h3>
         <p id="scriptModalSubtitle">Upload or paste script text and sermon keywords, then clear when needed.</p>
-        <div class="row">
+        <div class="row script-modal-action-row">
+          <span id="scriptActionsLabel" class="action-row-label">Script</span>
           <button id="uploadReferenceScript" class="icon-btn" aria-label="Upload Script">⬆</button>
           <button id="pasteReferenceScript" class="icon-btn" aria-label="Paste Script">📋</button>
           <button id="clearReferenceScript" class="icon-btn" aria-label="Clear Script">❌</button>
         </div>
-        <div class="row">
-          <button id="uploadSermonKeywords" type="button">Upload Sermon Keywords</button>
-          <button id="pasteSermonKeywords" type="button">Paste Sermon Keywords</button>
-          <button id="clearSermonKeywords" type="button">Clear Sermon Keywords</button>
+        <div class="row script-modal-action-row">
+          <span id="keywordActionsLabel" class="action-row-label">Keywords</span>
+          <button id="uploadSermonKeywords" type="button" class="icon-btn" aria-label="Upload Sermon Keywords">⬆</button>
+          <button id="pasteSermonKeywords" type="button" class="icon-btn" aria-label="Paste Sermon Keywords">📋</button>
+          <button id="clearSermonKeywords" type="button" class="icon-btn" aria-label="Clear Sermon Keywords">❌</button>
         </div>
         <p id="sermonKeywordsMeta" class="input-hint">No sermon keywords loaded.</p>
       </div>

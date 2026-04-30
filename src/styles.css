@@ -1620,6 +1620,21 @@ button:disabled {
   right: 10px;
 }
 
+.script-modal-action-row {
+  display: grid;
+  grid-template-columns: 72px auto auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-row-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
 #mainApiKeyInput {
   width: min(420px, 100%);
   flex: 1;
