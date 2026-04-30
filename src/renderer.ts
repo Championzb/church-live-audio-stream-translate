@@ -139,6 +139,9 @@ const labelLiveSilenceMsEl = document.getElementById('labelLiveSilenceMs') as an
 const labelLiveMaxSegmentMsEl = document.getElementById('labelLiveMaxSegmentMs') as any;
 const labelSilenceMsEl = document.getElementById('labelSilenceMs') as any;
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs') as any;
+const vadHelpTextEl = document.getElementById('vadHelpText') as any;
+const silenceHelpTextEl = document.getElementById('silenceHelpText') as any;
+const maxSegmentHelpTextEl = document.getElementById('maxSegmentHelpText') as any;
 const labelGlossaryEl = document.getElementById('labelGlossary') as any;
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop') as any;
 const englishHeadingEl = document.getElementById('englishHeading') as any;
@@ -218,6 +221,9 @@ const UI_TEXT = {
     'label.vadThreshold': 'VAD Threshold',
     'label.silenceMs': 'Silence Hold (ms)',
     'label.maxSegmentMs': 'Max Segment (ms)',
+    'help.vadThreshold': 'VAD Threshold: lower catches quieter speech but may trigger on noise.',
+    'help.silenceMs': 'Silence Hold: how long silence must last before ending a segment.',
+    'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
     'label.glossary': 'Glossary (one term per line, EN=ZH)',
     'label.autoSaveOnStop': 'Auto-save on stop',
     'heading.english': 'English',
@@ -289,6 +295,9 @@ const UI_TEXT = {
     'tooltip.export': 'Export glossary content to a text file.',
     'tooltip.close': 'Close the help panel.',
     'tooltip.copyKey': 'Copy this key value to clipboard.',
+    'tooltip.vadThreshold': 'Audio level needed to count as speech. Lower is more sensitive; higher filters noise more aggressively.',
+    'tooltip.silenceMs': 'How long silence must continue before the app closes the current segment.',
+    'tooltip.maxSegmentMs': 'Maximum segment duration before force-splitting, even if speech continues.',
     'help.title': 'Quick Controls',
     'help.f8': '<strong>F8</strong>: Start/Stop translation',
     'help.f7': '<strong>F7</strong>: Suspend/Resume translation',
@@ -420,6 +429,9 @@ const UI_TEXT = {
     'label.vadThreshold': 'VAD 阈值',
     'label.silenceMs': '静音保持（毫秒）',
     'label.maxSegmentMs': '最长片段（毫秒）',
+    'help.vadThreshold': 'VAD 阈值：越低越容易捕捉轻声，也更可能被噪声触发。',
+    'help.silenceMs': '静音保持：静音持续多久后才结束当前片段。',
+    'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
     'label.glossary': '术语表（每行一个，EN=ZH）',
     'label.autoSaveOnStop': '停止时自动保存',
     'heading.english': '英文',
@@ -491,6 +503,9 @@ const UI_TEXT = {
     'tooltip.export': '将术语表导出到文本文件。',
     'tooltip.close': '关闭帮助面板。',
     'tooltip.copyKey': '复制该密钥到剪贴板。',
+    'tooltip.vadThreshold': '判定为语音所需的音量能量。值越低越敏感；值越高越能更积极过滤噪声。',
+    'tooltip.silenceMs': '静音持续达到该时长后，应用会结束当前语音片段。',
+    'tooltip.maxSegmentMs': '片段最大时长。即使持续说话，到达该时长也会强制切分。',
     'help.title': '快捷控制',
     'help.f8': '<strong>F8</strong>：开始/停止翻译',
     'help.f7': '<strong>F7</strong>：暂停/恢复翻译',
@@ -1318,6 +1333,12 @@ function setStaticButtonTooltips() {
   liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
   openScriptManagerButton.title = t('tooltip.scriptManager');
   scriptPanelOpenScriptManagerButton.title = t('tooltip.scriptManager');
+  labelVadThresholdEl.title = t('tooltip.vadThreshold');
+  labelLiveVadThresholdEl.title = t('tooltip.vadThreshold');
+  labelSilenceMsEl.title = t('tooltip.silenceMs');
+  labelLiveSilenceMsEl.title = t('tooltip.silenceMs');
+  labelMaxSegmentMsEl.title = t('tooltip.maxSegmentMs');
+  labelLiveMaxSegmentMsEl.title = t('tooltip.maxSegmentMs');
   uploadReferenceScriptButton.title = t('tooltip.uploadScript');
   pasteReferenceScriptButton.title = t('tooltip.pasteScript');
   clearReferenceScriptButton.title = t('tooltip.clearScript');
@@ -1638,6 +1659,9 @@ function applyUiLanguage() {
   labelLiveMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
   labelSilenceMsEl.textContent = t('label.silenceMs');
   labelMaxSegmentMsEl.textContent = t('label.maxSegmentMs');
+  vadHelpTextEl.textContent = t('help.vadThreshold');
+  silenceHelpTextEl.textContent = t('help.silenceMs');
+  maxSegmentHelpTextEl.textContent = t('help.maxSegmentMs');
   labelGlossaryEl.textContent = t('label.glossary');
   labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
 

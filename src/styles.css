@@ -1067,6 +1067,19 @@ h1 {
   gap: 10px;
 }
 
+.tuning-help {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  color: var(--text-subtle);
+  font-size: 0.79rem;
+  line-height: 1.35;
+}
+
+.tuning-help span {
+  display: block;
+}
+
 label {
   color: var(--text-subtle);
   font-size: 0.8rem;
