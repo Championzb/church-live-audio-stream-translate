@@ -304,8 +304,8 @@ body {
 
 .app-shell {
   max-width: none;
-  min-height: calc(100vh - 12px);
-  margin: 6px;
+  min-height: 100vh;
+  margin: 0;
   position: relative;
   border-radius: var(--window-radius);
   overflow: hidden;
