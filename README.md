@@ -111,6 +111,7 @@ npm run typecheck
 - Status/error notifications are shown as temporary bottom toast messages instead of a persistent header panel.
 - Action buttons in Translation Mode auto-wrap into responsive equal-width tiles for faster click targeting on desktop and mobile.
 - Utility actions are distributed for faster access: `Test Audio File...` is available directly from the `Audio Input` dropdown, `Export Transcript` is available as an icon on both transcription and translated panel headers, and `Reset Session (F4)` stays in the hotkey strip and translation-mode live bar.
+- `Projector Window`, `Settings`, and `Audio Input` controls are now pinned in a dedicated top action bar to mirror VS Code/Chrome-style placement.
 - The bottom status bar now includes a projector health indicator (`Projector: Off / Waiting / Connected / Stale`) so operators can verify output-window link health quickly.
 - Projector window now bootstraps with the latest caption snapshot from backend state, so it can render transcript content immediately even if opened after recent segments.
 - Projector view is now audience-focused: both language columns keep the latest transcript at the top, keep only the most recent 2 transcript cards, highlight the latest card, and render the second-latest in a smaller/background style when space is tight.

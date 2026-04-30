@@ -382,7 +382,7 @@ body {
   top: auto;
   z-index: 80;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 10px;
   padding: 10px 12px;
@@ -400,14 +400,32 @@ body {
   gap: 6px;
 }
 
-.header-right {
-  min-width: 0;
-  width: auto;
-  max-width: none;
-  display: grid;
-  justify-self: end;
-  align-content: start;
-  gap: 12px;
+.titlebar-actions {
+  position: sticky;
+  top: 0;
+  z-index: 95;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--section-border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  box-shadow: var(--ring-soft);
+  backdrop-filter: blur(10px);
+}
+
+.titlebar-actions .live-session-setup {
+  display: none;
+}
+
+body.presentation-mode .titlebar-actions .session-setup-slot {
+  display: none;
+}
+
+body.presentation-mode .titlebar-actions .live-session-setup {
+  display: inline-flex;
 }
 
 .translation-live-bar {
@@ -415,10 +433,10 @@ body {
   top: 10px;
   z-index: 85;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   grid-template-areas:
-    "exit hotkeys output"
-    "tuning tuning tuning";
+    "exit hotkeys"
+    "tuning tuning";
   align-items: center;
   width: 100%;
   max-width: none;
@@ -459,17 +477,6 @@ body {
   gap: 6px;
   width: 100%;
   justify-self: center;
-}
-
-#translationLiveBar .live-session-setup {
-  grid-area: output;
-  justify-self: end;
-  align-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 0;
 }
 
 #liveExitTranslationMode {
@@ -1484,15 +1491,6 @@ button:disabled {
 }
 
 @media (max-width: 1180px) {
-  .app-header {
-    grid-template-columns: 1fr;
-  }
-
-  .header-right {
-    justify-self: stretch;
-    max-width: none;
-  }
-
   .header-left {
     min-width: 0;
   }
@@ -1522,14 +1520,9 @@ button:disabled {
     display: grid;
     grid-template-columns: auto auto;
     grid-template-areas:
-      "exit output"
-      "hotkeys hotkeys"
+      "exit hotkeys"
       "tuning tuning";
     width: 100%;
-  }
-
-  #translationLiveBar .live-session-setup {
-    justify-self: end;
   }
 
   .live-bar-tuning {
@@ -1562,6 +1555,17 @@ button:disabled {
     position: static;
     top: auto;
     padding: 14px;
+  }
+
+  .titlebar-actions {
+    padding: 10px;
+    justify-content: stretch;
+  }
+
+  .titlebar-actions .session-setup-slot,
+  .titlebar-actions .live-session-setup {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .control-card,
