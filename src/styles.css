@@ -536,12 +536,24 @@ body.presentation-mode .titlebar-actions .live-session-setup {
 }
 
 .titlebar-actions .audio-input-group label {
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0;
+  letter-spacing: 0;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none;
   -webkit-app-region: no-drag;
   color: color-mix(in srgb, var(--text-subtle) 88%, white 12%);
+}
+
+.titlebar-actions .audio-input-group label::before {
+  content: "🎤";
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .titlebar-actions .audio-input-group #audioInput,
