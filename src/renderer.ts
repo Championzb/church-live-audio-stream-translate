@@ -38,7 +38,6 @@ const translationLiveBarEl = document.getElementById('translationLiveBar') as an
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode') as any;
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow') as any;
 const liveOpenSettingsPageButton = document.getElementById('liveOpenSettingsPage') as any;
-const liveAudioInputToggleButton = document.getElementById('liveAudioInputToggle') as any;
 const liveAudioInputValueEl = document.getElementById('liveAudioInputValue') as any;
 const liveAudioInputMenuEl = document.getElementById('liveAudioInputMenu') as any;
 const liveAudioInputSelect = document.getElementById('liveAudioInput') as any;
@@ -57,7 +56,6 @@ const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
 const themeSelect = document.getElementById('themeSelect') as any;
 const mockModeInput = document.getElementById('mockMode') as any;
-const audioInputToggleButton = document.getElementById('audioInputToggle') as any;
 const audioInputValueEl = document.getElementById('audioInputValue') as any;
 const audioInputMenuEl = document.getElementById('audioInputMenu') as any;
 const audioInputSelect = document.getElementById('audioInput') as any;
@@ -1064,8 +1062,6 @@ function setControlsLocked(nextLocked) {
     liveAudioInputSelect,
     themeSelect,
     mockModeInput,
-    audioInputToggleButton,
-    liveAudioInputToggleButton,
     sourceLanguageSelect,
     targetLanguageSelect,
     refreshDevicesButton,
@@ -1121,19 +1117,11 @@ function updateAudioInputDisplayValues() {
 function setAudioInputMenuOpen(mode: 'main' | 'live', open: boolean) {
   const targetMenu = mode === 'live' ? liveAudioInputMenuEl : audioInputMenuEl;
   const otherMenu = mode === 'live' ? audioInputMenuEl : liveAudioInputMenuEl;
-  const targetToggle = mode === 'live' ? liveAudioInputToggleButton : audioInputToggleButton;
-  const otherToggle = mode === 'live' ? audioInputToggleButton : liveAudioInputToggleButton;
   if (otherMenu) {
     otherMenu.classList.add('hidden');
   }
-  if (otherToggle) {
-    otherToggle.setAttribute('aria-expanded', 'false');
-  }
   if (!targetMenu) return;
   targetMenu.classList.toggle('hidden', !open);
-  if (targetToggle) {
-    targetToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-  }
 }
 
 function closeAudioInputMenus() {
@@ -2795,22 +2783,34 @@ liveRefreshDevicesButton.addEventListener('click', () => {
   loadDevices();
 });
 
-audioInputToggleButton.addEventListener('click', () => {
+labelAudioInputEl.addEventListener('click', () => {
+  if (controlsLocked) return;
   const nextOpen = audioInputMenuEl.classList.contains('hidden');
   setAudioInputMenuOpen('main', nextOpen);
 });
 
-liveAudioInputToggleButton.addEventListener('click', () => {
+labelLiveAudioInputEl.addEventListener('click', () => {
+  if (controlsLocked) return;
   const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
   setAudioInputMenuOpen('live', nextOpen);
 });
 
-labelAudioInputEl.addEventListener('click', () => {
-  setAudioInputMenuOpen('main', true);
+labelAudioInputEl.addEventListener('keydown', (event: KeyboardEvent) => {
+  if (controlsLocked) return;
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    const nextOpen = audioInputMenuEl.classList.contains('hidden');
+    setAudioInputMenuOpen('main', nextOpen);
+  }
 });
 
-labelLiveAudioInputEl.addEventListener('click', () => {
-  setAudioInputMenuOpen('live', true);
+labelLiveAudioInputEl.addEventListener('keydown', (event: KeyboardEvent) => {
+  if (controlsLocked) return;
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
+    setAudioInputMenuOpen('live', nextOpen);
+  }
 });
 
 audioInputSelect.addEventListener('change', () => {

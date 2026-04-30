@@ -34,7 +34,6 @@ const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow');
 const liveOpenSettingsPageButton = document.getElementById('liveOpenSettingsPage');
-const liveAudioInputToggleButton = document.getElementById('liveAudioInputToggle');
 const liveAudioInputValueEl = document.getElementById('liveAudioInputValue');
 const liveAudioInputMenuEl = document.getElementById('liveAudioInputMenu');
 const liveAudioInputSelect = document.getElementById('liveAudioInput');
@@ -53,7 +52,6 @@ const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
 const mockModeInput = document.getElementById('mockMode');
-const audioInputToggleButton = document.getElementById('audioInputToggle');
 const audioInputValueEl = document.getElementById('audioInputValue');
 const audioInputMenuEl = document.getElementById('audioInputMenu');
 const audioInputSelect = document.getElementById('audioInput');
@@ -1039,8 +1037,6 @@ function setControlsLocked(nextLocked) {
         liveAudioInputSelect,
         themeSelect,
         mockModeInput,
-        audioInputToggleButton,
-        liveAudioInputToggleButton,
         sourceLanguageSelect,
         targetLanguageSelect,
         refreshDevicesButton,
@@ -1091,20 +1087,12 @@ function updateAudioInputDisplayValues() {
 function setAudioInputMenuOpen(mode, open) {
     const targetMenu = mode === 'live' ? liveAudioInputMenuEl : audioInputMenuEl;
     const otherMenu = mode === 'live' ? audioInputMenuEl : liveAudioInputMenuEl;
-    const targetToggle = mode === 'live' ? liveAudioInputToggleButton : audioInputToggleButton;
-    const otherToggle = mode === 'live' ? audioInputToggleButton : liveAudioInputToggleButton;
     if (otherMenu) {
         otherMenu.classList.add('hidden');
-    }
-    if (otherToggle) {
-        otherToggle.setAttribute('aria-expanded', 'false');
     }
     if (!targetMenu)
         return;
     targetMenu.classList.toggle('hidden', !open);
-    if (targetToggle) {
-        targetToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    }
 }
 function closeAudioInputMenus() {
     setAudioInputMenuOpen('main', false);
@@ -2634,19 +2622,35 @@ refreshDevicesButton.addEventListener('click', () => {
 liveRefreshDevicesButton.addEventListener('click', () => {
     loadDevices();
 });
-audioInputToggleButton.addEventListener('click', () => {
+labelAudioInputEl.addEventListener('click', () => {
+    if (controlsLocked)
+        return;
     const nextOpen = audioInputMenuEl.classList.contains('hidden');
     setAudioInputMenuOpen('main', nextOpen);
 });
-liveAudioInputToggleButton.addEventListener('click', () => {
+labelLiveAudioInputEl.addEventListener('click', () => {
+    if (controlsLocked)
+        return;
     const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
     setAudioInputMenuOpen('live', nextOpen);
 });
-labelAudioInputEl.addEventListener('click', () => {
-    setAudioInputMenuOpen('main', true);
+labelAudioInputEl.addEventListener('keydown', (event) => {
+    if (controlsLocked)
+        return;
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const nextOpen = audioInputMenuEl.classList.contains('hidden');
+        setAudioInputMenuOpen('main', nextOpen);
+    }
 });
-labelLiveAudioInputEl.addEventListener('click', () => {
-    setAudioInputMenuOpen('live', true);
+labelLiveAudioInputEl.addEventListener('keydown', (event) => {
+    if (controlsLocked)
+        return;
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
+        setAudioInputMenuOpen('live', nextOpen);
+    }
 });
 audioInputSelect.addEventListener('change', () => {
     handleAudioInputSelection(audioInputSelect.value || '');

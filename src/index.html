@@ -45,11 +45,8 @@
             <button id="toggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
             <button id="openSettingsPage" class="icon-btn" aria-label="Settings">⚙</button>
             <div class="audio-input-group">
-              <label id="labelAudioInput" for="audioInput">Audio Input</label>
-              <button id="audioInputToggle" class="audio-input-toggle" type="button" aria-label="Audio Input" aria-expanded="false">
-                <span id="audioInputValue" class="audio-input-value">System Default</span>
-                <span class="audio-input-chevron">▾</span>
-              </button>
+              <label id="labelAudioInput" for="audioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
+              <span id="audioInputValue" class="audio-input-value">System Default</span>
               <div id="audioInputMenu" class="audio-input-menu hidden">
                 <select id="audioInput" size="8"></select>
               </div>
@@ -60,11 +57,8 @@
             <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
             <button id="liveOpenSettingsPage" class="icon-btn" aria-label="Settings">⚙</button>
             <div class="audio-input-group">
-              <label id="labelLiveAudioInput" for="liveAudioInput">Audio Input</label>
-              <button id="liveAudioInputToggle" class="audio-input-toggle" type="button" aria-label="Audio Input" aria-expanded="false">
-                <span id="liveAudioInputValue" class="audio-input-value">System Default</span>
-                <span class="audio-input-chevron">▾</span>
-              </button>
+              <label id="labelLiveAudioInput" for="liveAudioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
+              <span id="liveAudioInputValue" class="audio-input-value">System Default</span>
               <div id="liveAudioInputMenu" class="audio-input-menu hidden">
                 <select id="liveAudioInput" size="8"></select>
               </div>
