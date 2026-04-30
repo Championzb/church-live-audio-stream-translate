@@ -22,6 +22,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Built-in help overlay for operators (button)
 - Hover hints on each button to explain what it does
 - Translation controls now include a help icon (`ⓘ`) and hover explanations for `VAD Threshold`, `Silence Hold`, and `Max Segment`; the same icon is also available in Translation Mode live bar tuning controls
+- Default live segmentation tuning is Korean-friendly (`VAD 0.04`, `Silence Hold 1500ms`, `Max Segment 15000ms`) and remains operator-adjustable
 - Export transcript to a text file at any time
 - One-tap session reset for queue + captions + transcript (`F4`)
 - Optional auto-save transcript when stopping a session
@@ -166,6 +167,7 @@ npm run typecheck
 - Korean mode uses translation to English first; English mode uses direct transcription for lower overhead.
 - Japanese/Chinese input first transcribes source speech, then converts to English before final output translation.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
+- Segment STT requests carry short rolling English context via `prompt` to reduce chunk-boundary translation drift.
 - Segment processing retries automatically on transient API/network errors.
 - Cost summary estimates STT + translation spend from processed audio/text.
 

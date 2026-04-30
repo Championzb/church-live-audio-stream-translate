@@ -2391,8 +2391,8 @@ async function ensureMainInitialized() {
     running = Boolean(runState.running);
     setRunningButtonState();
     const savedVadThreshold = loadNumericSetting('church-vad-threshold', 0.04, 0.01, 0.12);
-    const savedSilenceMs = loadNumericSetting('church-silence-ms', 600, 200, 3000);
-    const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 2500, 1200, 10000);
+    const savedSilenceMs = loadNumericSetting('church-silence-ms', 1500, 200, 3000);
+    const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 15000, 1200, 25000);
     vadThresholdInput.value = savedVadThreshold.toString();
     liveVadThresholdInput.value = savedVadThreshold.toString();
     silenceMsInput.value = savedSilenceMs.toString();

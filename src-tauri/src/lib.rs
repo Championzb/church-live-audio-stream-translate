@@ -27,6 +27,7 @@ struct AppState {
     reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
+    rolling_english_context: Mutex<String>,
     latest_output_caption: Mutex<Option<OutputCaptionPayload>>,
     running: AtomicBool,
 }
@@ -198,13 +199,23 @@ fn build_audio_form(
     extension: &str,
     mime: &str,
     model: &str,
+    prompt: Option<&str>,
 ) -> Result<Form, String> {
     let file_part = Part::bytes(audio_bytes.to_vec())
         .file_name(format!("segment.{extension}"))
         .mime_str(mime)
         .map_err(|e| format!("Failed to set audio mime type: {e}"))?;
 
-    Ok(Form::new().part("file", file_part).text("model", model.to_string()))
+    let mut form = Form::new()
+        .part("file", file_part)
+        .text("model", model.to_string());
+    if let Some(prompt_text) = prompt {
+        let trimmed = prompt_text.trim();
+        if !trimmed.is_empty() {
+            form = form.text("prompt", trimmed.to_string());
+        }
+    }
+    Ok(form)
 }
 
 const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
@@ -241,6 +252,17 @@ fn truncate_for_prompt(value: &str, max_chars: usize) -> String {
         out.push(ch);
     }
     out
+}
+
+fn tail_words(value: &str, max_words: usize) -> String {
+    if max_words == 0 {
+        return String::new();
+    }
+    let words: Vec<&str> = value.split_whitespace().collect();
+    if words.len() <= max_words {
+        return words.join(" ");
+    }
+    words[words.len() - max_words..].join(" ")
 }
 
 fn mask_api_key(value: &str) -> String {
@@ -722,6 +744,14 @@ fn set_translation_config(
         *source_language_guard = source_language;
     }
 
+    {
+        let mut context_guard = state
+            .rolling_english_context
+            .lock()
+            .map_err(|_| "Failed to lock rolling context state".to_string())?;
+        *context_guard = String::new();
+    }
+
     Ok(OkResponse { ok: true })
 }
 
@@ -735,6 +765,11 @@ fn get_running(state: tauri::State<'_, AppState>) -> RunningResponse {
 #[tauri::command]
 fn set_running(next_running: bool, state: tauri::State<'_, AppState>) -> RunningResponse {
     state.running.store(next_running, Ordering::SeqCst);
+    if !next_running {
+        if let Ok(mut context_guard) = state.rolling_english_context.lock() {
+            *context_guard = String::new();
+        }
+    }
     RunningResponse {
         running: next_running,
     }
@@ -938,6 +973,21 @@ async fn process_segment(
         reference_script_guard.clone()
     };
 
+    let rolling_context_prompt = {
+        let context_guard = state
+            .rolling_english_context
+            .lock()
+            .map_err(|_| "Failed to lock rolling context state".to_string())?;
+        if context_guard.trim().is_empty() {
+            None
+        } else {
+            Some(format!(
+                "Recent sermon context in English:\n{}",
+                truncate_for_prompt(context_guard.as_str(), 500)
+            ))
+        }
+    };
+
     let audio_bytes = base64::engine::general_purpose::STANDARD
         .decode(payload.audio_base64)
         .map_err(|e| format!("Failed to decode segment audio: {e}"))?;
@@ -959,7 +1009,13 @@ async fn process_segment(
     let client = Client::new();
 
     let english_text = if source_language == "english" {
-        let form = build_audio_form(&audio_bytes, extension, &mime, "gpt-4o-mini-transcribe")?;
+        let form = build_audio_form(
+            &audio_bytes,
+            extension,
+            &mime,
+            "gpt-4o-mini-transcribe",
+            rolling_context_prompt.as_deref(),
+        )?;
 
         let transcription_response = client
             .post("https://api.openai.com/v1/audio/transcriptions")
@@ -984,7 +1040,13 @@ async fn process_segment(
             .map_err(|e| format!("Transcription response decode failed: {e}"))?;
         transcription_json.text.unwrap_or_default().trim().to_string()
     } else {
-        let whisper_form = build_audio_form(&audio_bytes, extension, &mime, "whisper-1")?;
+        let whisper_form = build_audio_form(
+            &audio_bytes,
+            extension,
+            &mime,
+            "whisper-1",
+            rolling_context_prompt.as_deref(),
+        )?;
 
         let whisper_response = client
             .post("https://api.openai.com/v1/audio/translations")
@@ -1003,8 +1065,13 @@ async fn process_segment(
                 if !whisper_text.is_empty() {
                     whisper_text
                 } else {
-                    let transcribe_form =
-                        build_audio_form(&audio_bytes, extension, &mime, "gpt-4o-mini-transcribe")?;
+                    let transcribe_form = build_audio_form(
+                        &audio_bytes,
+                        extension,
+                        &mime,
+                        "gpt-4o-mini-transcribe",
+                        rolling_context_prompt.as_deref(),
+                    )?;
                     let transcribe_response = client
                         .post("https://api.openai.com/v1/audio/transcriptions")
                         .bearer_auth(&api_key)
@@ -1077,8 +1144,13 @@ async fn process_segment(
                     extract_responses_text(&english_json)
                 }
             } else {
-                let transcribe_form =
-                    build_audio_form(&audio_bytes, extension, &mime, "gpt-4o-mini-transcribe")?;
+                let transcribe_form = build_audio_form(
+                    &audio_bytes,
+                    extension,
+                    &mime,
+                    "gpt-4o-mini-transcribe",
+                    rolling_context_prompt.as_deref(),
+                )?;
                 let transcribe_response = client
                     .post("https://api.openai.com/v1/audio/transcriptions")
                     .bearer_auth(&api_key)
@@ -1157,7 +1229,13 @@ async fn process_segment(
 
     let english_text = if source_language != "english" && source_language != "korean" {
         let source_label = source_language_label(&source_language);
-        let transcribe_form = build_audio_form(&audio_bytes, extension, &mime, "gpt-4o-mini-transcribe")?;
+        let transcribe_form = build_audio_form(
+            &audio_bytes,
+            extension,
+            &mime,
+            "gpt-4o-mini-transcribe",
+            rolling_context_prompt.as_deref(),
+        )?;
         let transcribe_response = client
             .post("https://api.openai.com/v1/audio/transcriptions")
             .bearer_auth(&api_key)
@@ -1234,6 +1312,19 @@ async fn process_segment(
             translated: String::new(),
             warning: "Empty transcription result for this segment.".to_string(),
         });
+    }
+
+    {
+        let mut context_guard = state
+            .rolling_english_context
+            .lock()
+            .map_err(|_| "Failed to lock rolling context state".to_string())?;
+        let merged = if context_guard.trim().is_empty() {
+            english_text.clone()
+        } else {
+            format!("{} {}", context_guard.as_str(), english_text)
+        };
+        *context_guard = tail_words(&merged, 40);
     }
 
     let target_label = target_language_label(&target_language);
@@ -1674,6 +1765,7 @@ pub fn run() {
             reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
+            rolling_english_context: Mutex::new(String::new()),
             latest_output_caption: Mutex::new(None),
             running: AtomicBool::new(false),
         })
