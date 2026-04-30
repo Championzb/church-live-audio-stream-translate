@@ -221,9 +221,9 @@ body[data-theme='minimal-mono'] {
 }
 
 .window-frame-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0 0 auto 0;
-  height: 62px;
+  height: 56px;
   pointer-events: none;
   z-index: 1400;
 }
@@ -237,7 +237,7 @@ body[data-theme='minimal-mono'] {
   cursor: grab;
   user-select: none;
   pointer-events: auto;
-  border-radius: 14px 14px 0 0;
+  border-radius: 20px 20px 0 0;
 }
 
 .window-drag-zone.window-drag-bar:active {
@@ -254,8 +254,8 @@ body[data-theme='minimal-mono'] {
 
 .floating-window-controls {
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 10px;
+  right: 12px;
   padding: 4px;
   border-radius: 999px;
   border: 1px solid rgba(100, 132, 170, 0.34);
@@ -305,9 +305,10 @@ body {
   max-width: none;
   min-height: calc(100vh - 16px);
   margin: 8px;
+  position: relative;
   border-radius: 20px;
   overflow: hidden;
-  padding: 76px 22px 34px;
+  padding: 64px 22px 34px;
   background:
     radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
     radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),

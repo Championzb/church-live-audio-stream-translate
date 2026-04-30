@@ -119,6 +119,7 @@ npm run typecheck
 - Frameless windows use an invisible full-width top drag region (instead of a visible title bar), keeping both main and projector windows draggable without adding visual clutter.
 - Frameless windows include a compact floating control dock at the top-right with custom window actions (`minimize`, `maximize/restore`, `close`).
 - Frameless windows now render with transparent native backgrounds and rounded app surfaces, so corners appear modern and the floating window controls sit above a dedicated top safe area (no header overlap).
+- Floating window controls and drag region are now anchored inside the rounded app surface so they align with panel borders and do not visually overlap the header.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - Selecting `Test Audio File...` from `Audio Input` arms that file as the active input source; translation starts when `Start (F8)` is pressed, matching live stream control flow.
