@@ -119,6 +119,7 @@ npm run typecheck
 - Projector mode summary now uses a shared-style bottom overlay status bar (`Mode | Translation | Translation Mode | Queue`) for consistency with home and translation pages.
 - Main and projector windows now use native macOS window chrome (`decorations: true`) to match VS Code/Chrome behavior and keep OS-managed rounded corners/shadows.
 - Custom frameless drag regions and floating window-control overlays are disabled; native macOS traffic-light controls are used instead.
+- macOS windows now use titlebar overlay mode (`titleBarStyle: Overlay`, `hiddenTitle: true`) so top actions render inside the OS titlebar region, matching VS Code/Chrome-style integration.
 - Projector panel columns now use shrink-safe grid tracks so long headings do not push content off-screen or clip the left panel.
 - Projector bottom status bar summary is now transparent so it matches the glass style used in other pages.
 - Projector status bar typography/spacing now matches the main window status bar for consistent cross-window UI.

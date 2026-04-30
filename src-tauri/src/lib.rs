@@ -12,6 +12,7 @@ use serde_json::Value;
 use tauri::Emitter;
 use tauri::Manager;
 use tauri::window::Color;
+use tauri::TitleBarStyle;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
@@ -1531,6 +1532,8 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         .inner_size(1280.0, 720.0)
         .resizable(true)
         .decorations(true)
+        .title_bar_style(TitleBarStyle::Overlay)
+        .hidden_title(true)
         .shadow(true)
         .background_color(Color(4, 13, 29, 255));
 

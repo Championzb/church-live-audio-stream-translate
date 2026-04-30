@@ -18,7 +18,13 @@
         "resizable": true,
         "decorations": true,
         "transparent": false,
-        "shadow": true
+        "shadow": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": {
+          "x": 14,
+          "y": 14
+        }
       }
     ],
     "security": {
