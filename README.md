@@ -132,7 +132,7 @@ npm run typecheck
 - Projector window also sets explicit native background color (`#040d1d`) for consistent edge rendering.
 - Outer rounded shell stroke is removed on main/projector surfaces to prevent dark anti-aliased fringe at corners.
 - Rounded outer window shape now stays flush to the native window bounds (no `6px` inset), preventing the dark navy outer band around rounded corners.
-- Rounded corner cutouts now inherit each window's own gradient background layer, preventing black corner fill artifacts.
+- Rounded corner cutouts now inherit each window's full layered surface background (including glow/grid layers), preventing black corner fill artifacts.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
