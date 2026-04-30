@@ -1630,10 +1630,17 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
                 window
                     .unmaximize()
                     .map_err(|e| format!("Failed to unmaximize window: {e}"))?;
-                if window.label() == "output" {
+                let launch_size = if window.label() == "output" {
+                    Some(LogicalSize::new(1280.0, 720.0))
+                } else if window.label() == "main" {
+                    Some(LogicalSize::new(1500.0, 920.0))
+                } else {
+                    None
+                };
+                if let Some(size) = launch_size {
                     window
-                        .set_size(Size::Logical(LogicalSize::new(1280.0, 720.0)))
-                        .map_err(|e| format!("Failed to restore output window launch size: {e}"))?;
+                        .set_size(Size::Logical(size))
+                        .map_err(|e| format!("Failed to restore {} window launch size: {e}", window.label()))?;
                 }
             } else {
                 window

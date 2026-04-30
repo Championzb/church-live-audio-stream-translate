@@ -689,7 +689,7 @@ function bindDragBars() {
     };
     const toggleMaximize = async () => {
         try {
-            await invoke('control_window', { action: 'toggle_maximize' });
+            await invoke('control_window', { action: 'toggle_maximize_restore_launch_size' });
             return;
         }
         catch {
