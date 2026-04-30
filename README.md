@@ -129,7 +129,7 @@ npm run typecheck
 - Native window transparency is disabled (`transparent: false`) so the OS frame paints corners cleanly and avoids black corner-fill artifacts.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - In main window, double-clicking the top titlebar area toggles maximize and restore with standard OS window behavior.
-- In projector window, double-clicking the top titlebar area toggles maximize; restoring returns to the default launch size (`1280x720`).
+- In projector window, double-clicking the top titlebar area toggles maximize and restore with standard OS window behavior.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
 - Selecting `Test Audio File...` from `Audio Input` arms that file as the active input source; translation starts when `Start (F8)` is pressed, matching live stream control flow.
