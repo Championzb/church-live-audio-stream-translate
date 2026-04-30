@@ -1075,6 +1075,15 @@ function getSelectedAudioInputLabel(selectEl) {
         return t('device.default');
     return selectedOption.textContent || t('device.default');
 }
+function syncAudioInputMenuSizes() {
+    const optionCount = Math.max(2, Math.min(6, (audioInputSelect?.options?.length || 0)));
+    if (audioInputSelect) {
+        audioInputSelect.size = optionCount;
+    }
+    if (liveAudioInputSelect) {
+        liveAudioInputSelect.size = optionCount;
+    }
+}
 function updateAudioInputDisplayValues() {
     const displayText = getSelectedAudioInputLabel(audioInputSelect);
     if (audioInputValueEl) {
@@ -1110,6 +1119,7 @@ function syncLiveAudioInputMirror() {
     }
     liveAudioInputSelect.value = '';
     updateAudioInputDisplayValues();
+    syncAudioInputMenuSizes();
 }
 function setAudioInputSelection(selectedValue) {
     const nextValue = selectedValue || '';
@@ -1586,6 +1596,8 @@ function applyUiLanguage() {
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
     setIconButton(liveRefreshDevicesButton, '↻', t('button.refresh'));
+    refreshDevicesButton.textContent = `↻ ${t('button.refresh')}`;
+    liveRefreshDevicesButton.textContent = `↻ ${t('button.refresh')}`;
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
     }
@@ -1639,6 +1651,7 @@ function applyUiLanguage() {
     });
     syncTestAudioInputOption();
     syncLiveAudioInputMirror();
+    syncAudioInputMenuSizes();
     updateSourceLanguageOptionLabels();
     updateTargetLanguageOptionLabels();
     updateTranslatedHeading();
@@ -1974,6 +1987,7 @@ function syncTestAudioInputOption() {
         audioInputSelect.appendChild(option);
     }
     syncLiveAudioInputMirror();
+    syncAudioInputMenuSizes();
 }
 function setSelectedTestAudioFile(file) {
     selectedTestAudioFile = file;
