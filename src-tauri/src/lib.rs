@@ -24,6 +24,7 @@ struct AppState {
     api_key: Mutex<Option<String>>,
     admin_api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
+    stt_keywords: Mutex<String>,
     reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
@@ -48,6 +49,7 @@ struct SegmentResult {
 #[derive(Deserialize)]
 struct TranslationConfig {
     glossary: Option<String>,
+    stt_keywords: Option<String>,
     #[serde(alias = "referenceScript")]
     reference_script: Option<String>,
     #[serde(alias = "targetLanguage")]
@@ -287,6 +289,31 @@ fn extract_vocab_hints(reference_script: &str, max_terms: usize) -> String {
         let normalized = token.to_string();
         if !terms.iter().any(|existing| existing.eq_ignore_ascii_case(&normalized)) {
             terms.push(normalized);
+            if terms.len() >= max_terms {
+                break;
+            }
+        }
+    }
+
+    terms.join(", ")
+}
+
+fn normalize_keywords(raw_keywords: &str, max_terms: usize) -> String {
+    if max_terms == 0 || raw_keywords.trim().is_empty() {
+        return String::new();
+    }
+
+    let mut terms: Vec<String> = Vec::new();
+    for token in raw_keywords.split(|c: char| c == ',' || c == '\n' || c == ';') {
+        let term = token.trim();
+        if term.is_empty() {
+            continue;
+        }
+        if term.chars().count() > 48 {
+            continue;
+        }
+        if !terms.iter().any(|existing| existing.eq_ignore_ascii_case(term)) {
+            terms.push(term.to_string());
             if terms.len() >= max_terms {
                 break;
             }
@@ -727,6 +754,7 @@ fn set_translation_config(
     state: tauri::State<'_, AppState>,
 ) -> Result<OkResponse, String> {
     let glossary = config.glossary.unwrap_or_default().trim().to_string();
+    let stt_keywords = config.stt_keywords.unwrap_or_default().trim().to_string();
     let reference_script = config.reference_script.unwrap_or_default().trim().to_string();
     let target_language = match config.target_language.as_deref() {
         Some("zh-hans") => "zh-hans".to_string(),
@@ -757,6 +785,14 @@ fn set_translation_config(
             .lock()
             .map_err(|_| "Failed to lock target language state".to_string())?;
         *target_language_guard = target_language;
+    }
+
+    {
+        let mut stt_keywords_guard = state
+            .stt_keywords
+            .lock()
+            .map_err(|_| "Failed to lock STT keywords state".to_string())?;
+        *stt_keywords_guard = stt_keywords;
     }
 
     {
@@ -1004,6 +1040,14 @@ async fn process_segment(
         reference_script_guard.clone()
     };
 
+    let stt_keywords = {
+        let stt_keywords_guard = state
+            .stt_keywords
+            .lock()
+            .map_err(|_| "Failed to lock STT keywords state".to_string())?;
+        stt_keywords_guard.clone()
+    };
+
     let rolling_context_prompt = {
         let context_guard = state
             .rolling_english_context
@@ -1028,11 +1072,31 @@ async fn process_segment(
         }
     };
 
-    let stt_prompt = match (rolling_context_prompt, vocab_hint_prompt) {
-        (Some(ctx), Some(vocab)) => Some(format!("{ctx}\n\n{vocab}")),
-        (Some(ctx), None) => Some(ctx),
-        (None, Some(vocab)) => Some(vocab),
-        (None, None) => None,
+    let manual_keywords_prompt = {
+        let hints = normalize_keywords(&stt_keywords, 64);
+        if hints.is_empty() {
+            None
+        } else {
+            Some(format!("User provided STT keyword hints:\n{hints}"))
+        }
+    };
+
+    let stt_prompt = {
+        let mut sections: Vec<String> = Vec::new();
+        if let Some(ctx) = rolling_context_prompt {
+            sections.push(ctx);
+        }
+        if let Some(manual) = manual_keywords_prompt {
+            sections.push(manual);
+        }
+        if let Some(vocab) = vocab_hint_prompt {
+            sections.push(vocab);
+        }
+        if sections.is_empty() {
+            None
+        } else {
+            Some(truncate_for_prompt(&sections.join("\n\n"), 1200))
+        }
     };
 
     let audio_bytes = base64::engine::general_purpose::STANDARD
@@ -1809,6 +1873,7 @@ pub fn run() {
             api_key: Mutex::new(None),
             admin_api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
+            stt_keywords: Mutex::new(String::new()),
             reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),

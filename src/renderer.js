@@ -29,6 +29,7 @@ const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
 const translationControlsSummaryEl = document.getElementById('translationControlsSummary');
+const languageAidsSummaryEl = document.getElementById('languageAidsSummary');
 const liveWorkspaceEl = document.getElementById('liveWorkspace');
 const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
@@ -113,6 +114,7 @@ const vadValueEl = document.getElementById('vadValue');
 const silenceMsInput = document.getElementById('silenceMs');
 const maxSegmentMsInput = document.getElementById('maxSegmentMs');
 const glossaryInput = document.getElementById('glossary');
+const sttKeywordsInput = document.getElementById('sttKeywords');
 const saveGlossaryButton = document.getElementById('saveGlossary');
 const importGlossaryButton = document.getElementById('importGlossary');
 const exportGlossaryButton = document.getElementById('exportGlossary');
@@ -144,6 +146,8 @@ const liveVadHelpTextEl = document.getElementById('liveVadHelpText');
 const liveSilenceHelpTextEl = document.getElementById('liveSilenceHelpText');
 const liveMaxSegmentHelpTextEl = document.getElementById('liveMaxSegmentHelpText');
 const labelGlossaryEl = document.getElementById('labelGlossary');
+const labelSttKeywordsEl = document.getElementById('labelSttKeywords');
+const sttKeywordsHintEl = document.getElementById('sttKeywordsHint');
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop');
 const englishHeadingEl = document.getElementById('englishHeading');
 const helpTitleEl = document.getElementById('helpTitle');
@@ -219,6 +223,8 @@ const UI_TEXT = {
         'label.vadThreshold': 'VAD Threshold',
         'label.silenceMs': 'Silence Hold (ms)',
         'label.maxSegmentMs': 'Max Segment (ms)',
+        'label.sttKeywords': 'STT Keywords (English terms, comma or newline separated)',
+        'hint.sttKeywords': 'Used for speech-recognition priming (names, places, theological terms).',
         'help.vadThreshold': 'VAD Threshold: lower catches quieter speech but may trigger on noise.',
         'help.silenceMs': 'Silence Hold: how long silence must last before ending a segment.',
         'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
@@ -251,6 +257,7 @@ const UI_TEXT = {
         'button.copyLine': 'Copy line',
         'button.exportTranscript': 'Export Transcript',
         'button.saveGlossary': 'Save Glossary',
+        'button.saveLanguageAids': 'Save Language Aids',
         'button.import': 'Import',
         'button.export': 'Export',
         'button.close': 'Close',
@@ -260,6 +267,7 @@ const UI_TEXT = {
         'heading.settings': 'Settings',
         'heading.appearance': 'Appearance',
         'heading.translationControls': 'Translation Controls',
+        'heading.languageAids': 'Language Aids',
         'heading.referenceScript': 'Reference Script',
         'apiKey.masked': 'OpenAI Key: {masked}',
         'apiKey.hidden': 'OpenAI Key: hidden',
@@ -359,6 +367,7 @@ const UI_TEXT = {
         'status.apiKeyFailed': 'Failed to configure API key',
         'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
         'status.glossarySaved': 'Glossary saved',
+        'status.languageAidsSaved': 'Language aids saved',
         'status.glossaryImported': 'Glossary imported',
         'status.glossaryImportCanceled': 'Glossary import canceled',
         'status.glossaryExported': 'Glossary exported: {path}',
@@ -428,6 +437,8 @@ const UI_TEXT = {
         'label.vadThreshold': 'VAD 阈值',
         'label.silenceMs': '静音保持（毫秒）',
         'label.maxSegmentMs': '最长片段（毫秒）',
+        'label.sttKeywords': 'STT 关键词（英文术语，逗号或换行分隔）',
+        'hint.sttKeywords': '用于语音识别预热（人名、地名、神学术语）。',
         'help.vadThreshold': 'VAD 阈值：越低越容易捕捉轻声，也更可能被噪声触发。',
         'help.silenceMs': '静音保持：静音持续多久后才结束当前片段。',
         'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
@@ -460,6 +471,7 @@ const UI_TEXT = {
         'button.copyLine': '复制本行',
         'button.exportTranscript': '导出转录',
         'button.saveGlossary': '保存术语表',
+        'button.saveLanguageAids': '保存语言辅助',
         'button.import': '导入',
         'button.export': '导出',
         'button.close': '关闭',
@@ -469,6 +481,7 @@ const UI_TEXT = {
         'heading.settings': '设置',
         'heading.appearance': '外观',
         'heading.translationControls': '翻译控制',
+        'heading.languageAids': '语言辅助',
         'heading.referenceScript': '参考讲稿',
         'apiKey.masked': 'OpenAI 密钥：{masked}',
         'apiKey.hidden': 'OpenAI 密钥：隐藏',
@@ -568,6 +581,7 @@ const UI_TEXT = {
         'status.apiKeyFailed': '配置 API 密钥失败',
         'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
         'status.glossarySaved': '术语表已保存',
+        'status.languageAidsSaved': '语言辅助已保存',
         'status.glossaryImported': '术语表已导入',
         'status.glossaryImportCanceled': '已取消术语表导入',
         'status.glossaryExported': '术语表已导出：{path}',
@@ -1069,6 +1083,7 @@ function setControlsLocked(nextLocked) {
         maxSegmentMsInput,
         liveMaxSegmentMsInput,
         glossaryInput,
+        sttKeywordsInput,
         saveGlossaryButton,
         importGlossaryButton,
         exportGlossaryButton,
@@ -1621,6 +1636,8 @@ function applyUiLanguage() {
     liveSilenceHelpTextEl.textContent = t('help.silenceMs');
     liveMaxSegmentHelpTextEl.textContent = t('help.maxSegmentMs');
     labelGlossaryEl.textContent = t('label.glossary');
+    labelSttKeywordsEl.textContent = t('label.sttKeywords');
+    sttKeywordsHintEl.textContent = t('hint.sttKeywords');
     labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
     englishHeadingEl.textContent = t('heading.english');
     saveKeyButton.textContent = t('button.saveKey');
@@ -1635,6 +1652,7 @@ function applyUiLanguage() {
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
     translationControlsSummaryEl.textContent = t('heading.translationControls');
+    languageAidsSummaryEl.textContent = t('heading.languageAids');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
@@ -1647,7 +1665,7 @@ function applyUiLanguage() {
     resetSessionButton.textContent = t('button.resetSession');
     setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
     setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
-    saveGlossaryButton.textContent = t('button.saveGlossary');
+    saveGlossaryButton.textContent = t('button.saveLanguageAids');
     importGlossaryButton.textContent = t('button.import');
     exportGlossaryButton.textContent = t('button.export');
     closeHelpButton.textContent = t('button.close');
@@ -2398,9 +2416,11 @@ async function setRunning(nextRunning) {
 }
 async function syncTranslationConfig() {
     const glossary = glossaryInput.value || '';
+    const stt_keywords = sttKeywordsInput.value || '';
     await invoke('set_translation_config', {
         config: {
             glossary,
+            stt_keywords,
             reference_script: referenceScriptText,
             target_language: targetLanguageSelect.value || 'zh-hans',
             source_language: sourceLanguageSelect.value || 'korean'
@@ -2428,6 +2448,10 @@ async function ensureMainInitialized() {
     const savedGlossary = localStorage.getItem('church-glossary');
     if (savedGlossary) {
         glossaryInput.value = savedGlossary;
+    }
+    const savedSttKeywords = localStorage.getItem('church-stt-keywords');
+    if (savedSttKeywords) {
+        sttKeywordsInput.value = savedSttKeywords;
     }
     setReferenceScript(localStorage.getItem(REFERENCE_SCRIPT_STORAGE_KEY) || '', { persist: false });
     const savedSourceLanguage = localStorage.getItem('church-source-language');
@@ -2655,7 +2679,8 @@ mainProjectIdInput.addEventListener('keydown', async (event) => {
 saveGlossaryButton.addEventListener('click', async () => {
     await syncTranslationConfig();
     localStorage.setItem('church-glossary', glossaryInput.value || '');
-    setStatusKey('status.glossarySaved');
+    localStorage.setItem('church-stt-keywords', sttKeywordsInput.value || '');
+    setStatusKey('status.languageAidsSaved');
 });
 importGlossaryButton.addEventListener('click', async () => {
     const result = await invoke('import_glossary');
