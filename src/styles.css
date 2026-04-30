@@ -1103,6 +1103,10 @@ h1 {
   display: none;
 }
 
+.segmentation-help-icon::before {
+  content: none !important;
+}
+
 .segmentation-help-icon::marker {
   content: '';
 }
