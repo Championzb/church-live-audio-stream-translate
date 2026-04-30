@@ -10,7 +10,9 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Emitter;
+use tauri::LogicalSize;
 use tauri::Manager;
+use tauri::Size;
 use tauri::window::Color;
 use tauri::TitleBarStyle;
 use tauri::WebviewUrl;
@@ -1614,6 +1616,25 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
                 window
                     .unmaximize()
                     .map_err(|e| format!("Failed to unmaximize window: {e}"))?;
+            } else {
+                window
+                    .maximize()
+                    .map_err(|e| format!("Failed to maximize window: {e}"))?;
+            }
+        }
+        "toggle_maximize_restore_launch_size" => {
+            let is_maximized = window
+                .is_maximized()
+                .map_err(|e| format!("Failed to read maximize state: {e}"))?;
+            if is_maximized {
+                window
+                    .unmaximize()
+                    .map_err(|e| format!("Failed to unmaximize window: {e}"))?;
+                if window.label() == "output" {
+                    window
+                        .set_size(Size::Logical(LogicalSize::new(1280.0, 720.0)))
+                        .map_err(|e| format!("Failed to restore output window launch size: {e}"))?;
+                }
             } else {
                 window
                     .maximize()

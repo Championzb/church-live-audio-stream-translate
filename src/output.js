@@ -10,6 +10,8 @@ const outputWindowCloseButton = document.getElementById('outputWindowClose');
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
 const PROJECTOR_MAX_HISTORY_LINES = 2;
+const PROJECTOR_LAUNCH_WIDTH = 1280;
+const PROJECTOR_LAUNCH_HEIGHT = 720;
 
 async function resolveTauriApis(maxWaitMs = 5000) {
   const startedAt = Date.now();
@@ -99,11 +101,50 @@ function bindDragBars(invoke) {
     && typeof window.__TAURI__.window.getCurrentWindow === 'function'
       ? window.__TAURI__.window.getCurrentWindow()
       : null;
+  const isNoDragTarget = (target) => {
+    if (!(target instanceof Element)) return false;
+    return Boolean(target.closest('button, input, select, textarea, [role="button"], [data-no-drag]'));
+  };
+  const toggleProjectorMaximize = async () => {
+    if (invoke) {
+      try {
+        await invoke('control_window', { action: 'toggle_maximize_restore_launch_size' });
+        return;
+      } catch {
+        // fall back to frontend API below
+      }
+    }
+    if (!currentWindow) return;
+    try {
+      const isMaximized = typeof currentWindow.isMaximized === 'function'
+        ? await currentWindow.isMaximized()
+        : false;
+      if (isMaximized) {
+        if (typeof currentWindow.unmaximize === 'function') {
+          await currentWindow.unmaximize();
+        }
+        const LogicalSizeCtor =
+          window.__TAURI__
+          && window.__TAURI__.dpi
+          && window.__TAURI__.dpi.LogicalSize
+            ? window.__TAURI__.dpi.LogicalSize
+            : null;
+        if (LogicalSizeCtor && typeof currentWindow.setSize === 'function') {
+          await currentWindow.setSize(new LogicalSizeCtor(PROJECTOR_LAUNCH_WIDTH, PROJECTOR_LAUNCH_HEIGHT));
+        }
+      } else if (typeof currentWindow.maximize === 'function') {
+        await currentWindow.maximize();
+      }
+    } catch {
+      // ignore maximize/restore fallback failures
+    }
+  };
   const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
   dragBars.forEach((bar) => {
     if (!(bar instanceof HTMLElement)) return;
     bar.addEventListener('pointerdown', async (event) => {
       if (event.button !== 0) return;
+      if (isNoDragTarget(event.target)) return;
       if (event.detail > 1) return;
       if (invoke) {
         try {
@@ -116,6 +157,10 @@ function bindDragBars(invoke) {
       if (currentWindow && typeof currentWindow.startDragging === 'function') {
         void currentWindow.startDragging();
       }
+    });
+    bar.addEventListener('dblclick', (event) => {
+      if (isNoDragTarget(event.target)) return;
+      void toggleProjectorMaximize();
     });
   });
 }
