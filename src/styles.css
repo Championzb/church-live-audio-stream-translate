@@ -586,12 +586,6 @@ body.presentation-mode .titlebar-actions .live-session-setup {
   -webkit-app-region: no-drag;
 }
 
-.audio-input-menu-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 6px;
-}
-
 .audio-input-menu select {
   width: 100%;
   min-width: 0;
@@ -603,8 +597,6 @@ body.presentation-mode .titlebar-actions .live-session-setup {
   padding: 2px 4px;
 }
 
-#refreshDevices.icon-btn,
-#liveRefreshDevices.icon-btn,
 #openSettingsPage.icon-btn,
 #liveOpenSettingsPage.icon-btn,
 #toggleOutputWindow.icon-btn,
@@ -619,32 +611,6 @@ body.presentation-mode .titlebar-actions .live-session-setup {
 #openSettingsPage.icon-btn,
 #liveOpenSettingsPage.icon-btn {
   font-size: 1.14rem;
-}
-
-.audio-menu-refresh-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--section-border);
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--surface-soft) 74%, transparent);
-  color: var(--text-subtle);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.audio-menu-refresh-btn:hover {
-  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
-  color: var(--text);
-}
-
-#refreshDevices.icon-btn:hover,
-#liveRefreshDevices.icon-btn:hover {
-  background: rgba(148, 163, 184, 0.14);
-  box-shadow: none;
 }
 
 .audio-input-group #audioInput {

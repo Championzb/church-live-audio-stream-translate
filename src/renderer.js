@@ -37,7 +37,6 @@ const liveOpenSettingsPageButton = document.getElementById('liveOpenSettingsPage
 const liveAudioInputValueEl = document.getElementById('liveAudioInputValue');
 const liveAudioInputMenuEl = document.getElementById('liveAudioInputMenu');
 const liveAudioInputSelect = document.getElementById('liveAudioInput');
-const liveRefreshDevicesButton = document.getElementById('liveRefreshDevices');
 const liveVadThresholdInput = document.getElementById('liveVadThreshold');
 const liveVadValueEl = document.getElementById('liveVadValue');
 const liveSilenceMsInput = document.getElementById('liveSilenceMs');
@@ -57,7 +56,6 @@ const audioInputMenuEl = document.getElementById('audioInputMenu');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
 const targetLanguageSelect = document.getElementById('targetLanguage');
-const refreshDevicesButton = document.getElementById('refreshDevices');
 const toggleRunButton = document.getElementById('toggleRun');
 const toggleWorshipModeButton = document.getElementById('toggleWorshipMode');
 const togglePresentationButton = document.getElementById('togglePresentation');
@@ -1039,8 +1037,6 @@ function setControlsLocked(nextLocked) {
         mockModeInput,
         sourceLanguageSelect,
         targetLanguageSelect,
-        refreshDevicesButton,
-        liveRefreshDevicesButton,
         openScriptManagerButton,
         scriptPanelOpenScriptManagerButton,
         uploadReferenceScriptButton,
@@ -1282,8 +1278,6 @@ function setStaticButtonTooltips() {
     liveOpenSettingsPageButton.title = t('tooltip.settings');
     backToLivePageButton.title = t('tooltip.back');
     liveExitTranslationModeButton.title = t('tooltip.presentationOn');
-    refreshDevicesButton.title = t('tooltip.refresh');
-    liveRefreshDevicesButton.title = t('tooltip.refresh');
     if (toggleHelpButton) {
         toggleHelpButton.title = t('tooltip.help');
     }
@@ -1594,10 +1588,6 @@ function applyUiLanguage() {
     appearanceSummaryEl.textContent = t('heading.appearance');
     translationControlsSummaryEl.textContent = t('heading.translationControls');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
-    setIconButton(refreshDevicesButton, '↻', t('button.refresh'));
-    setIconButton(liveRefreshDevicesButton, '↻', t('button.refresh'));
-    refreshDevicesButton.textContent = `↻ ${t('button.refresh')}`;
-    liveRefreshDevicesButton.textContent = `↻ ${t('button.refresh')}`;
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
     }
@@ -2630,38 +2620,36 @@ exportGlossaryButton.addEventListener('click', async () => {
         setStatus(result.message || t('status.glossaryExportCanceled'));
     }
 });
-refreshDevicesButton.addEventListener('click', () => {
-    loadDevices();
-});
-liveRefreshDevicesButton.addEventListener('click', () => {
-    loadDevices();
-});
-labelAudioInputEl.addEventListener('click', () => {
+labelAudioInputEl.addEventListener('click', async () => {
     if (controlsLocked)
         return;
+    await loadDevices();
     const nextOpen = audioInputMenuEl.classList.contains('hidden');
     setAudioInputMenuOpen('main', nextOpen);
 });
-labelLiveAudioInputEl.addEventListener('click', () => {
+labelLiveAudioInputEl.addEventListener('click', async () => {
     if (controlsLocked)
         return;
+    await loadDevices();
     const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
     setAudioInputMenuOpen('live', nextOpen);
 });
-labelAudioInputEl.addEventListener('keydown', (event) => {
+labelAudioInputEl.addEventListener('keydown', async (event) => {
     if (controlsLocked)
         return;
     if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        await loadDevices();
         const nextOpen = audioInputMenuEl.classList.contains('hidden');
         setAudioInputMenuOpen('main', nextOpen);
     }
 });
-labelLiveAudioInputEl.addEventListener('keydown', (event) => {
+labelLiveAudioInputEl.addEventListener('keydown', async (event) => {
     if (controlsLocked)
         return;
     if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        await loadDevices();
         const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
         setAudioInputMenuOpen('live', nextOpen);
     }

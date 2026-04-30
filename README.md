@@ -100,9 +100,9 @@ npm run typecheck
 - OpenAI key access is available from the right side of the bottom status bar for one-click updates.
 - Settings now uses a responsive structured layout with tighter width, a compact Appearance card, and a cleaner Glossary editor/action row.
 - Settings includes a `Mock Mode (No API)` toggle that bypasses OpenAI segment calls and emits deterministic local EN/ZH lines for zero-cost UI testing.
-- Session setup controls (`Audio Input`, `Refresh`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
-- Low-frequency utility controls use compact icon buttons (for example `Settings`, `Refresh`, and `Back`) with tooltips/labels for cleaner layout.
-- During Translation Mode, the app switches to a sticky Live Control Bar (back icon, `Projector Window`, `Settings`, `Audio Input`, `Refresh`, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.
+- Session setup controls (`Audio Input`) plus `Settings` and `Projector Window` icon buttons stay in the header for faster access.
+- Low-frequency utility controls use compact icon buttons (for example `Settings` and `Back`) with tooltips/labels for cleaner layout.
+- During Translation Mode, the app switches to a sticky Live Control Bar (back icon, `Projector Window`, `Settings`, `Audio Input`, and live VAD/Silence/Max Segment tuning), while admin controls are hidden.
 - Translation Mode live bar now uses a compact wrap layout so action/tuning/summary blocks stay tight and avoid large empty horizontal space.
 - Translation Mode live bar also keeps a compact clickable hotkey map (F8/F7/F6/F4/F2/F1) so operators can trigger controls directly without leaving the mode.
 - The Translation Mode settings card no longer duplicates start/suspend/mode/lock controls that already exist in the header hotkey strip.
@@ -115,7 +115,7 @@ npm run typecheck
 - The top action bar is now a slim flat strip (instead of a rounded floating panel) so it visually aligns with VS Code-style titlebar tooling.
 - Top-bar `Audio Input` now uses a compact microphone icon label to reduce titlebar clutter.
 - Top-bar audio picker now opens on icon click, while the selected device is shown as plain text in the titlebar (instead of a permanently visible dropdown box).
-- Top-bar audio controls are now more compact, and device refresh is shown as a visible `Refresh` action inside the opened audio dropdown menu.
+- Top-bar audio controls are now more compact, and opening the audio input menu automatically refreshes available devices.
 - The bottom status bar now includes a projector health indicator (`Projector: Off / Waiting / Connected / Stale`) so operators can verify output-window link health quickly.
 - Projector window now bootstraps with the latest caption snapshot from backend state, so it can render transcript content immediately even if opened after recent segments.
 - Projector view is now audience-focused: both language columns keep the latest transcript at the top, keep only the most recent 2 transcript cards, highlight the latest card, and render the second-latest in a smaller/background style when space is tight.
