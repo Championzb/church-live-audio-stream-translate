@@ -34,6 +34,9 @@ const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
 const liveToggleOutputWindowButton = document.getElementById('liveToggleOutputWindow');
 const liveOpenSettingsPageButton = document.getElementById('liveOpenSettingsPage');
+const liveAudioInputToggleButton = document.getElementById('liveAudioInputToggle');
+const liveAudioInputValueEl = document.getElementById('liveAudioInputValue');
+const liveAudioInputMenuEl = document.getElementById('liveAudioInputMenu');
 const liveAudioInputSelect = document.getElementById('liveAudioInput');
 const liveRefreshDevicesButton = document.getElementById('liveRefreshDevices');
 const liveVadThresholdInput = document.getElementById('liveVadThreshold');
@@ -50,6 +53,9 @@ const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
 const mockModeInput = document.getElementById('mockMode');
+const audioInputToggleButton = document.getElementById('audioInputToggle');
+const audioInputValueEl = document.getElementById('audioInputValue');
+const audioInputMenuEl = document.getElementById('audioInputMenu');
 const audioInputSelect = document.getElementById('audioInput');
 const sourceLanguageSelect = document.getElementById('sourceLanguage');
 const targetLanguageSelect = document.getElementById('targetLanguage');
@@ -1033,6 +1039,8 @@ function setControlsLocked(nextLocked) {
         liveAudioInputSelect,
         themeSelect,
         mockModeInput,
+        audioInputToggleButton,
+        liveAudioInputToggleButton,
         sourceLanguageSelect,
         targetLanguageSelect,
         refreshDevicesButton,
@@ -1065,6 +1073,43 @@ function setControlsLocked(nextLocked) {
 function hasSelectOption(selectEl, value) {
     return Array.from(selectEl?.options || []).some((option) => option.value === value);
 }
+function getSelectedAudioInputLabel(selectEl) {
+    const selectedOption = selectEl?.selectedOptions?.[0] || null;
+    if (!selectedOption)
+        return t('device.default');
+    return selectedOption.textContent || t('device.default');
+}
+function updateAudioInputDisplayValues() {
+    const displayText = getSelectedAudioInputLabel(audioInputSelect);
+    if (audioInputValueEl) {
+        audioInputValueEl.textContent = displayText;
+    }
+    if (liveAudioInputValueEl) {
+        liveAudioInputValueEl.textContent = displayText;
+    }
+}
+function setAudioInputMenuOpen(mode, open) {
+    const targetMenu = mode === 'live' ? liveAudioInputMenuEl : audioInputMenuEl;
+    const otherMenu = mode === 'live' ? audioInputMenuEl : liveAudioInputMenuEl;
+    const targetToggle = mode === 'live' ? liveAudioInputToggleButton : audioInputToggleButton;
+    const otherToggle = mode === 'live' ? audioInputToggleButton : liveAudioInputToggleButton;
+    if (otherMenu) {
+        otherMenu.classList.add('hidden');
+    }
+    if (otherToggle) {
+        otherToggle.setAttribute('aria-expanded', 'false');
+    }
+    if (!targetMenu)
+        return;
+    targetMenu.classList.toggle('hidden', !open);
+    if (targetToggle) {
+        targetToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+}
+function closeAudioInputMenus() {
+    setAudioInputMenuOpen('main', false);
+    setAudioInputMenuOpen('live', false);
+}
 function syncLiveAudioInputMirror() {
     if (!liveAudioInputSelect)
         return;
@@ -1072,9 +1117,11 @@ function syncLiveAudioInputMirror() {
     const selectedValue = audioInputSelect.value || '';
     if (selectedValue && hasSelectOption(liveAudioInputSelect, selectedValue)) {
         liveAudioInputSelect.value = selectedValue;
+        updateAudioInputDisplayValues();
         return;
     }
     liveAudioInputSelect.value = '';
+    updateAudioInputDisplayValues();
 }
 function setAudioInputSelection(selectedValue) {
     const nextValue = selectedValue || '';
@@ -1088,12 +1135,14 @@ function setAudioInputSelection(selectedValue) {
         lastNonPickerAudioInputValue = audioInputSelect.value;
     }
     syncLiveAudioInputMirror();
+    updateAudioInputDisplayValues();
 }
 function handleAudioInputSelection(selectedValue) {
     const nextValue = selectedValue || '';
     if (nextValue === TEST_AUDIO_PICKER_VALUE) {
         openTestAudioFilePicker(lastNonPickerAudioInputValue || '');
         syncLiveAudioInputMirror();
+        updateAudioInputDisplayValues();
         return;
     }
     setAudioInputSelection(nextValue);
@@ -2585,11 +2634,37 @@ refreshDevicesButton.addEventListener('click', () => {
 liveRefreshDevicesButton.addEventListener('click', () => {
     loadDevices();
 });
+audioInputToggleButton.addEventListener('click', () => {
+    const nextOpen = audioInputMenuEl.classList.contains('hidden');
+    setAudioInputMenuOpen('main', nextOpen);
+});
+liveAudioInputToggleButton.addEventListener('click', () => {
+    const nextOpen = liveAudioInputMenuEl.classList.contains('hidden');
+    setAudioInputMenuOpen('live', nextOpen);
+});
+labelAudioInputEl.addEventListener('click', () => {
+    setAudioInputMenuOpen('main', true);
+});
+labelLiveAudioInputEl.addEventListener('click', () => {
+    setAudioInputMenuOpen('live', true);
+});
 audioInputSelect.addEventListener('change', () => {
     handleAudioInputSelection(audioInputSelect.value || '');
+    closeAudioInputMenus();
 });
 liveAudioInputSelect.addEventListener('change', () => {
     handleAudioInputSelection(liveAudioInputSelect.value || '');
+    closeAudioInputMenus();
+});
+document.addEventListener('pointerdown', (event) => {
+    const target = event.target;
+    if (!target)
+        return;
+    const inMainGroup = audioInputMenuEl?.parentElement?.contains(target);
+    const inLiveGroup = liveAudioInputMenuEl?.parentElement?.contains(target);
+    if (!inMainGroup && !inLiveGroup) {
+        closeAudioInputMenus();
+    }
 });
 uiLanguageSelect.addEventListener('change', () => {
     applyUiLanguage();
