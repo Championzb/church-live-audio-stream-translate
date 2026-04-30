@@ -2,6 +2,14 @@
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
+## Open source project docs
+
+- License: [Apache-2.0](./LICENSE)
+- Contributing guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- Security policy: [SECURITY.md](./SECURITY.md)
+- Support guide: [SUPPORT.md](./SUPPORT.md)
+
 - Korean speech in
 - English transcription is still processed internally; the main page focuses on target-language captions, while Translation Mode shows both English and target-language panels
 - Configurable output language captions shown in parallel
