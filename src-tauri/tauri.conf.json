@@ -16,9 +16,9 @@
         "width": 1500,
         "height": 920,
         "resizable": true,
-        "decorations": false,
-        "transparent": true,
-        "shadow": false
+        "decorations": true,
+        "transparent": false,
+        "shadow": true
       }
     ],
     "security": {

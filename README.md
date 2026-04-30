@@ -115,24 +115,12 @@ npm run typecheck
 - Projector window now bootstraps with the latest caption snapshot from backend state, so it can render transcript content immediately even if opened after recent segments.
 - Projector view is now audience-focused: both language columns keep the latest transcript at the top, keep only the most recent 2 transcript cards, highlight the latest card, and render the second-latest in a smaller/background style when space is tight.
 - Projector mode summary now uses a shared-style bottom overlay status bar (`Mode | Translation | Translation Mode | Queue`) for consistency with home and translation pages.
-- Main and projector windows are frameless (`decorations: false`) so OS title bars/window frames are removed for cleaner presentation.
-- Frameless windows use an invisible full-width top drag region (instead of a visible title bar), keeping both main and projector windows draggable without adding visual clutter.
-- Frameless windows include a compact floating control dock at the top-right with custom window actions (`minimize`, `maximize/restore`, `close`).
-- Frameless windows now render with transparent native backgrounds and rounded app surfaces, so corners appear modern and the floating window controls sit above a dedicated top safe area (no header overlap).
-- Floating window controls and drag region are now anchored inside the rounded app surface so they align with panel borders and do not visually overlap the header.
-- Double-clicking the frameless top drag bar now toggles maximize/restore (same behavior as native title bars).
+- Main and projector windows now use native macOS window chrome (`decorations: true`) to match VS Code/Chrome behavior and keep OS-managed rounded corners/shadows.
+- Custom frameless drag regions and floating window-control overlays are disabled; native macOS traffic-light controls are used instead.
 - Projector panel columns now use shrink-safe grid tracks so long headings do not push content off-screen or clip the left panel.
-- The rounded app surface now sits flush to window bounds (no outer inset/shadow frame), removing the visible black edge around the window.
-- Rounded window corners now use explicit clipping (`clip-path`) with a thin border stroke so bottom corners render correctly without dark corner artifacts.
-- Rounded window surfaces now use direct radius + overflow clipping (without `clip-path`) and matching window background fill to avoid black corner artifacts on macOS compositing.
 - Projector bottom status bar summary is now transparent so it matches the glass style used in other pages.
 - Projector status bar typography/spacing now matches the main window status bar for consistent cross-window UI.
-- Frameless windows disable native window shadow to prevent dark edge/fringe artifacts around rounded corners.
-- Main window now uses native transparency with a transparent root webview layer so rounded corners do not show black fill artifacts.
-- Projector window now uses the same native transparency + transparent root strategy for consistent rounded-corner rendering.
-- Outer rounded shell stroke is removed on main/projector surfaces to prevent dark anti-aliased fringe at corners.
-- Rounded outer window shape now stays flush to the native window bounds (no `6px` inset), preventing the dark navy outer band around rounded corners.
-- Rounded corner cutouts now inherit each window's full layered surface background (including glow/grid layers), preventing black corner fill artifacts.
+- Native window transparency is disabled (`transparent: false`) so the OS frame paints corners cleanly and avoids black corner-fill artifacts.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.

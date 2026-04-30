@@ -1530,9 +1530,9 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         .title("Church Subtitle Output")
         .inner_size(1280.0, 720.0)
         .resizable(true)
-        .decorations(false)
-        .shadow(false)
-        .background_color(Color(0, 0, 0, 0));
+        .decorations(true)
+        .shadow(true)
+        .background_color(Color(4, 13, 29, 255));
 
     builder
         .build()
@@ -1647,10 +1647,6 @@ pub fn run() {
             running: AtomicBool::new(false),
         })
         .setup(|app| {
-            if let Some(main_window) = app.get_webview_window("main") {
-                let _ = main_window.set_shadow(false);
-            }
-
             let handle = app.handle();
             let shortcut = Shortcut::new(None, Code::F8);
 

@@ -222,11 +222,7 @@ body[data-theme='minimal-mono'] {
 }
 
 .window-frame-overlay {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 56px;
-  pointer-events: none;
-  z-index: 1400;
+  display: none;
 }
 
 .window-drag-zone.window-drag-bar {
@@ -297,7 +293,6 @@ html,
 body {
   width: 100%;
   height: 100%;
-  background: transparent;
 }
 
 body {
@@ -305,6 +300,7 @@ body {
   font-family: var(--font-main);
   color: var(--text);
   min-height: 100%;
+  background: linear-gradient(170deg, var(--bg-top), var(--bg-bottom));
   overflow: hidden;
 }
 
@@ -315,7 +311,7 @@ body {
   position: relative;
   border-radius: var(--window-radius);
   overflow: hidden;
-  padding: 64px 22px 34px;
+  padding: 22px 22px 34px;
   background:
     radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
     radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),
