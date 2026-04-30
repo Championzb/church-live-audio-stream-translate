@@ -265,6 +265,37 @@ fn tail_words(value: &str, max_words: usize) -> String {
     words[words.len() - max_words..].join(" ")
 }
 
+fn extract_vocab_hints(reference_script: &str, max_terms: usize) -> String {
+    if max_terms == 0 || reference_script.trim().is_empty() {
+        return String::new();
+    }
+
+    let mut terms: Vec<String> = Vec::new();
+    for raw in reference_script.split(|c: char| !c.is_alphanumeric() && c != '\'' && c != '-') {
+        let token = raw.trim();
+        if token.len() < 4 {
+            continue;
+        }
+        if !token.chars().all(|c| c.is_ascii_alphanumeric() || c == '\'' || c == '-') {
+            continue;
+        }
+        let has_upper = token.chars().any(|c| c.is_ascii_uppercase());
+        let has_digit = token.chars().any(|c| c.is_ascii_digit());
+        if !has_upper && !has_digit {
+            continue;
+        }
+        let normalized = token.to_string();
+        if !terms.iter().any(|existing| existing.eq_ignore_ascii_case(&normalized)) {
+            terms.push(normalized);
+            if terms.len() >= max_terms {
+                break;
+            }
+        }
+    }
+
+    terms.join(", ")
+}
+
 fn mask_api_key(value: &str) -> String {
     let trimmed = value.trim();
     let chars: Vec<char> = trimmed.chars().collect();
@@ -988,6 +1019,22 @@ async fn process_segment(
         }
     };
 
+    let vocab_hint_prompt = {
+        let hints = extract_vocab_hints(&reference_script, 48);
+        if hints.is_empty() {
+            None
+        } else {
+            Some(format!("Important names/terms and spellings:\n{hints}"))
+        }
+    };
+
+    let stt_prompt = match (rolling_context_prompt, vocab_hint_prompt) {
+        (Some(ctx), Some(vocab)) => Some(format!("{ctx}\n\n{vocab}")),
+        (Some(ctx), None) => Some(ctx),
+        (None, Some(vocab)) => Some(vocab),
+        (None, None) => None,
+    };
+
     let audio_bytes = base64::engine::general_purpose::STANDARD
         .decode(payload.audio_base64)
         .map_err(|e| format!("Failed to decode segment audio: {e}"))?;
@@ -1014,7 +1061,7 @@ async fn process_segment(
             extension,
             &mime,
             "gpt-4o-mini-transcribe",
-            rolling_context_prompt.as_deref(),
+            stt_prompt.as_deref(),
         )?;
 
         let transcription_response = client
@@ -1045,7 +1092,7 @@ async fn process_segment(
             extension,
             &mime,
             "whisper-1",
-            rolling_context_prompt.as_deref(),
+            stt_prompt.as_deref(),
         )?;
 
         let whisper_response = client
@@ -1070,7 +1117,7 @@ async fn process_segment(
                         extension,
                         &mime,
                         "gpt-4o-mini-transcribe",
-                        rolling_context_prompt.as_deref(),
+                        stt_prompt.as_deref(),
                     )?;
                     let transcribe_response = client
                         .post("https://api.openai.com/v1/audio/transcriptions")
@@ -1149,7 +1196,7 @@ async fn process_segment(
                     extension,
                     &mime,
                     "gpt-4o-mini-transcribe",
-                    rolling_context_prompt.as_deref(),
+                    stt_prompt.as_deref(),
                 )?;
                 let transcribe_response = client
                     .post("https://api.openai.com/v1/audio/transcriptions")
@@ -1234,7 +1281,7 @@ async fn process_segment(
             extension,
             &mime,
             "gpt-4o-mini-transcribe",
-            rolling_context_prompt.as_deref(),
+            stt_prompt.as_deref(),
         )?;
         let transcribe_response = client
             .post("https://api.openai.com/v1/audio/transcriptions")
@@ -1352,7 +1399,7 @@ async fn process_segment(
     };
 
     let system_prompt = format!(
-        "Translate church sermon English into natural {target_label}.\nKeep Bible references accurate.\nPreserve names and church terms.\nReturn only the translated text.{glossary_prompt}{reference_script_prompt}"
+        "You are an expert theological translator for a live church stream.\nTranslate the incoming live English into fluent, natural {target_label}.\nUse the reference script as strong context for terminology and sermon flow, but prioritize the live spoken meaning when they differ.\nIf the live English is fragmented, repair it into a coherent sentence using the reference context.\nFor scripture reading lines, prefer official scripture wording when present in the reference script context.\nKeep Bible references, names, and church terms accurate.\nReturn only the translated text.{glossary_prompt}{reference_script_prompt}"
     );
 
     let chinese_request_body = serde_json::json!({
@@ -1421,7 +1468,7 @@ async fn process_segment(
                                 {
                                     "type": "input_text",
                                     "text": format!(
-                                        "Translate the user's English sermon text into {target_label}. Output in {target_label} only (except proper names and Bible references).{reference_script_prompt}"
+                                        "Translate the user's English sermon text into {target_label}. Use the reference script as strong context. Repair fragmented phrasing into coherent translation. For scripture lines, prefer official wording when present in the reference script. Output in {target_label} only (except proper names and Bible references).{reference_script_prompt}"
                                     )
                                 }
                             ]

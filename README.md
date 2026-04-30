@@ -169,6 +169,8 @@ npm run typecheck
 - Japanese/Chinese input first transcribes source speech, then converts to English before final output translation.
 - Korean mode includes an automatic fallback path if Whisper translation fails temporarily.
 - Segment STT requests carry short rolling English context via `prompt` to reduce chunk-boundary translation drift.
+- Segment STT `prompt` now combines rolling context with script-derived vocabulary hints (proper nouns/terms) to improve name and term accuracy.
+- The Chinese translation prompt is reference-anchored: it uses the uploaded sermon script as strong context, repairs fragmented live English, and prefers official scripture wording when present in script context.
 - Segment processing retries automatically on transient API/network errors.
 - Cost summary estimates STT + translation spend from processed audio/text.
 
