@@ -128,6 +128,7 @@ npm run typecheck
 - Projector bottom status bar summary is now transparent so it matches the glass style used in other pages.
 - Projector status bar typography/spacing now matches the main window status bar for consistent cross-window UI.
 - Frameless transparent windows now disable native window shadow to prevent dark edge/fringe artifacts around rounded corners.
+- Main and projector windows now also set explicit native background color (`#040d1d`) to avoid black corner fill when macOS transparency compositing is inconsistent.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.

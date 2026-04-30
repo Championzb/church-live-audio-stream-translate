@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::Emitter;
 use tauri::Manager;
+use tauri::window::Color;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
@@ -1530,7 +1531,8 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         .inner_size(1280.0, 720.0)
         .resizable(true)
         .decorations(false)
-        .shadow(false);
+        .shadow(false)
+        .background_color(Color(4, 13, 29, 255));
 
     builder
         .build()
@@ -1645,6 +1647,11 @@ pub fn run() {
             running: AtomicBool::new(false),
         })
         .setup(|app| {
+            if let Some(main_window) = app.get_webview_window("main") {
+                let _ = main_window.set_background_color(Some(Color(4, 13, 29, 255)));
+                let _ = main_window.set_shadow(false);
+            }
+
             let handle = app.handle();
             let shortcut = Shortcut::new(None, Code::F8);
 
