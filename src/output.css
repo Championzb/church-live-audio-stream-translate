@@ -7,7 +7,10 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: transparent;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(56, 189, 248, 0.18), transparent 34%),
+    radial-gradient(circle at 85% 2%, rgba(20, 184, 166, 0.16), transparent 30%),
+    linear-gradient(160deg, #040d1d, #020712 60%, #02050d);
   color: #f8fafc;
   overflow: hidden;
   border-radius: var(--window-radius);
@@ -21,14 +24,12 @@ main {
   gap: 10px;
   position: relative;
   border-radius: var(--window-radius);
-  clip-path: inset(0 round var(--window-radius));
-  isolation: isolate;
   overflow: hidden;
   background:
     radial-gradient(circle at 15% 8%, rgba(56, 189, 248, 0.18), transparent 34%),
     radial-gradient(circle at 85% 2%, rgba(20, 184, 166, 0.16), transparent 30%),
     linear-gradient(160deg, #040d1d, #020712 60%, #02050d);
-  border: 1px solid rgba(106, 138, 175, 0.24);
+  border: 1px solid rgba(106, 138, 175, 0.22);
   box-shadow: none;
 }
 
@@ -112,11 +113,11 @@ main {
   color: #ccfbf1;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
-  background: rgba(12, 26, 44, 0.32);
+  background: transparent;
   padding: 9px 14px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
 }
 
 .global-status-bar {

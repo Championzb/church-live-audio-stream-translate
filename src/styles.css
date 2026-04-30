@@ -298,7 +298,18 @@ body {
   font-family: var(--font-main);
   color: var(--text);
   min-height: 100vh;
-  background: transparent;
+  background:
+    radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
+    radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),
+    linear-gradient(var(--grid-line-a) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-b) 1px, transparent 1px),
+    linear-gradient(170deg, var(--bg-top), var(--bg-bottom));
+  background-size:
+    auto,
+    auto,
+    34px 34px,
+    34px 34px,
+    auto;
   overflow: hidden;
   border-radius: var(--window-radius);
 }
@@ -309,8 +320,6 @@ body {
   margin: 0;
   position: relative;
   border-radius: var(--window-radius);
-  clip-path: inset(0 round var(--window-radius));
-  isolation: isolate;
   overflow: hidden;
   padding: 64px 22px 34px;
   background:
@@ -325,7 +334,7 @@ body {
     34px 34px,
     34px 34px,
     auto;
-  border: 1px solid rgba(106, 138, 175, 0.24);
+  border: 1px solid rgba(106, 138, 175, 0.22);
   box-shadow: none;
 }
 
