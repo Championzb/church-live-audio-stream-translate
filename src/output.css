@@ -28,7 +28,7 @@ main {
     radial-gradient(circle at 15% 8%, rgba(56, 189, 248, 0.18), transparent 34%),
     radial-gradient(circle at 85% 2%, rgba(20, 184, 166, 0.16), transparent 30%),
     linear-gradient(160deg, #040d1d, #020712 60%, #02050d);
-  border: 1px solid rgba(106, 138, 175, 0.22);
+  border: none;
   box-shadow: none;
 }
 

@@ -130,6 +130,7 @@ npm run typecheck
 - Frameless windows disable native window shadow to prevent dark edge/fringe artifacts around rounded corners.
 - Main window transparency is disabled and native background is explicitly set (`#040d1d`) to avoid black corner fill artifacts on macOS compositing.
 - Projector window also sets explicit native background color (`#040d1d`) for consistent edge rendering.
+- Outer rounded shell stroke is removed on main/projector surfaces to prevent dark anti-aliased fringe at corners.
 - Projector window default launch size is now `1280x720` for better fit on typical screens.
 - The UI uses a modern minimal visual refresh (clean section styling, improved spacing, stronger typography, and smoother panel/button motion) while keeping operator workflow unchanged.
 - Test audio files are streamed in short segments at real-time pace to mimic live ingestion behavior, and are played locally during the test so operators can judge translation latency against heard speech.
