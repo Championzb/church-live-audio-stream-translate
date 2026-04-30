@@ -2,6 +2,24 @@
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
+## Table of contents
+
+- [Open source project docs](#open-source-project-docs)
+- [Who should read what](#who-should-read-what)
+- [At a glance](#at-a-glance)
+- [Operator quick start](#operator-quick-start)
+- [Operator hotkeys](#operator-hotkeys)
+- [Setup and configuration](#setup-and-configuration)
+- [Developer setup](#developer-setup)
+- [Project structure](#project-structure)
+- [Deep reference notes](#deep-reference-notes)
+- [Translation sequence and latency](#translation-sequence-and-latency)
+- [App logs (for distributed troubleshooting)](#app-logs-for-distributed-troubleshooting)
+- [Prompt template: Korean source -> Chinese script + STT keywords](#prompt-template-korean-source---chinese-script--stt-keywords)
+- [Broadcast workflow](#broadcast-workflow)
+- [Audio input options (Windows/macOS)](#audio-input-options-windowsmacos)
+- [Packaging installers](#packaging-installers)
+
 ## Open source project docs
 
 - License: [Apache-2.0](./LICENSE)
