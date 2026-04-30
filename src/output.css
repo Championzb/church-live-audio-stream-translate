@@ -128,7 +128,7 @@ main {
 
 .captions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   min-height: 0;
   padding-bottom: 58px;
@@ -142,6 +142,7 @@ article {
   background: rgba(10, 22, 41, 0.82);
   display: flex;
   flex-direction: column;
+  min-width: 0;
   box-shadow: 0 14px 30px rgba(2, 6, 23, 0.32);
   backdrop-filter: blur(8px);
 }
@@ -151,6 +152,7 @@ h2 {
   font-size: clamp(2rem, 2.8vw, 2.6rem);
   line-height: 1.08;
   letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
 }
 
 .live-line {

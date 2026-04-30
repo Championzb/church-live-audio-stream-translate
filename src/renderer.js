@@ -684,6 +684,18 @@ function bindDragBars() {
         return;
     }
     const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
+    const toggleMaximize = async () => {
+        try {
+            await invoke('control_window', { action: 'toggle_maximize' });
+            return;
+        }
+        catch {
+            // fallback to frontend API below
+        }
+        if (currentWindow && typeof currentWindow.toggleMaximize === 'function') {
+            void currentWindow.toggleMaximize();
+        }
+    };
     dragBars.forEach((bar) => {
         if (!(bar instanceof HTMLElement))
             return;
@@ -700,6 +712,12 @@ function bindDragBars() {
             if (currentWindow && typeof currentWindow.startDragging === 'function') {
                 void currentWindow.startDragging();
             }
+        });
+        bar.addEventListener('dblclick', (event) => {
+            if (event.button !== 0)
+                return;
+            event.preventDefault();
+            void toggleMaximize();
         });
     });
 }
