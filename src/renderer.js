@@ -682,12 +682,31 @@ function bindDragBars() {
         && typeof window.__TAURI__.window.getCurrentWindow === 'function'
         ? window.__TAURI__.window.getCurrentWindow()
         : null;
+    const isNoDragTarget = (target) => {
+        if (!(target instanceof Element))
+            return false;
+        return Boolean(target.closest('button, input, select, textarea, [role="button"], [data-no-drag], .control-pill, .audio-input-menu'));
+    };
+    const toggleMaximize = async () => {
+        try {
+            await invoke('control_window', { action: 'toggle_maximize' });
+            return;
+        }
+        catch {
+            // fall back to frontend window API
+        }
+        if (currentWindow && typeof currentWindow.toggleMaximize === 'function') {
+            void currentWindow.toggleMaximize();
+        }
+    };
     const dragBars = Array.from(document.querySelectorAll('.window-drag-bar'));
     dragBars.forEach((bar) => {
         if (!(bar instanceof HTMLElement))
             return;
         bar.addEventListener('pointerdown', async (event) => {
             if (event.button !== 0)
+                return;
+            if (isNoDragTarget(event.target))
                 return;
             if (event.detail > 1)
                 return;
@@ -701,6 +720,11 @@ function bindDragBars() {
             if (currentWindow && typeof currentWindow.startDragging === 'function') {
                 void currentWindow.startDragging();
             }
+        });
+        bar.addEventListener('dblclick', (event) => {
+            if (isNoDragTarget(event.target))
+                return;
+            void toggleMaximize();
         });
     });
 }
