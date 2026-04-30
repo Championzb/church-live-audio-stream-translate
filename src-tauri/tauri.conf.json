@@ -12,7 +12,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Church Live Translate",
+        "title": "",
         "width": 1500,
         "height": 920,
         "resizable": true,

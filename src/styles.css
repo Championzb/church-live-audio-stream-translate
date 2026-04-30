@@ -311,7 +311,7 @@ body {
   position: relative;
   border-radius: var(--window-radius);
   overflow: hidden;
-  padding: 22px 22px 34px;
+  padding: 0 22px 34px;
   background:
     radial-gradient(circle at 10% 10%, var(--bg-spot-a), transparent 38%),
     radial-gradient(circle at 90% 3%, var(--bg-spot-b), transparent 34%),
@@ -407,13 +407,12 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  margin-bottom: 10px;
-  padding: 8px 10px;
-  border: 1px solid var(--section-border);
-  border-radius: var(--radius-lg);
-  background: var(--surface-soft);
-  box-shadow: var(--ring-soft);
-  backdrop-filter: blur(10px);
+  margin: 0 -22px 10px;
+  padding: 6px 22px;
+  min-height: 42px;
+  border-bottom: 1px solid color-mix(in srgb, var(--section-border) 80%, transparent);
+  background: color-mix(in srgb, var(--bg-bottom) 62%, #111827 38%);
+  backdrop-filter: blur(8px);
 }
 
 .titlebar-actions .live-session-setup {
@@ -500,6 +499,12 @@ body.presentation-mode .titlebar-actions .live-session-setup {
   backdrop-filter: none;
 }
 
+.titlebar-actions .control-pill {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
 .ui-language-slot {
   display: inline-flex;
   align-items: center;
@@ -511,7 +516,7 @@ body.presentation-mode .titlebar-actions .live-session-setup {
 .session-setup-slot {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-start;
 }
@@ -525,7 +530,23 @@ body.presentation-mode .titlebar-actions .live-session-setup {
 .audio-input-group {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.titlebar-actions .audio-input-group label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--text-subtle) 88%, white 12%);
+}
+
+.titlebar-actions .audio-input-group #audioInput,
+.titlebar-actions .audio-input-group #liveAudioInput {
+  min-width: 280px;
+  max-width: min(46vw, 430px);
+  height: 34px;
+  border-radius: 8px;
 }
 
 #refreshDevices.icon-btn,
@@ -1558,7 +1579,8 @@ button:disabled {
   }
 
   .titlebar-actions {
-    padding: 10px;
+    margin: -14px -12px 10px;
+    padding: 8px 12px;
     justify-content: stretch;
   }
 
