@@ -578,6 +578,11 @@ body.presentation-mode .titlebar-actions .live-session-setup {
   font-size: 1.08rem;
 }
 
+#openSettingsPage.icon-btn,
+#liveOpenSettingsPage.icon-btn {
+  font-size: 1.26rem;
+}
+
 #refreshDevices.icon-btn {
   font-size: 0.96rem;
 }
