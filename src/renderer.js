@@ -135,6 +135,7 @@ const labelLiveSilenceMsEl = document.getElementById('labelLiveSilenceMs');
 const labelLiveMaxSegmentMsEl = document.getElementById('labelLiveMaxSegmentMs');
 const labelSilenceMsEl = document.getElementById('labelSilenceMs');
 const labelMaxSegmentMsEl = document.getElementById('labelMaxSegmentMs');
+const segmentationHelpToggleEl = document.getElementById('segmentationHelpToggle');
 const vadHelpTextEl = document.getElementById('vadHelpText');
 const silenceHelpTextEl = document.getElementById('silenceHelpText');
 const maxSegmentHelpTextEl = document.getElementById('maxSegmentHelpText');
@@ -287,6 +288,7 @@ const UI_TEXT = {
         'tooltip.export': 'Export glossary content to a text file.',
         'tooltip.close': 'Close the help panel.',
         'tooltip.copyKey': 'Copy this key value to clipboard.',
+        'tooltip.segmentationHelp': 'Show or hide quick explanations for VAD Threshold, Silence Hold, and Max Segment.',
         'tooltip.vadThreshold': 'Audio level needed to count as speech. Lower is more sensitive; higher filters noise more aggressively.',
         'tooltip.silenceMs': 'How long silence must continue before the app closes the current segment.',
         'tooltip.maxSegmentMs': 'Maximum segment duration before force-splitting, even if speech continues.',
@@ -494,6 +496,7 @@ const UI_TEXT = {
         'tooltip.export': '将术语表导出到文本文件。',
         'tooltip.close': '关闭帮助面板。',
         'tooltip.copyKey': '复制该密钥到剪贴板。',
+        'tooltip.segmentationHelp': '显示或隐藏 VAD 阈值、静音保持和最长片段的快速说明。',
         'tooltip.vadThreshold': '判定为语音所需的音量能量。值越低越敏感；值越高越能更积极过滤噪声。',
         'tooltip.silenceMs': '静音持续达到该时长后，应用会结束当前语音片段。',
         'tooltip.maxSegmentMs': '片段最大时长。即使持续说话，到达该时长也会强制切分。',
@@ -1296,6 +1299,8 @@ function setStaticButtonTooltips() {
     liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
     openScriptManagerButton.title = t('tooltip.scriptManager');
     scriptPanelOpenScriptManagerButton.title = t('tooltip.scriptManager');
+    segmentationHelpToggleEl.title = t('tooltip.segmentationHelp');
+    segmentationHelpToggleEl.setAttribute('aria-label', t('tooltip.segmentationHelp'));
     labelVadThresholdEl.title = t('tooltip.vadThreshold');
     labelLiveVadThresholdEl.title = t('tooltip.vadThreshold');
     labelSilenceMsEl.title = t('tooltip.silenceMs');

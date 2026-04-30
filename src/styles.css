@@ -1067,6 +1067,52 @@ h1 {
   gap: 10px;
 }
 
+.segmentation-help-popover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.segmentation-help-icon {
+  list-style: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--section-border);
+  background: var(--surface-inset);
+  color: var(--summary-fg);
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.segmentation-help-icon::-webkit-details-marker {
+  display: none;
+}
+
+.segmentation-help-popover[open] .segmentation-help-icon {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-inset));
+}
+
+.segmentation-help-popover .tuning-help {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 120;
+  min-width: min(560px, calc(100vw - 72px));
+  max-width: min(560px, calc(100vw - 72px));
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--section-border);
+  background: var(--surface-soft);
+  box-shadow: var(--ring-soft), 0 10px 20px rgba(2, 6, 23, 0.18);
+}
+
 .tuning-help {
   margin: 0;
   display: grid;

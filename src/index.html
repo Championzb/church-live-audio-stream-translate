@@ -155,12 +155,15 @@
                   <input id="silenceMs" type="number" min="200" max="3000" step="100" value="600" />
                   <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
                   <input id="maxSegmentMs" type="number" min="1200" max="10000" step="100" value="2500" />
+                  <details id="segmentationHelpPopover" class="segmentation-help-popover">
+                    <summary id="segmentationHelpToggle" class="segmentation-help-icon" aria-label="Segmentation Help">ⓘ</summary>
+                    <div id="segmentationHelp" class="tuning-help">
+                      <span id="vadHelpText">VAD Threshold: lower catches quieter speech but may trigger on noise.</span>
+                      <span id="silenceHelpText">Silence Hold: how long silence must last before ending a segment.</span>
+                      <span id="maxSegmentHelpText">Max Segment: hard cap on segment length for latency control.</span>
+                    </div>
+                  </details>
                 </div>
-                <p id="segmentationHelp" class="tuning-help">
-                  <span id="vadHelpText">VAD Threshold: lower catches quieter speech but may trigger on noise.</span>
-                  <span id="silenceHelpText">Silence Hold: how long silence must last before ending a segment.</span>
-                  <span id="maxSegmentHelpText">Max Segment: hard cap on segment length for latency control.</span>
-                </p>
               </div>
             </details>
           </section>
