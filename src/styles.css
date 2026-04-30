@@ -311,7 +311,6 @@ body {
     34px 34px,
     auto;
   overflow: hidden;
-  border-radius: var(--window-radius);
 }
 
 .app-shell {

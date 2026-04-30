@@ -13,7 +13,6 @@ body {
     linear-gradient(160deg, #040d1d, #020712 60%, #02050d);
   color: #f8fafc;
   overflow: hidden;
-  border-radius: var(--window-radius);
 }
 
 main {
