@@ -247,7 +247,7 @@ let outputWindowReady = false;
 let lastOutputHeartbeatAt = 0;
 let projectorStateTimerId = 0;
 let outputBroadcastChannel: BroadcastChannel | null = null;
-let sourcePanelCollapsed = false;
+let sourcePanelCollapsed = true;
 
 const PROJECTOR_STALE_MS = 7000;
 const PROJECTOR_STATE_POLL_MS = 2500;
@@ -1803,9 +1803,9 @@ function setPresentationMode(nextMode) {
   document.body.classList.toggle('presentation-mode', presentationMode);
   translationLiveBarEl.classList.toggle('hidden', !presentationMode);
   if (presentationMode) {
-    // Translation mode is primarily for side-by-side transcript comparison.
-    // Open source panel by default on desktop/tablet; keep folded on narrow mobile widths.
-    sourcePanelCollapsed = window.innerWidth <= 760;
+    // Translation mode default: collapsed source so target + script are side-by-side.
+    // Users can expand source when they need 3-panel comparison.
+    sourcePanelCollapsed = true;
   }
   setSourcePanelCollapsed(sourcePanelCollapsed, { persist: false });
   if (togglePresentationButton) {
@@ -3196,7 +3196,7 @@ async function ensureMainInitialized() {
   const savedControlsLocked = localStorage.getItem('church-controls-locked');
   setControlsLocked(savedControlsLocked === '1');
   const savedSourcePanelCollapsed = localStorage.getItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY);
-  sourcePanelCollapsed = savedSourcePanelCollapsed === '1';
+  sourcePanelCollapsed = savedSourcePanelCollapsed !== '0';
   setSourcePanelCollapsed(sourcePanelCollapsed, { persist: false });
   updateSourceHeading();
   updateTranslatedHeading();
