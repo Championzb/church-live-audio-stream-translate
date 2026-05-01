@@ -24,6 +24,13 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - QA merge/release gate: [docs/QA_GATE.md](./docs/QA_GATE.md)
 - UI review rubric: [docs/UI_REVIEW_RUBRIC.md](./docs/UI_REVIEW_RUBRIC.md)
 
+## Automated Test Commands
+
+- Typecheck: `npm run typecheck`
+- Unit tests: `npm run test:unit`
+- Unit test coverage report: `npm run test:coverage`
+- Visual regression tests: `npm run test:visual`
+
 ## Open Source Project Docs
 
 - License: [Apache-2.0](./LICENSE)

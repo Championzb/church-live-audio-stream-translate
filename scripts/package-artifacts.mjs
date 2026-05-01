@@ -2,40 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { walkFiles, walkAppBundles, filterBundleFiles } from './lib/package-artifacts-lib.mjs';
 
 const projectRoot = process.cwd();
 const bundleRoot = path.join(projectRoot, 'src-tauri', 'target', 'release', 'bundle');
 const distRoot = path.join(projectRoot, 'dist');
-
-function walkFiles(dir) {
-  const out = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...walkFiles(full));
-    } else if (entry.isFile()) {
-      out.push(full);
-    }
-  }
-  return out;
-}
-
-function walkAppBundles(dir) {
-  const out = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name.toLowerCase().endsWith('.app')) {
-        out.push(full);
-      } else {
-        out.push(...walkAppBundles(full));
-      }
-    }
-  }
-  return out;
-}
 
 if (!fs.existsSync(bundleRoot)) {
   console.error(`No bundle output found at: ${bundleRoot}`);
@@ -46,10 +17,7 @@ if (!fs.existsSync(bundleRoot)) {
 fs.rmSync(distRoot, { recursive: true, force: true });
 fs.mkdirSync(distRoot, { recursive: true });
 
-const allFiles = walkFiles(bundleRoot).filter((file) => {
-  const ext = path.extname(file).toLowerCase();
-  return ['.dmg', '.app', '.msi', '.exe', '.deb', '.rpm'].includes(ext);
-});
+const allFiles = filterBundleFiles(walkFiles(bundleRoot));
 const appBundles = walkAppBundles(bundleRoot);
 
 if (!allFiles.length && !appBundles.length) {

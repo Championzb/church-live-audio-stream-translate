@@ -29,6 +29,18 @@ Type-check frontend code:
 npm run typecheck
 ```
 
+Run unit tests:
+
+```bash
+npm run test:unit
+```
+
+Generate unit test coverage report:
+
+```bash
+npm run test:coverage
+```
+
 Run visual regression checks:
 
 ```bash

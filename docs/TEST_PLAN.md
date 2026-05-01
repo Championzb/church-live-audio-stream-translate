@@ -8,6 +8,7 @@ Run before manual validation:
 
 ```bash
 npm run typecheck
+npm run test:coverage
 npm run test:visual
 ```
 

@@ -13,6 +13,7 @@ All items below must pass:
 
 - `npm ci`
 - `npm run typecheck`
+- `npm run test:coverage`
 - `npm run test:visual`
 - Manual critical-flow smoke test (see checklist below)
 - For UI changes: include before/after screenshots in the PR
