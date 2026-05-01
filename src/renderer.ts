@@ -226,6 +226,7 @@ let outputWindowReady = false;
 let lastOutputHeartbeatAt = 0;
 let projectorStateTimerId = 0;
 let outputBroadcastChannel: BroadcastChannel | null = null;
+let sourcePanelCollapsed = true;
 
 const PROJECTOR_STALE_MS = 7000;
 const PROJECTOR_STATE_POLL_MS = 2500;
@@ -1179,9 +1180,10 @@ function setHelpVisible(nextVisible) {
 }
 
 function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolean } = {}) {
-  const nextCollapsed = Boolean(collapsed);
-  document.body.classList.toggle('source-panel-collapsed', nextCollapsed);
-  sourceCaptionCardEl.classList.toggle('is-collapsed', nextCollapsed);
+  sourcePanelCollapsed = Boolean(collapsed);
+  const appliedCollapsed = presentationMode && sourcePanelCollapsed;
+  document.body.classList.toggle('source-panel-collapsed', appliedCollapsed);
+  sourceCaptionCardEl.classList.toggle('is-collapsed', appliedCollapsed);
   if (toggleSourcePanelButton) {
     toggleSourcePanelButton.textContent = '▾';
     toggleSourcePanelButton.title = t('tooltip.sourcePanelCollapse');
@@ -1189,7 +1191,7 @@ function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolea
       'aria-label',
       t('tooltip.sourcePanelCollapse')
     );
-    toggleSourcePanelButton.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+    toggleSourcePanelButton.setAttribute('aria-expanded', appliedCollapsed ? 'false' : 'true');
   }
   if (restoreSourcePanelFloatingButton) {
     restoreSourcePanelFloatingButton.textContent = '▸';
@@ -1197,7 +1199,7 @@ function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolea
     restoreSourcePanelFloatingButton.setAttribute('aria-label', t('tooltip.sourcePanelExpand'));
   }
   if (options.persist !== false) {
-    localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, nextCollapsed ? '1' : '0');
+    localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, sourcePanelCollapsed ? '1' : '0');
   }
 }
 
@@ -1522,6 +1524,7 @@ function setPresentationMode(nextMode) {
   presentationMode = Boolean(nextMode);
   document.body.classList.toggle('presentation-mode', presentationMode);
   translationLiveBarEl.classList.toggle('hidden', !presentationMode);
+  setSourcePanelCollapsed(sourcePanelCollapsed, { persist: false });
   if (togglePresentationButton) {
     togglePresentationButton.textContent = presentationMode ? t('button.presentationOn') : t('button.presentationOff');
     togglePresentationButton.title = presentationMode ? t('tooltip.presentationOn') : t('tooltip.presentationOff');
@@ -2783,7 +2786,8 @@ async function ensureMainInitialized() {
   const savedControlsLocked = localStorage.getItem('church-controls-locked');
   setControlsLocked(savedControlsLocked === '1');
   const savedSourcePanelCollapsed = localStorage.getItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY);
-  setSourcePanelCollapsed(savedSourcePanelCollapsed !== '0', { persist: false });
+  sourcePanelCollapsed = savedSourcePanelCollapsed !== '0';
+  setSourcePanelCollapsed(sourcePanelCollapsed, { persist: false });
   updateTranslatedHeading();
 
   await syncTranslationConfig();

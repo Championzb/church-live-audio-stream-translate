@@ -1381,7 +1381,7 @@ button:disabled {
   overflow: hidden;
 }
 
-.caption-card.is-collapsed {
+body.presentation-mode .caption-card.is-collapsed {
   display: none !important;
 }
 
@@ -1404,7 +1404,15 @@ button:disabled {
   overflow: hidden;
 }
 
-body.source-panel-collapsed .source-restore-handle {
+body.presentation-mode.source-panel-collapsed .source-restore-handle {
+  display: inline-flex;
+}
+
+#toggleSourcePanel {
+  display: none;
+}
+
+body.presentation-mode #toggleSourcePanel {
   display: inline-flex;
 }
 
