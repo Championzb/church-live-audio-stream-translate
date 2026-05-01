@@ -89,7 +89,14 @@ Text fallback:
 
 - STT prompt priming means sending context hints (rolling context + keywords + script hints) to improve recognition quality.
 - Stable STT keywords and sermon-specific STT keywords help API 1 (speech recognition).
-- Glossary helps API 2 (translation wording consistency).
+- Source-language context is tracked separately from English context so non-English STT stays anchored in the original language.
+- Glossary helps API 2 (translation wording consistency), including Korean -> English handoff terms.
+
+## Quality Guards
+
+- Non-English STT uses `response_format=verbose_json` and checks segment confidence metadata before translation.
+- Segments are skipped when confidence signals are weak (language mismatch, high no-speech ratio, low log-probability concentration, or repetition signatures).
+- Basic anti-hallucination cleanup removes assistant-style meta replies and repeated duplicate lines before text translation.
 
 ## Deep Reference Notes
 

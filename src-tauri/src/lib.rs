@@ -30,6 +30,7 @@ struct AppState {
     target_language: Mutex<String>,
     source_language: Mutex<String>,
     rolling_english_context: Mutex<String>,
+    rolling_source_context: Mutex<String>,
     latest_output_caption: Mutex<Option<OutputCaptionPayload>>,
     running: AtomicBool,
 }
@@ -198,6 +199,16 @@ struct TranscriptEntry {
 #[derive(Deserialize)]
 struct WhisperResponse {
     text: Option<String>,
+    language: Option<String>,
+    segments: Option<Vec<WhisperSegment>>,
+}
+
+#[derive(Deserialize)]
+struct WhisperSegment {
+    text: Option<String>,
+    avg_logprob: Option<f64>,
+    no_speech_prob: Option<f64>,
+    compression_ratio: Option<f64>,
 }
 
 fn build_audio_form(
@@ -207,6 +218,7 @@ fn build_audio_form(
     model: &str,
     prompt: Option<&str>,
     language: Option<&str>,
+    response_format: Option<&str>,
 ) -> Result<Form, String> {
     let file_part = Part::bytes(audio_bytes.to_vec())
         .file_name(format!("segment.{extension}"))
@@ -226,6 +238,12 @@ fn build_audio_form(
         let trimmed = language_code.trim();
         if !trimmed.is_empty() {
             form = form.text("language", trimmed.to_string());
+        }
+    }
+    if let Some(format_code) = response_format {
+        let trimmed = format_code.trim();
+        if !trimmed.is_empty() {
+            form = form.text("response_format", trimmed.to_string());
         }
     }
     Ok(form)
@@ -475,6 +493,140 @@ fn looks_english_heavy(text: &str) -> bool {
     }
 
     ascii_letters >= 24 && ascii_letters > cjk_chars * 3
+}
+
+fn is_hangul(ch: char) -> bool {
+    ('\u{AC00}'..='\u{D7AF}').contains(&ch) || ('\u{1100}'..='\u{11FF}').contains(&ch)
+}
+
+fn looks_korean_light(text: &str) -> bool {
+    let mut hangul_chars = 0usize;
+    let mut latin_chars = 0usize;
+    for ch in text.chars() {
+        if is_hangul(ch) {
+            hangul_chars += 1;
+        } else if ch.is_ascii_alphabetic() {
+            latin_chars += 1;
+        }
+    }
+    latin_chars >= 18 && hangul_chars * 2 < latin_chars
+}
+
+fn sanitize_source_transcript(text: &str) -> String {
+    let mut cleaned_lines: Vec<String> = Vec::new();
+    let mut previous_normalized = String::new();
+    let mut repeated_count = 0usize;
+
+    for raw_line in text.lines() {
+        let line = raw_line.trim();
+        if line.is_empty() {
+            continue;
+        }
+
+        let normalized = line
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect::<String>()
+            .to_lowercase();
+        if normalized == previous_normalized {
+            repeated_count += 1;
+            if repeated_count >= 2 {
+                continue;
+            }
+        } else {
+            previous_normalized = normalized;
+            repeated_count = 0;
+        }
+
+        let line_lower = line.to_lowercase();
+        let looks_assistant_meta = line_lower.contains("as an ai")
+            || line_lower.contains("i cannot understand")
+            || line_lower.contains("i can't understand")
+            || line_lower.contains("please provide")
+            || line_lower.contains("continue using chinese")
+            || line.contains("抱歉，我无法理解")
+            || line.contains("请您继续使用中文")
+            || line.contains("请您提供具体");
+        if looks_assistant_meta {
+            continue;
+        }
+        cleaned_lines.push(line.to_string());
+    }
+
+    cleaned_lines.join("\n")
+}
+
+fn transcription_quality_warning(
+    source_language: &str,
+    expected_language_code: Option<&str>,
+    response: &WhisperResponse,
+    transcript_text: &str,
+) -> Option<String> {
+    if transcript_text.trim().is_empty() {
+        return Some("source transcript is empty".to_string());
+    }
+
+    if source_language == "korean" && looks_korean_light(transcript_text) {
+        return Some("Korean transcript looks language-mismatched".to_string());
+    }
+
+    if let (Some(expected), Some(detected)) = (expected_language_code, response.language.as_deref()) {
+        if !detected.is_empty() && detected != expected {
+            return Some(format!(
+                "language mismatch (expected {expected}, detected {detected})"
+            ));
+        }
+    }
+
+    let Some(segments) = response.segments.as_ref() else {
+        return None;
+    };
+    if segments.is_empty() {
+        return None;
+    }
+
+    let mut low_confidence = 0usize;
+    let mut high_no_speech = 0usize;
+    let mut repetitive = 0usize;
+    let mut scored = 0usize;
+
+    for segment in segments {
+        if segment
+            .text
+            .as_deref()
+            .unwrap_or_default()
+            .trim()
+            .is_empty()
+        {
+            continue;
+        }
+        scored += 1;
+        if segment.avg_logprob.unwrap_or(0.0) < -1.0 {
+            low_confidence += 1;
+        }
+        if segment.no_speech_prob.unwrap_or(0.0) > 0.6 {
+            high_no_speech += 1;
+        }
+        if segment.compression_ratio.unwrap_or(0.0) > 2.4 {
+            repetitive += 1;
+        }
+    }
+
+    if scored == 0 {
+        return None;
+    }
+
+    let low_ratio = low_confidence as f64 / scored as f64;
+    let no_speech_ratio = high_no_speech as f64 / scored as f64;
+    let repetitive_ratio = repetitive as f64 / scored as f64;
+
+    if low_ratio > 0.55 || no_speech_ratio > 0.55 || repetitive_ratio > 0.55 {
+        return Some(format!(
+            "low ASR confidence (low={low_confidence}/{scored}, no_speech={high_no_speech}/{scored}, repetitive={repetitive}/{scored})"
+        ));
+    }
+
+    None
 }
 
 fn fallback_translation_text(target_language: &str) -> String {
@@ -848,6 +1000,13 @@ fn set_translation_config(
             .map_err(|_| "Failed to lock rolling context state".to_string())?;
         *context_guard = String::new();
     }
+    {
+        let mut source_context_guard = state
+            .rolling_source_context
+            .lock()
+            .map_err(|_| "Failed to lock source rolling context state".to_string())?;
+        *source_context_guard = String::new();
+    }
 
     Ok(OkResponse { ok: true })
 }
@@ -865,6 +1024,9 @@ fn set_running(next_running: bool, state: tauri::State<'_, AppState>) -> Running
     if !next_running {
         if let Ok(mut context_guard) = state.rolling_english_context.lock() {
             *context_guard = String::new();
+        }
+        if let Ok(mut source_context_guard) = state.rolling_source_context.lock() {
+            *source_context_guard = String::new();
         }
     }
     RunningResponse {
@@ -1086,7 +1248,7 @@ async fn process_segment(
         sermon_stt_keywords_guard.clone()
     };
 
-    let rolling_context_prompt = {
+    let rolling_english_context_prompt = {
         let context_guard = state
             .rolling_english_context
             .lock()
@@ -1096,6 +1258,20 @@ async fn process_segment(
         } else {
             Some(format!(
                 "Recent sermon context in English:\n{}",
+                truncate_for_prompt(context_guard.as_str(), 500)
+            ))
+        }
+    };
+    let rolling_source_context_prompt = {
+        let context_guard = state
+            .rolling_source_context
+            .lock()
+            .map_err(|_| "Failed to lock source rolling context state".to_string())?;
+        if context_guard.trim().is_empty() {
+            None
+        } else {
+            Some(format!(
+                "Recent sermon context in source language:\n{}",
                 truncate_for_prompt(context_guard.as_str(), 500)
             ))
         }
@@ -1128,7 +1304,12 @@ async fn process_segment(
 
     let stt_prompt = {
         let mut sections: Vec<String> = Vec::new();
-        if let Some(ctx) = rolling_context_prompt {
+        let selected_context = if source_language == "english" {
+            rolling_english_context_prompt
+        } else {
+            rolling_source_context_prompt
+        };
+        if let Some(ctx) = selected_context {
             sections.push(ctx);
         }
         if let Some(manual) = manual_keywords_prompt {
@@ -1164,7 +1345,7 @@ async fn process_segment(
 
     let client = Client::new();
 
-    let english_text = if source_language == "english" {
+    let (english_text, source_text_for_context) = if source_language == "english" {
         let form = build_audio_form(
             &audio_bytes,
             extension,
@@ -1172,6 +1353,7 @@ async fn process_segment(
             "gpt-4o-mini-transcribe",
             stt_prompt.as_deref(),
             source_language_api_code("english"),
+            None,
         )?;
 
         let transcription_response = client
@@ -1195,16 +1377,19 @@ async fn process_segment(
             .json::<WhisperResponse>()
             .await
             .map_err(|e| format!("Transcription response decode failed: {e}"))?;
-        transcription_json.text.unwrap_or_default().trim().to_string()
+        let cleaned = sanitize_source_transcript(&transcription_json.text.unwrap_or_default());
+        (cleaned.clone(), cleaned)
     } else {
         let source_label = source_language_label(&source_language);
+        let source_language_code = source_language_api_code(&source_language);
         let transcribe_form = build_audio_form(
             &audio_bytes,
             extension,
             &mime,
             "whisper-1",
             stt_prompt.as_deref(),
-            source_language_api_code(&source_language),
+            source_language_code,
+            Some("verbose_json"),
         )?;
         let transcribe_response = client
             .post("https://api.openai.com/v1/audio/transcriptions")
@@ -1225,10 +1410,37 @@ async fn process_segment(
             .json::<WhisperResponse>()
             .await
             .map_err(|e| format!("{source_label} transcription decode failed: {e}"))?;
-        let source_text = transcribe_json.text.unwrap_or_default().trim().to_string();
+        let source_text = sanitize_source_transcript(transcribe_json.text.as_deref().unwrap_or(""));
         if source_text.is_empty() {
             return Err(format!("{source_label} transcription produced empty text."));
         }
+        if let Some(quality_warning) = transcription_quality_warning(
+            &source_language,
+            source_language_code,
+            &transcribe_json,
+            &source_text,
+        ) {
+            return Ok(SegmentResult {
+                english: String::new(),
+                translated: String::new(),
+                warning: format!("{source_label} transcription skipped: {quality_warning}"),
+            });
+        }
+
+        let translation_style = if source_language == "korean" {
+            format!(
+                "Translate Korean sermon text into natural, faithful English. Keep church terms (e.g., God, Lord, Bible references, Coram Deo) consistent. Return only translated English.{}
+",
+                if glossary.is_empty() {
+                    String::new()
+                } else {
+                    format!("\nUse this glossary when possible:\n{}", truncate_for_prompt(&glossary, 1200))
+                }
+            )
+        } else {
+            format!("Translate {source_label} sermon text into natural, faithful English. Return only translated English.")
+        };
+
         let english_request = serde_json::json!({
             "model": "gpt-4o-mini",
             "input": [
@@ -1237,7 +1449,7 @@ async fn process_segment(
                     "content": [
                         {
                             "type": "input_text",
-                            "text": format!("Translate {source_label} sermon text into natural, faithful English. Return only translated English.")
+                            "text": translation_style
                         }
                     ]
                 },
@@ -1271,7 +1483,8 @@ async fn process_segment(
             .json::<serde_json::Value>()
             .await
             .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
-        extract_responses_text(&english_json)
+        let cleaned_english = sanitize_source_transcript(&extract_responses_text(&english_json));
+        (cleaned_english, source_text)
     };
 
     if english_text.is_empty() {
@@ -1293,6 +1506,18 @@ async fn process_segment(
             format!("{} {}", context_guard.as_str(), english_text)
         };
         *context_guard = tail_words(&merged, 40);
+    }
+    {
+        let mut source_context_guard = state
+            .rolling_source_context
+            .lock()
+            .map_err(|_| "Failed to lock source rolling context state".to_string())?;
+        let merged = if source_context_guard.trim().is_empty() {
+            source_text_for_context.clone()
+        } else {
+            format!("{} {}", source_context_guard.as_str(), source_text_for_context)
+        };
+        *source_context_guard = tail_words(&merged, 40);
     }
 
     let target_label = target_language_label(&target_language);
@@ -1374,7 +1599,7 @@ async fn process_segment(
                 .json::<serde_json::Value>()
                 .await
                 .map_err(|e| format!("Chinese translation decode failed: {e}"))?;
-            let mut translated_text = extract_responses_text(&json);
+            let mut translated_text = sanitize_source_transcript(&extract_responses_text(&json));
 
             if translated_text.is_empty()
                 || ((target_language == "zh-hans" || target_language == "zh-hant")
@@ -1415,7 +1640,7 @@ async fn process_segment(
                 {
                     if retry_resp.status().is_success() {
                         if let Ok(retry_json) = retry_resp.json::<serde_json::Value>().await {
-                            let retried = extract_responses_text(&retry_json);
+                            let retried = sanitize_source_transcript(&extract_responses_text(&retry_json));
                             if !retried.is_empty() {
                                 translated_text = retried;
                             }
@@ -1736,6 +1961,7 @@ pub fn run() {
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
             rolling_english_context: Mutex::new(String::new()),
+            rolling_source_context: Mutex::new(String::new()),
             latest_output_caption: Mutex::new(None),
             running: AtomicBool::new(false),
         })
