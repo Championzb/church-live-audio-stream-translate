@@ -166,6 +166,10 @@ const liveMaxSegmentHelpTextEl = document.getElementById('liveMaxSegmentHelpText
 const labelGlossaryEl = document.getElementById('labelGlossary') as any;
 const labelSttKeywordsEl = document.getElementById('labelSttKeywords') as any;
 const sttKeywordsHintEl = document.getElementById('sttKeywordsHint') as any;
+const sttKeywordDraftInput = document.getElementById('sttKeywordDraft') as any;
+const addSttKeywordButton = document.getElementById('addSttKeyword') as any;
+const clearSttKeywordsButton = document.getElementById('clearSttKeywords') as any;
+const sttKeywordChipsEl = document.getElementById('sttKeywordChips') as any;
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop') as any;
 const englishHeadingEl = document.getElementById('englishHeading') as any;
 const helpTitleEl = document.getElementById('helpTitle') as any;
@@ -218,6 +222,7 @@ let pendingSegmentDurationMs = 0;
 let pendingSegmentEndedAtMs = 0;
 let testStreamActive = false;
 let selectedTestAudioFile: File | null = null;
+let stableSttKeywordTerms: string[] = [];
 let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
 let activePairLineId = 0;
@@ -257,11 +262,13 @@ const UI_TEXT = {
     'help.silenceMs': 'Silence Hold: how long silence must last before ending a segment.',
     'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
     'label.glossary': 'Glossary (one term per line, EN=ZH)',
-    'label.sttKeywords': 'Stable STT Keywords (English terms, comma or newline separated)',
+    'label.sttKeywords': 'Stable STT Keywords (paste one/multiple terms, then remove by chip)',
     'label.scriptActions': 'Script',
     'label.keywordActions': 'Keywords',
     'label.sermonKeywordsList': 'Loaded Keyword List',
     'hint.sttKeywords': 'Stable week-to-week speech-recognition priming. Sermon-specific keywords are managed in the Script modal.',
+    'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
+    'sttKeywords.empty': 'No stable keywords yet. Paste terms above and click Add.',
     'label.autoSaveOnStop': 'Auto-save on stop',
     'heading.english': 'Source',
     'button.saveKey': 'Save Key',
@@ -294,6 +301,8 @@ const UI_TEXT = {
     'button.exportTranscript': 'Export Transcript',
     'button.saveGlossary': 'Save Glossary',
     'button.saveLanguageAids': 'Save Language Aids',
+    'button.addKeyword': 'Add',
+    'button.clearKeywords': 'Clear',
     'button.import': 'Import',
     'button.export': 'Export',
     'button.close': 'Close',
@@ -497,11 +506,13 @@ const UI_TEXT = {
     'help.silenceMs': '静音保持：静音持续多久后才结束当前片段。',
     'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
     'label.glossary': '术语表（每行一个，EN=ZH）',
-    'label.sttKeywords': '稳定 STT 关键词（英文术语，逗号或换行分隔）',
+    'label.sttKeywords': '稳定 STT 关键词（可粘贴一行/多行，按标签快速删除）',
     'label.scriptActions': '讲稿',
     'label.keywordActions': '关键词',
     'label.sermonKeywordsList': '已加载关键词列表',
     'hint.sttKeywords': '用于每周稳定语音识别预热。讲道专用关键词请在讲稿面板中管理。',
+    'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
+    'sttKeywords.empty': '尚无稳定关键词。请在上方粘贴后点击添加。',
     'label.autoSaveOnStop': '停止时自动保存',
     'heading.english': '源文',
     'button.saveKey': '保存密钥',
@@ -534,6 +545,8 @@ const UI_TEXT = {
     'button.exportTranscript': '导出转录',
     'button.saveGlossary': '保存术语表',
     'button.saveLanguageAids': '保存语言辅助',
+    'button.addKeyword': '添加',
+    'button.clearKeywords': '清空',
     'button.import': '导入',
     'button.export': '导出',
     'button.close': '关闭',
@@ -904,12 +917,66 @@ function formatKeywordList(content: string) {
   return tokens.join(', ');
 }
 
+function renderStableSttKeywordsUi() {
+  if (!sttKeywordChipsEl) return;
+  sttKeywordChipsEl.innerHTML = '';
+  if (!stableSttKeywordTerms.length) {
+    const emptyEl = document.createElement('span');
+    emptyEl.className = 'input-hint';
+    emptyEl.textContent = t('sttKeywords.empty');
+    sttKeywordChipsEl.appendChild(emptyEl);
+  } else {
+    stableSttKeywordTerms.forEach((term, index) => {
+      const chip = document.createElement('span');
+      chip.className = 'stt-keyword-chip';
+
+      const text = document.createElement('span');
+      text.textContent = term;
+      chip.appendChild(text);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'stt-keyword-chip-remove';
+      removeButton.dataset.sttKeywordIndex = String(index);
+      removeButton.textContent = '×';
+      removeButton.setAttribute('aria-label', `${t('button.clearKeywords')}: ${term}`);
+      removeButton.disabled = controlsLocked;
+      chip.appendChild(removeButton);
+      sttKeywordChipsEl.appendChild(chip);
+    });
+  }
+
+  if (addSttKeywordButton) addSttKeywordButton.disabled = controlsLocked;
+  if (clearSttKeywordsButton) clearSttKeywordsButton.disabled = controlsLocked || !stableSttKeywordTerms.length;
+}
+
 function setStableSttKeywords(rawKeywordsText, options: { persist?: boolean } = {}) {
-  const normalized = normalizeKeywordText(String(rawKeywordsText || ''));
+  stableSttKeywordTerms = parseKeywordTerms(String(rawKeywordsText || ''));
+  const normalized = stableSttKeywordTerms.join(', ');
   sttKeywordsInput.value = normalized;
+  renderStableSttKeywordsUi();
   if (options.persist !== false) {
     localStorage.setItem('church-stt-keywords', normalized);
   }
+}
+
+function addStableSttKeywords(rawKeywordsText: string) {
+  const incoming = parseKeywordTerms(String(rawKeywordsText || ''));
+  if (!incoming.length) return false;
+
+  const dedupeKeys = new Set(stableSttKeywordTerms.map((term) => term.toLocaleLowerCase()));
+  incoming.forEach((term) => {
+    const dedupeKey = term.toLocaleLowerCase();
+    if (dedupeKeys.has(dedupeKey)) return;
+    dedupeKeys.add(dedupeKey);
+    stableSttKeywordTerms.push(term);
+  });
+
+  const normalized = stableSttKeywordTerms.join(', ');
+  sttKeywordsInput.value = normalized;
+  renderStableSttKeywordsUi();
+  localStorage.setItem('church-stt-keywords', normalized);
+  return true;
 }
 
 function updateSermonKeywordsUi() {
@@ -1276,11 +1343,14 @@ function setControlsLocked(nextLocked) {
     maxSegmentMsInput,
     liveMaxSegmentMsInput,
     glossaryInput,
+    sttKeywordDraftInput,
+    addSttKeywordButton,
     sttKeywordsInput,
     saveGlossaryButton,
     importGlossaryButton,
     exportGlossaryButton,
     autoSaveOnStopInput,
+    clearSttKeywordsButton,
     clearSermonKeywordsButton
   ];
 
@@ -1291,6 +1361,7 @@ function setControlsLocked(nextLocked) {
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
   updateSermonKeywordsUi();
+  renderStableSttKeywordsUi();
   setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
   updateHotkeyPills();
   updateModeSummary();
@@ -1894,6 +1965,9 @@ function applyUiLanguage() {
   labelGlossaryEl.textContent = t('label.glossary');
   labelSttKeywordsEl.textContent = t('label.sttKeywords');
   sttKeywordsHintEl.textContent = t('hint.sttKeywords');
+  if (sttKeywordDraftInput) {
+    sttKeywordDraftInput.placeholder = t('placeholder.sttKeywords');
+  }
   labelSermonKeywordsListEl.textContent = t('label.sermonKeywordsList');
   labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
 
@@ -1929,6 +2003,8 @@ function applyUiLanguage() {
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveLanguageAids');
+  if (addSttKeywordButton) addSttKeywordButton.textContent = t('button.addKeyword');
+  if (clearSttKeywordsButton) clearSttKeywordsButton.textContent = t('button.clearKeywords');
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');
   closeHelpButton.textContent = t('button.close');
@@ -1938,6 +2014,7 @@ function applyUiLanguage() {
   scriptModalTitleEl.textContent = t('modal.scriptTitle');
   scriptModalSubtitleEl.textContent = t('modal.scriptSubtitle');
   updateSermonKeywordsUi();
+  renderStableSttKeywordsUi();
   labelMainApiKeyEl.textContent = t('label.apiKey');
   labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
   labelMainProjectIdEl.textContent = t('label.projectId');
@@ -3425,15 +3502,59 @@ clearSermonKeywordsButton.addEventListener('click', async () => {
   setStatusKey('status.sermonKeywordsCleared');
 });
 
-sttKeywordsInput.addEventListener('paste', () => {
-  window.setTimeout(() => {
-    setStableSttKeywords(sttKeywordsInput.value || '');
-  }, 0);
-});
+if (addSttKeywordButton) {
+  addSttKeywordButton.addEventListener('click', () => {
+    const draft = sttKeywordDraftInput?.value || '';
+    const added = addStableSttKeywords(draft);
+    if (added) {
+      sttKeywordDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+}
 
-sttKeywordsInput.addEventListener('blur', () => {
-  setStableSttKeywords(sttKeywordsInput.value || '');
-});
+if (clearSttKeywordsButton) {
+  clearSttKeywordsButton.addEventListener('click', () => {
+    setStableSttKeywords('');
+    void syncTranslationConfig();
+  });
+}
+
+if (sttKeywordDraftInput) {
+  sttKeywordDraftInput.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    const added = addStableSttKeywords(sttKeywordDraftInput.value || '');
+    if (added) {
+      sttKeywordDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+
+  sttKeywordDraftInput.addEventListener('paste', (event: ClipboardEvent) => {
+    const clipboardText = event.clipboardData?.getData('text') || '';
+    if (!clipboardText.trim()) return;
+    event.preventDefault();
+    const added = addStableSttKeywords(clipboardText);
+    if (added) {
+      sttKeywordDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+}
+
+if (sttKeywordChipsEl) {
+  sttKeywordChipsEl.addEventListener('click', (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    const removeButton = target?.closest?.('button[data-stt-keyword-index]') as HTMLButtonElement | null;
+    if (!removeButton) return;
+    const index = Number(removeButton.dataset.sttKeywordIndex);
+    if (Number.isNaN(index) || index < 0 || index >= stableSttKeywordTerms.length) return;
+    stableSttKeywordTerms.splice(index, 1);
+    setStableSttKeywords(stableSttKeywordTerms.join(', '));
+    void syncTranslationConfig();
+  });
+}
 
 closeScriptModalButton.addEventListener('click', () => {
   setScriptModalVisible(false);

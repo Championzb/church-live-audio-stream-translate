@@ -97,7 +97,8 @@ Speech pipeline note:
 - Projector source heading now follows the selected source language (for example, `Korean`).
 - Test audio picker accepts audio files only; non-audio selections are rejected with a status warning.
 - Test audio picker now requests an audio-only file dialog filter (and keeps runtime validation as fallback).
-- Stable and sermon STT keyword lists auto-normalize pasted/scripted entries into a single-line list while preserving source + target alias pairs (for example, `그리스도 (基督)`).
+- Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
+- Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 

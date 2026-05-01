@@ -945,6 +945,81 @@ h1 {
   min-width: 0;
 }
 
+.stt-keyword-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.stt-keyword-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+#sttKeywordDraft {
+  width: 100%;
+  min-width: 0;
+}
+
+#addSttKeyword,
+#clearSttKeywords {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
+.stt-keyword-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid var(--section-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+}
+
+.stt-keyword-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  min-height: 30px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 44%, var(--section-border));
+  background: color-mix(in oklab, var(--accent-soft) 38%, transparent);
+  color: var(--text);
+  font-size: 0.78rem;
+  line-height: 1.2;
+}
+
+.stt-keyword-chip-remove {
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--accent) 58%, transparent);
+  background: color-mix(in oklab, var(--surface-elevated) 86%, transparent);
+  color: var(--text-subtle);
+  font-size: 0.74rem;
+  line-height: 1;
+  box-shadow: none;
+  transform: none;
+}
+
+.stt-keyword-chip-remove:hover {
+  color: var(--text);
+  border-color: color-mix(in oklab, var(--accent) 78%, transparent);
+  background: color-mix(in oklab, var(--surface-elevated) 94%, transparent);
+  transform: none;
+}
+
+.stt-keywords-storage {
+  display: none;
+}
+
 .settings-form-row--stack {
   grid-template-columns: 1fr;
 }
@@ -1752,6 +1827,10 @@ body.presentation-mode #toggleSourcePanelHeader {
   }
 
   .captions {
+    grid-template-columns: 1fr;
+  }
+
+  .stt-keyword-input-row {
     grid-template-columns: 1fr;
   }
 
