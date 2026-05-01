@@ -87,6 +87,7 @@ Default audio capture preset for new sessions:
 - `Tune Audio` ON, `VAD Threshold` `0.050`, `Silence Hold` `1900ms`, `Max Segment` `12000ms`.
 
 Speech pipeline note:
+- Development builds now use a shorter native app/menu process label (`church-live-translate`) to avoid overly long macOS app-menu entries.
 - For non-English source audio (Korean/Japanese/Chinese), the app transcribes in the source language first using `/v1/audio/transcriptions` with an explicit language code, then translates directly from source text to the selected target language.
 - The backend applies source-transcript quality gates (language mismatch / low-confidence segment mix) and skips weak segments instead of forwarding likely hallucinated text.
 - Rolling context is maintained separately for source-language transcript text and translated output context to keep chunk-to-chunk quality stable.

@@ -3,6 +3,10 @@ name = "church-live-audio-stream-translate"
 version = "0.2.0"
 edition = "2021"
 
+[[bin]]
+name = "church-live-translate"
+path = "src/main.rs"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
