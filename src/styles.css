@@ -1380,6 +1380,16 @@ button:disabled {
   overflow: hidden;
 }
 
+body:not(.presentation-mode) .caption-card.is-collapsed {
+  min-height: 0;
+  padding-bottom: 12px;
+}
+
+body:not(.presentation-mode) .caption-card.is-collapsed .live-line,
+body:not(.presentation-mode) .caption-card.is-collapsed .panel {
+  display: none;
+}
+
 .caption-card::after {
   content: '';
   position: absolute;

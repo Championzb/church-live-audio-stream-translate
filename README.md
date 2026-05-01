@@ -45,6 +45,7 @@ Speech pipeline note:
 - The backend applies source-transcript quality gates (language mismatch / low-confidence segment mix) and skips weak segments instead of forwarding likely hallucinated text.
 - Rolling context is maintained separately for English output and source-language transcript text to keep chunk-to-chunk recognition more stable.
 - Built-in consistency rules are always on for Korean -> Chinese output (anchor and polarity checks); no user rule setup is required.
+- The source-language caption card remains available and now starts collapsed by default in normal mode; click its header chevron to expand/collapse.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 

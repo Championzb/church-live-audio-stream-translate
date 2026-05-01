@@ -116,6 +116,8 @@ const windowMaximizeButton = document.getElementById('windowMaximize') as any;
 const windowCloseButton = document.getElementById('windowClose') as any;
 const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
+const sourceCaptionCardEl = document.getElementById('sourceCaptionCard') as any;
+const toggleSourcePanelButton = document.getElementById('toggleSourcePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
 const englishLiveEl = document.getElementById('englishLive') as any;
 const chineseLiveEl = document.getElementById('chineseLive') as any;
@@ -179,6 +181,7 @@ const RETRY_DELAYS_MS = [300, 700];
 const TEST_FILE_SEGMENT_MS = 12000;
 const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
+const SOURCE_PANEL_COLLAPSED_STORAGE_KEY = 'church-source-panel-collapsed';
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
 const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
 let running = false;
@@ -335,6 +338,8 @@ const UI_TEXT = {
     'tooltip.vadThreshold': 'Audio level needed to count as speech. Lower is more sensitive; higher filters noise more aggressively.',
     'tooltip.silenceMs': 'How long silence must continue before the app closes the current segment.',
     'tooltip.maxSegmentMs': 'Maximum segment duration before force-splitting, even if speech continues.',
+    'tooltip.sourcePanelExpand': 'Expand source transcript panel.',
+    'tooltip.sourcePanelCollapse': 'Collapse source transcript panel.',
     'help.title': 'Quick Controls',
     'help.f8': '<strong>F8</strong>: Start/Stop translation',
     'help.f7': '<strong>F7</strong>: Suspend/Resume translation',
@@ -571,6 +576,8 @@ const UI_TEXT = {
     'tooltip.vadThreshold': '判定为语音所需的音量能量。值越低越敏感；值越高越能更积极过滤噪声。',
     'tooltip.silenceMs': '静音持续达到该时长后，应用会结束当前语音片段。',
     'tooltip.maxSegmentMs': '片段最大时长。即使持续说话，到达该时长也会强制切分。',
+    'tooltip.sourcePanelExpand': '展开源语言转录面板。',
+    'tooltip.sourcePanelCollapse': '收起源语言转录面板。',
     'help.title': '快捷控制',
     'help.f8': '<strong>F8</strong>：开始/停止翻译',
     'help.f7': '<strong>F7</strong>：暂停/恢复翻译',
@@ -1170,6 +1177,25 @@ function setHelpVisible(nextVisible) {
   updateHotkeyPills();
 }
 
+function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolean } = {}) {
+  const nextCollapsed = Boolean(collapsed);
+  sourceCaptionCardEl.classList.toggle('is-collapsed', nextCollapsed);
+  if (toggleSourcePanelButton) {
+    toggleSourcePanelButton.textContent = nextCollapsed ? '▸' : '▾';
+    toggleSourcePanelButton.title = nextCollapsed
+      ? t('tooltip.sourcePanelExpand')
+      : t('tooltip.sourcePanelCollapse');
+    toggleSourcePanelButton.setAttribute(
+      'aria-label',
+      nextCollapsed ? t('tooltip.sourcePanelExpand') : t('tooltip.sourcePanelCollapse')
+    );
+    toggleSourcePanelButton.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, nextCollapsed ? '1' : '0');
+  }
+}
+
 function setControlsLocked(nextLocked) {
   controlsLocked = Boolean(nextLocked);
   if (toggleLockControlsButton) {
@@ -1441,6 +1467,7 @@ function refreshToggleButtonLabels() {
   if (toggleLockControlsButton) {
     toggleLockControlsButton.title = controlsLocked ? t('tooltip.lockOn') : t('tooltip.lockOff');
   }
+  setSourcePanelCollapsed(sourceCaptionCardEl.classList.contains('is-collapsed'), { persist: false });
   updateHotkeyPills();
 }
 
@@ -1476,6 +1503,7 @@ function setStaticButtonTooltips() {
   resetSessionButton.title = t('tooltip.resetSession');
   exportTranscriptButton.title = t('tooltip.exportTranscript');
   exportTranscriptTranslatedButton.title = t('tooltip.exportTranscript');
+  setSourcePanelCollapsed(sourceCaptionCardEl.classList.contains('is-collapsed'), { persist: false });
   saveGlossaryButton.title = t('tooltip.saveGlossary');
   importGlossaryButton.title = t('tooltip.import');
   exportGlossaryButton.title = t('tooltip.export');
@@ -2749,6 +2777,8 @@ async function ensureMainInitialized() {
 
   const savedControlsLocked = localStorage.getItem('church-controls-locked');
   setControlsLocked(savedControlsLocked === '1');
+  const savedSourcePanelCollapsed = localStorage.getItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY);
+  setSourcePanelCollapsed(savedSourcePanelCollapsed !== '0', { persist: false });
   updateTranslatedHeading();
 
   await syncTranslationConfig();
@@ -3089,6 +3119,13 @@ sourceLanguageSelect.addEventListener('change', async () => {
   updateModeSummary();
   updateCostSummary();
 });
+
+if (toggleSourcePanelButton) {
+  toggleSourcePanelButton.addEventListener('click', () => {
+    const currentlyCollapsed = sourceCaptionCardEl.classList.contains('is-collapsed');
+    setSourcePanelCollapsed(!currentlyCollapsed);
+  });
+}
 
 targetLanguageSelect.addEventListener('change', async () => {
   await syncTranslationConfig();
