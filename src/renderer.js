@@ -114,6 +114,7 @@ const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const sourceCaptionCardEl = document.getElementById('sourceCaptionCard');
 const toggleSourcePanelButton = document.getElementById('toggleSourcePanel');
+const restoreSourcePanelFloatingButton = document.getElementById('restoreSourcePanelFloating');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
@@ -1157,14 +1158,18 @@ function setHelpVisible(nextVisible) {
 }
 function setSourcePanelCollapsed(collapsed, options = {}) {
     const nextCollapsed = Boolean(collapsed);
+    document.body.classList.toggle('source-panel-collapsed', nextCollapsed);
     sourceCaptionCardEl.classList.toggle('is-collapsed', nextCollapsed);
     if (toggleSourcePanelButton) {
-        toggleSourcePanelButton.textContent = nextCollapsed ? '▸' : '▾';
-        toggleSourcePanelButton.title = nextCollapsed
-            ? t('tooltip.sourcePanelExpand')
-            : t('tooltip.sourcePanelCollapse');
-        toggleSourcePanelButton.setAttribute('aria-label', nextCollapsed ? t('tooltip.sourcePanelExpand') : t('tooltip.sourcePanelCollapse'));
+        toggleSourcePanelButton.textContent = '▾';
+        toggleSourcePanelButton.title = t('tooltip.sourcePanelCollapse');
+        toggleSourcePanelButton.setAttribute('aria-label', t('tooltip.sourcePanelCollapse'));
         toggleSourcePanelButton.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+    }
+    if (restoreSourcePanelFloatingButton) {
+        restoreSourcePanelFloatingButton.textContent = `▸ ${t('label.sourceLanguage')}`;
+        restoreSourcePanelFloatingButton.title = t('tooltip.sourcePanelExpand');
+        restoreSourcePanelFloatingButton.setAttribute('aria-label', t('tooltip.sourcePanelExpand'));
     }
     if (options.persist !== false) {
         localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, nextCollapsed ? '1' : '0');
@@ -2953,8 +2958,12 @@ sourceLanguageSelect.addEventListener('change', async () => {
 });
 if (toggleSourcePanelButton) {
     toggleSourcePanelButton.addEventListener('click', () => {
-        const currentlyCollapsed = sourceCaptionCardEl.classList.contains('is-collapsed');
-        setSourcePanelCollapsed(!currentlyCollapsed);
+        setSourcePanelCollapsed(true);
+    });
+}
+if (restoreSourcePanelFloatingButton) {
+    restoreSourcePanelFloatingButton.addEventListener('click', () => {
+        setSourcePanelCollapsed(false);
     });
 }
 targetLanguageSelect.addEventListener('change', async () => {

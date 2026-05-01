@@ -118,6 +118,7 @@ const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
 const sourceCaptionCardEl = document.getElementById('sourceCaptionCard') as any;
 const toggleSourcePanelButton = document.getElementById('toggleSourcePanel') as any;
+const restoreSourcePanelFloatingButton = document.getElementById('restoreSourcePanelFloating') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
 const englishLiveEl = document.getElementById('englishLive') as any;
 const chineseLiveEl = document.getElementById('chineseLive') as any;
@@ -1179,17 +1180,21 @@ function setHelpVisible(nextVisible) {
 
 function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolean } = {}) {
   const nextCollapsed = Boolean(collapsed);
+  document.body.classList.toggle('source-panel-collapsed', nextCollapsed);
   sourceCaptionCardEl.classList.toggle('is-collapsed', nextCollapsed);
   if (toggleSourcePanelButton) {
-    toggleSourcePanelButton.textContent = nextCollapsed ? '▸' : '▾';
-    toggleSourcePanelButton.title = nextCollapsed
-      ? t('tooltip.sourcePanelExpand')
-      : t('tooltip.sourcePanelCollapse');
+    toggleSourcePanelButton.textContent = '▾';
+    toggleSourcePanelButton.title = t('tooltip.sourcePanelCollapse');
     toggleSourcePanelButton.setAttribute(
       'aria-label',
-      nextCollapsed ? t('tooltip.sourcePanelExpand') : t('tooltip.sourcePanelCollapse')
+      t('tooltip.sourcePanelCollapse')
     );
     toggleSourcePanelButton.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
+  }
+  if (restoreSourcePanelFloatingButton) {
+    restoreSourcePanelFloatingButton.textContent = `▸ ${t('label.sourceLanguage')}`;
+    restoreSourcePanelFloatingButton.title = t('tooltip.sourcePanelExpand');
+    restoreSourcePanelFloatingButton.setAttribute('aria-label', t('tooltip.sourcePanelExpand'));
   }
   if (options.persist !== false) {
     localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, nextCollapsed ? '1' : '0');
@@ -3122,8 +3127,13 @@ sourceLanguageSelect.addEventListener('change', async () => {
 
 if (toggleSourcePanelButton) {
   toggleSourcePanelButton.addEventListener('click', () => {
-    const currentlyCollapsed = sourceCaptionCardEl.classList.contains('is-collapsed');
-    setSourcePanelCollapsed(!currentlyCollapsed);
+    setSourcePanelCollapsed(true);
+  });
+}
+
+if (restoreSourcePanelFloatingButton) {
+  restoreSourcePanelFloatingButton.addEventListener('click', () => {
+    setSourcePanelCollapsed(false);
   });
 }
 

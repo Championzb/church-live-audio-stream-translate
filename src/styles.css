@@ -1360,6 +1360,7 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 18px;
+  position: relative;
 }
 
 .transcription-hidden {
@@ -1382,6 +1383,18 @@ button:disabled {
 
 .caption-card.is-collapsed {
   display: none !important;
+}
+
+.source-restore-handle {
+  display: none;
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 3;
+}
+
+body.source-panel-collapsed .source-restore-handle {
+  display: inline-flex;
 }
 
 .caption-card::after {
@@ -1926,8 +1939,16 @@ body.presentation-mode .captions {
   align-items: start;
 }
 
+body.presentation-mode.source-panel-collapsed .captions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 body.presentation-mode.has-reference-script .captions {
   grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 0.85fr);
+}
+
+body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
 }
 
 body.presentation-mode.has-reference-script .script-reference-card {
