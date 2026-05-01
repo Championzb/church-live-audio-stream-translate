@@ -14,7 +14,6 @@ Use this when preparing the machine, keys, and language aids before service.
   - `Settings` -> `Language Aids` -> `STT Keywords`
 - Sermon-specific terms:
   - `Script` modal -> upload/paste sermon keywords each service
-  - Settings now shows a dedicated `Sermon-Specific Keywords` status line and shortcut button (`Open Script Keywords`)
 - Translation consistency terms:
   - `Glossary` (`EN=ZH`, one per line)
 - Reference sermon text:
