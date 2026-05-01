@@ -333,6 +333,25 @@ fn extract_vocab_hints(reference_script: &str, max_terms: usize) -> String {
     terms.join(", ")
 }
 
+fn strip_trailing_keyword_alias(term: &str) -> String {
+    let trimmed = term.trim();
+    if !trimmed.ends_with(')') {
+        return trimmed.to_string();
+    }
+
+    if let Some(open_idx) = trimmed.rfind('(') {
+        if open_idx > 0 {
+            let primary = trimmed[..open_idx].trim();
+            let alias = trimmed[open_idx + 1..trimmed.len() - 1].trim();
+            if !primary.is_empty() && !alias.is_empty() {
+                return primary.to_string();
+            }
+        }
+    }
+
+    trimmed.to_string()
+}
+
 fn normalize_keywords(raw_keywords: &str, max_terms: usize) -> String {
     if max_terms == 0 || raw_keywords.trim().is_empty() {
         return String::new();
@@ -340,7 +359,8 @@ fn normalize_keywords(raw_keywords: &str, max_terms: usize) -> String {
 
     let mut terms: Vec<String> = Vec::new();
     for token in raw_keywords.split(|c: char| c == ',' || c == '\n' || c == ';') {
-        let term = token.trim();
+        let normalized = strip_trailing_keyword_alias(token);
+        let term = normalized.trim();
         if term.is_empty() {
             continue;
         }

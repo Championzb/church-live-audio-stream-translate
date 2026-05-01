@@ -99,6 +99,7 @@ Speech pipeline note:
 - Test audio picker now requests an audio-only file dialog filter (and keeps runtime validation as fallback).
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.
+- Whisper STT prompt hints automatically strip parenthetical target-language aliases and send only source-side terms for recognition priming.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 
