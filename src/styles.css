@@ -1385,11 +1385,6 @@ body.presentation-mode .caption-card.is-collapsed {
   display: none !important;
 }
 
-#translationLiveBar #toggleSourcePanelHeader {
-  display: inline-flex;
-  margin-right: 8px;
-}
-
 .caption-card::after {
   content: '';
   position: absolute;
