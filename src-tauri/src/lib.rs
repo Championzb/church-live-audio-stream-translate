@@ -9,11 +9,11 @@ use reqwest::multipart::{Form, Part};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use tauri::window::Color;
 use tauri::Emitter;
 use tauri::LogicalSize;
 use tauri::Manager;
 use tauri::Size;
-use tauri::window::Color;
 use tauri::TitleBarStyle;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
@@ -149,10 +149,9 @@ where
         Value::Number(number) => number
             .as_f64()
             .ok_or_else(|| serde::de::Error::custom("invalid numeric value for cost amount")),
-        Value::String(text) => text
-            .trim()
-            .parse::<f64>()
-            .map_err(|e| serde::de::Error::custom(format!("invalid string numeric value for cost amount: {e}"))),
+        Value::String(text) => text.trim().parse::<f64>().map_err(|e| {
+            serde::de::Error::custom(format!("invalid string numeric value for cost amount: {e}"))
+        }),
         other => Err(serde::de::Error::custom(format!(
             "unsupported cost amount value type: {other}"
         ))),
@@ -262,15 +261,15 @@ fn log_project_costs(message: &str) {
 }
 
 fn truncate_for_log(value: &str, max_chars: usize) -> String {
-  let mut out = String::new();
-  for (idx, ch) in value.chars().enumerate() {
+    let mut out = String::new();
+    for (idx, ch) in value.chars().enumerate() {
         if idx >= max_chars {
             out.push_str("...");
             break;
         }
         out.push(ch);
     }
-  out
+    out
 }
 
 fn truncate_for_prompt(value: &str, max_chars: usize) -> String {
@@ -307,7 +306,10 @@ fn extract_vocab_hints(reference_script: &str, max_terms: usize) -> String {
         if token.len() < 4 {
             continue;
         }
-        if !token.chars().all(|c| c.is_ascii_alphanumeric() || c == '\'' || c == '-') {
+        if !token
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '\'' || c == '-')
+        {
             continue;
         }
         let has_upper = token.chars().any(|c| c.is_ascii_uppercase());
@@ -316,7 +318,10 @@ fn extract_vocab_hints(reference_script: &str, max_terms: usize) -> String {
             continue;
         }
         let normalized = token.to_string();
-        if !terms.iter().any(|existing| existing.eq_ignore_ascii_case(&normalized)) {
+        if !terms
+            .iter()
+            .any(|existing| existing.eq_ignore_ascii_case(&normalized))
+        {
             terms.push(normalized);
             if terms.len() >= max_terms {
                 break;
@@ -341,7 +346,10 @@ fn normalize_keywords(raw_keywords: &str, max_terms: usize) -> String {
         if term.chars().count() > 48 {
             continue;
         }
-        if !terms.iter().any(|existing| existing.eq_ignore_ascii_case(term)) {
+        if !terms
+            .iter()
+            .any(|existing| existing.eq_ignore_ascii_case(term))
+        {
             terms.push(term.to_string());
             if terms.len() >= max_terms {
                 break;
@@ -401,8 +409,8 @@ fn load_fallback_api_key(app: &tauri::AppHandle) -> Result<Option<String>, Strin
         log_api_key_storage("fallback key file not found");
         return Ok(None);
     }
-    let value = fs::read_to_string(path)
-        .map_err(|e| format!("Failed to read fallback API key: {e}"))?;
+    let value =
+        fs::read_to_string(path).map_err(|e| format!("Failed to read fallback API key: {e}"))?;
     let trimmed = value.trim().to_string();
     if trimmed.is_empty() {
         log_api_key_storage("fallback key file exists but is empty");
@@ -580,7 +588,8 @@ fn transcription_quality_warning(
         return Some("Korean transcript looks language-mismatched".to_string());
     }
 
-    if let (Some(expected), Some(detected)) = (expected_language_code, response.language.as_deref()) {
+    if let (Some(expected), Some(detected)) = (expected_language_code, response.language.as_deref())
+    {
         let expected_canonical = canonical_language_code(expected).unwrap_or(expected);
         let detected_canonical = canonical_language_code(detected).unwrap_or(detected);
         if !detected.trim().is_empty() && detected_canonical != expected_canonical {
@@ -940,8 +949,16 @@ fn set_translation_config(
 ) -> Result<OkResponse, String> {
     let glossary = config.glossary.unwrap_or_default().trim().to_string();
     let stt_keywords = config.stt_keywords.unwrap_or_default().trim().to_string();
-    let sermon_stt_keywords = config.sermon_stt_keywords.unwrap_or_default().trim().to_string();
-    let reference_script = config.reference_script.unwrap_or_default().trim().to_string();
+    let sermon_stt_keywords = config
+        .sermon_stt_keywords
+        .unwrap_or_default()
+        .trim()
+        .to_string();
+    let reference_script = config
+        .reference_script
+        .unwrap_or_default()
+        .trim()
+        .to_string();
     let target_language = match config.target_language.as_deref() {
         Some("zh-hans") => "zh-hans".to_string(),
         Some("zh-hant") => "zh-hant".to_string(),
@@ -1104,7 +1121,9 @@ async fn fetch_project_costs(
     loop {
         page_count += 1;
         if page_count > 50 {
-            log::error!("[project-costs] pagination exceeded safe limit for project_id={project_id}");
+            log::error!(
+                "[project-costs] pagination exceeded safe limit for project_id={project_id}"
+            );
             return Err("Project costs response pagination exceeded safe limit.".to_string());
         }
 
@@ -1141,22 +1160,23 @@ async fn fetch_project_costs(
                 "[project-costs] request failed for project_id={project_id}, status={status}, body={}",
                 truncate_for_log(&body, 500)
             );
-            return Err(format!(
-                "Project costs request failed ({status}): {body}"
-            ));
+            return Err(format!("Project costs request failed ({status}): {body}"));
         }
 
         let response_text = response.text().await.map_err(|e| {
-            log::error!("[project-costs] failed to read response body for project_id={project_id}: {e}");
+            log::error!(
+                "[project-costs] failed to read response body for project_id={project_id}: {e}"
+            );
             format!("Project costs response read failed: {e}")
         })?;
-        let costs_page = serde_json::from_str::<CostsPageResponse>(&response_text).map_err(|e| {
-            log::error!(
+        let costs_page =
+            serde_json::from_str::<CostsPageResponse>(&response_text).map_err(|e| {
+                log::error!(
                 "[project-costs] response decode failed for project_id={project_id}: {e}; body={}",
                 truncate_for_log(&response_text, 900)
             );
-            format!("Project costs response decode failed: {e}")
-        })?;
+                format!("Project costs response decode failed: {e}")
+            })?;
 
         for bucket in costs_page.data {
             let mut bucket_total = 0.0_f64;
@@ -1357,7 +1377,8 @@ async fn process_segment(
 
     let client = Client::new();
 
-    let (english_text, source_text_for_context) = if source_language == "english" {
+    let source_label = source_language_label(&source_language);
+    let (source_text_for_context, mut english_text) = if source_language == "english" {
         let form = build_audio_form(
             &audio_bytes,
             extension,
@@ -1392,7 +1413,6 @@ async fn process_segment(
         let cleaned = sanitize_source_transcript(&transcription_json.text.unwrap_or_default());
         (cleaned.clone(), cleaned)
     } else {
-        let source_label = source_language_label(&source_language);
         let source_language_code = source_language_api_code(&source_language);
         let transcribe_form = build_audio_form(
             &audio_bytes,
@@ -1416,7 +1436,9 @@ async fn process_segment(
                 .text()
                 .await
                 .unwrap_or_else(|_| "Unable to read error body".to_string());
-            return Err(format!("{source_label} transcription failed ({status}): {body}"));
+            return Err(format!(
+                "{source_label} transcription failed ({status}): {body}"
+            ));
         }
         let transcribe_json = transcribe_response
             .json::<WhisperResponse>()
@@ -1438,68 +1460,12 @@ async fn process_segment(
                 warning: format!("{source_label} transcription skipped: {quality_warning}"),
             });
         }
-
-        let translation_style = if source_language == "korean" {
-            format!(
-                "Translate Korean sermon text into natural, faithful English. Keep church terms (e.g., God, Lord, Bible references, Coram Deo) consistent. Return only translated English.{}
-",
-                if glossary.is_empty() {
-                    String::new()
-                } else {
-                    format!("\nUse this glossary when possible:\n{}", truncate_for_prompt(&glossary, 1200))
-                }
-            )
-        } else {
-            format!("Translate {source_label} sermon text into natural, faithful English. Return only translated English.")
-        };
-
-        let english_request = serde_json::json!({
-            "model": "gpt-4o-mini",
-            "input": [
-                {
-                    "role": "system",
-                    "content": [
-                        {
-                            "type": "input_text",
-                            "text": translation_style
-                        }
-                    ]
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "input_text",
-                            "text": source_text
-                        }
-                    ]
-                }
-            ]
-        });
-        let english_response = client
-            .post("https://api.openai.com/v1/responses")
-            .bearer_auth(&api_key)
-            .json(&english_request)
-            .send()
-            .await
-            .map_err(|e| format!("{source_label} -> English translation failed: {e}"))?;
-        if !english_response.status().is_success() {
-            let status = english_response.status();
-            let body = english_response
-                .text()
-                .await
-                .unwrap_or_else(|_| "Unable to read error body".to_string());
-            return Err(format!("{source_label} -> English translation failed ({status}): {body}"));
-        }
-        let english_json = english_response
-            .json::<serde_json::Value>()
-            .await
-            .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
-        let cleaned_english = sanitize_source_transcript(&extract_responses_text(&english_json));
-        (cleaned_english, source_text)
+        // For non-English sources, keep the source transcript as compatibility text
+        // while target translation runs directly from source text.
+        (source_text.clone(), source_text)
     };
 
-    if english_text.is_empty() {
+    if source_text_for_context.is_empty() {
         return Ok(SegmentResult {
             english: String::new(),
             translated: String::new(),
@@ -1507,7 +1473,7 @@ async fn process_segment(
         });
     }
 
-    {
+    if source_language == "english" {
         let mut context_guard = state
             .rolling_english_context
             .lock()
@@ -1527,16 +1493,86 @@ async fn process_segment(
         let merged = if source_context_guard.trim().is_empty() {
             source_text_for_context.clone()
         } else {
-            format!("{} {}", source_context_guard.as_str(), source_text_for_context)
+            format!(
+                "{} {}",
+                source_context_guard.as_str(),
+                source_text_for_context
+            )
         };
         *source_context_guard = tail_words(&merged, 40);
     }
 
     let target_label = target_language_label(&target_language);
     if target_language == "english" {
+        if source_language != "english" {
+            let translation_style = if source_language == "korean" {
+                format!(
+                    "Translate Korean sermon text into natural, faithful English. Keep church terms (e.g., God, Lord, Bible references, Coram Deo) consistent. Return only translated English.{}",
+                    if glossary.is_empty() {
+                        String::new()
+                    } else {
+                        format!("\nUse this glossary when possible:\n{}", truncate_for_prompt(&glossary, 1200))
+                    }
+                )
+            } else {
+                format!("Translate {source_label} sermon text into natural, faithful English. Return only translated English.")
+            };
+            let english_request = serde_json::json!({
+                "model": "gpt-4o-mini",
+                "input": [
+                    {
+                        "role": "system",
+                        "content": [
+                            {
+                                "type": "input_text",
+                                "text": translation_style
+                            }
+                        ]
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "input_text",
+                                "text": source_text_for_context
+                            }
+                        ]
+                    }
+                ]
+            });
+            let english_response = client
+                .post("https://api.openai.com/v1/responses")
+                .bearer_auth(&api_key)
+                .json(&english_request)
+                .send()
+                .await
+                .map_err(|e| format!("{source_label} -> English translation failed: {e}"))?;
+            if !english_response.status().is_success() {
+                let status = english_response.status();
+                let body = english_response
+                    .text()
+                    .await
+                    .unwrap_or_else(|_| "Unable to read error body".to_string());
+                return Err(format!(
+                    "{source_label} -> English translation failed ({status}): {body}"
+                ));
+            }
+            let english_json = english_response
+                .json::<serde_json::Value>()
+                .await
+                .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
+            english_text = sanitize_source_transcript(&extract_responses_text(&english_json));
+        }
         return Ok(SegmentResult {
             english: english_text.clone(),
             translated: english_text,
+            warning: String::new(),
+        });
+    }
+    if target_language == source_language {
+        return Ok(SegmentResult {
+            english: english_text,
+            translated: source_text_for_context,
             warning: String::new(),
         });
     }
@@ -1551,16 +1587,18 @@ async fn process_segment(
         String::new()
     } else {
         format!(
-            "\nReference target-language sermon script (soft guide, may differ from live speech):\n{}\nUse this only as context. Follow the spoken English meaning first.",
+            "\nReference target-language sermon script (soft guide, may differ from live speech):\n{}\nUse this only as context. Follow the spoken {} meaning first.",
             truncate_for_prompt(&reference_script, 6000)
+            ,
+            source_label
         )
     };
 
     let system_prompt = format!(
-        "You are an expert theological translator for a live church stream.\nTranslate the incoming live English into fluent, natural {target_label}.\nUse the reference script as strong context for terminology and sermon flow, but prioritize the live spoken meaning when they differ.\nIf the live English is fragmented, repair it into a coherent sentence using the reference context.\nFor scripture reading lines, prefer official scripture wording when present in the reference script context.\nKeep Bible references, names, and church terms accurate.\nReturn only the translated text.{glossary_prompt}{reference_script_prompt}"
+        "You are an expert theological translator for a live church stream.\nTranslate the incoming live {source_label} into fluent, natural {target_label}.\nUse the reference script as strong context for terminology and sermon flow, but prioritize the live spoken meaning when they differ.\nIf the live input is fragmented, repair it into a coherent sentence using the reference context.\nFor scripture reading lines, prefer official scripture wording when present in the reference script context.\nKeep Bible references, names, and church terms accurate.\nReturn only the translated text.{glossary_prompt}{reference_script_prompt}"
     );
 
-    let chinese_request_body = serde_json::json!({
+    let target_request_body = serde_json::json!({
         "model": "gpt-4o-mini",
         "input": [
             {
@@ -1577,22 +1615,22 @@ async fn process_segment(
                 "content": [
                     {
                         "type": "input_text",
-                        "text": english_text
+                        "text": source_text_for_context
                     }
                 ]
             }
         ]
     });
 
-    let chinese_response = client
+    let target_response = client
         .post("https://api.openai.com/v1/responses")
         .bearer_auth(&api_key)
-        .json(&chinese_request_body)
+        .json(&target_request_body)
         .send()
         .await
-        .map_err(|e| format!("Chinese translation request failed: {e}"));
+        .map_err(|e| format!("Target translation request failed: {e}"));
 
-    match chinese_response {
+    match target_response {
         Ok(resp) => {
             if !resp.status().is_success() {
                 let status = resp.status();
@@ -1610,7 +1648,7 @@ async fn process_segment(
             let json = resp
                 .json::<serde_json::Value>()
                 .await
-                .map_err(|e| format!("Chinese translation decode failed: {e}"))?;
+                .map_err(|e| format!("Target translation decode failed: {e}"))?;
             let mut translated_text = sanitize_source_transcript(&extract_responses_text(&json));
 
             if translated_text.is_empty()
@@ -1626,7 +1664,7 @@ async fn process_segment(
                                 {
                                     "type": "input_text",
                                     "text": format!(
-                                        "Translate the user's English sermon text into {target_label}. Use the reference script as strong context. Repair fragmented phrasing into coherent translation. For scripture lines, prefer official wording when present in the reference script. Output in {target_label} only (except proper names and Bible references).{reference_script_prompt}"
+                                        "Translate the user's {source_label} sermon text into {target_label}. Use the reference script as strong context. Repair fragmented phrasing into coherent translation. For scripture lines, prefer official wording when present in the reference script. Output in {target_label} only (except proper names and Bible references).{reference_script_prompt}"
                                     )
                                 }
                             ]
@@ -1636,7 +1674,7 @@ async fn process_segment(
                             "content": [
                                 {
                                     "type": "input_text",
-                                    "text": english_text
+                                    "text": source_text_for_context
                                 }
                             ]
                         }
@@ -1652,7 +1690,8 @@ async fn process_segment(
                 {
                     if retry_resp.status().is_success() {
                         if let Ok(retry_json) = retry_resp.json::<serde_json::Value>().await {
-                            let retried = sanitize_source_transcript(&extract_responses_text(&retry_json));
+                            let retried =
+                                sanitize_source_transcript(&extract_responses_text(&retry_json));
                             if !retried.is_empty() {
                                 translated_text = retried;
                             }
@@ -1741,9 +1780,13 @@ fn auto_save_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse,
         });
     }
 
-    let home_dir = std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
-    let sessions_dir = std::path::Path::new(&home_dir).join("Desktop").join("ChurchTranslateSessions");
-    fs::create_dir_all(&sessions_dir).map_err(|e| format!("Failed to create session folder: {e}"))?;
+    let home_dir =
+        std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
+    let sessions_dir = std::path::Path::new(&home_dir)
+        .join("Desktop")
+        .join("ChurchTranslateSessions");
+    fs::create_dir_all(&sessions_dir)
+        .map_err(|e| format!("Failed to create session folder: {e}"))?;
 
     let file_name = format!(
         "church-translation-{}.txt",
@@ -1885,7 +1928,9 @@ fn notify_output_window_state(state: String, app: tauri::AppHandle) -> Result<Ok
 }
 
 #[tauri::command]
-fn get_latest_output_caption(state: tauri::State<AppState>) -> Result<Option<OutputCaptionPayload>, String> {
+fn get_latest_output_caption(
+    state: tauri::State<AppState>,
+) -> Result<Option<OutputCaptionPayload>, String> {
     match state.latest_output_caption.lock() {
         Ok(latest) => Ok(latest.clone()),
         Err(_) => Ok(None),
@@ -1903,7 +1948,9 @@ fn start_dragging_window(window: tauri::WebviewWindow) -> Result<OkResponse, Str
 #[tauri::command]
 fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResponse, String> {
     match action.as_str() {
-        "minimize" => window.minimize().map_err(|e| format!("Failed to minimize window: {e}"))?,
+        "minimize" => window
+            .minimize()
+            .map_err(|e| format!("Failed to minimize window: {e}"))?,
         "toggle_maximize" => {
             let is_maximized = window
                 .is_maximized()
@@ -1934,9 +1981,12 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
                     None
                 };
                 if let Some(size) = launch_size {
-                    window
-                        .set_size(Size::Logical(size))
-                        .map_err(|e| format!("Failed to restore {} window launch size: {e}", window.label()))?;
+                    window.set_size(Size::Logical(size)).map_err(|e| {
+                        format!(
+                            "Failed to restore {} window launch size: {e}",
+                            window.label()
+                        )
+                    })?;
                 }
             } else {
                 window
@@ -1944,7 +1994,9 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
                     .map_err(|e| format!("Failed to maximize window: {e}"))?;
             }
         }
-        "close" => window.close().map_err(|e| format!("Failed to close window: {e}"))?,
+        "close" => window
+            .close()
+            .map_err(|e| format!("Failed to close window: {e}"))?,
         _ => return Err(format!("Unknown window action: {action}")),
     }
     Ok(OkResponse { ok: true })
@@ -1956,7 +2008,9 @@ pub fn run() {
             tauri_plugin_log::Builder::new()
                 .level(log::LevelFilter::Info)
                 .targets([
-                    Target::new(TargetKind::LogDir { file_name: Some("app".into()) }),
+                    Target::new(TargetKind::LogDir {
+                        file_name: Some("app".into()),
+                    }),
                     Target::new(TargetKind::Stdout),
                     Target::new(TargetKind::Stderr),
                 ])

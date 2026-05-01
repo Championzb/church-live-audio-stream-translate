@@ -48,13 +48,9 @@ sequenceDiagram
   OA-->>BE: Source-language transcript
   Note over OA,BE: Latency hotspot 2: speech model inference plus network RTT
 
-  BE->>OR: POST /v1/responses (source -> English)
-  OR-->>BE: English text
-  Note over OR,BE: Latency hotspot 3: source-to-English text inference plus network RTT
-
-  BE->>OR: POST /v1/responses (gpt-4o-mini)
+  BE->>OR: POST /v1/responses (source -> target)
   OR-->>BE: Translated text
-  Note over OR,BE: Latency hotspot 4: target-language text inference plus network RTT
+  Note over OR,BE: Latency hotspot 3: text inference plus network RTT
 
   BE-->>FE: Return english, translated, warning
   FE->>FE: Render transcript cards and projector sync
@@ -66,31 +62,28 @@ Text fallback:
 1. Frontend captures audio and segments with VAD.
 2. Frontend sends `process_segment` chunk to backend.
 3. Backend calls `/v1/audio/transcriptions` and gets source-language text.
-4. For non-English sources, backend calls `/v1/responses` for source -> English.
-5. Backend calls `/v1/responses` for English -> target translation.
-6. Backend returns `{ english, translated, warning }`.
-7. Frontend renders panels and syncs projector output.
+4. Backend calls `/v1/responses` for source -> target translation.
+5. Backend returns `{ english, translated, warning }`.
+6. Frontend renders panels and syncs projector output.
 
-## Normal Korean -> Chinese Call Pattern (3 APIs)
+## Normal Korean -> Chinese Call Pattern (2 APIs)
 
 1. `/v1/audio/transcriptions` (`whisper-1`, `language=ko`) for Korean speech -> Korean text
-2. `/v1/responses` (`gpt-4o-mini`) for Korean -> English
-3. `/v1/responses` (`gpt-4o-mini`) for English -> Chinese
+2. `/v1/responses` (`gpt-4o-mini`) for Korean -> Chinese
 
 ## Where Latency Is Usually Spent
 
 1. Segmentation wait (frontend): chunk waits for silence hold or max segment boundary.
 2. Audio API inference + network: often dominant for noisy or long chunks.
-3. Source-to-English text inference + network: extra hop for non-English sources.
-4. English-to-target text inference + network.
-5. Queue backlog: sequential queue reduces burst failures but can add wait.
+3. Source-to-target text inference + network.
+4. Queue backlog: sequential queue reduces burst failures but can add wait.
 
 ## Prompt Priming Notes
 
 - STT prompt priming means sending context hints (rolling context + keywords + script hints) to improve recognition quality.
 - Stable STT keywords and sermon-specific STT keywords help API 1 (speech recognition).
 - Source-language context is tracked separately from English context so non-English STT stays anchored in the original language.
-- Glossary helps API 2 (translation wording consistency), including Korean -> English handoff terms.
+- Glossary helps API 2 (translation wording consistency), including Korean -> target-language church terms.
 
 ## Quality Guards
 
