@@ -50,6 +50,7 @@ Speech pipeline note:
 - When the source panel is hidden in Translation Mode, the reference script panel keeps a stable width while only the target panel expands.
 - Source panel labels now follow the selected source language (instead of always showing `English`).
 - Projector window now includes the same `Source` show/hide behavior (default hidden), and the target panel expands when source is hidden.
+- Projector source heading now follows the selected source language (for example, `Korean`).
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 

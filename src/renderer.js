@@ -1871,6 +1871,7 @@ async function syncOutputWindow() {
         englishLive: englishLiveEl.textContent || '',
         chineseLive: chineseLiveEl.textContent || '',
         modeSummary: modeSummaryEl.textContent || '',
+        sourceLabel: languageName(sourceLanguageSelect.value || 'korean'),
         targetLabel: languageName(targetLanguageSelect.value || 'zh-hans')
     };
     try {

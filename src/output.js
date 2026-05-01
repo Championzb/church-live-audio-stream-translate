@@ -1,6 +1,7 @@
 const modeSummaryEl = document.getElementById('modeSummary');
 const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
+const sourceHeadingEl = document.getElementById('sourceHeading');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
@@ -85,6 +86,9 @@ function renderLines(panel, lines) {
 function applyCaptionPayload(payload) {
   const data = payload || {};
   modeSummaryEl.textContent = data.modeSummary || 'Waiting for captions...';
+  if (sourceHeadingEl) {
+    sourceHeadingEl.textContent = data.sourceLabel || 'Source';
+  }
   translatedHeadingEl.textContent = data.targetLabel || 'Translation';
   englishLiveEl.textContent = data.englishLive || '';
   chineseLiveEl.textContent = data.chineseLive || '';

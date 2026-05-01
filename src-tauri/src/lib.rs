@@ -185,6 +185,7 @@ struct OutputCaptionPayload {
     english_live: String,
     chinese_live: String,
     mode_summary: String,
+    source_label: String,
     target_label: String,
 }
 
