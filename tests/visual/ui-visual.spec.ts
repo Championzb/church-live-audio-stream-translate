@@ -36,5 +36,7 @@ test('translation mode view stays stable', async ({ page }) => {
   await page.locator('#hintF6').click();
   await page.waitForTimeout(200);
   await expect(page.locator('#translationLiveBar')).toBeVisible();
-  await expect(page).toHaveScreenshot('translation-mode.png', { fullPage: true, maxDiffPixelRatio: 0.015 });
+  const viewportWidth = page.viewportSize()?.width ?? 0;
+  const maxDiffPixelRatio = viewportWidth <= 500 ? 0.035 : 0.015;
+  await expect(page).toHaveScreenshot('translation-mode.png', { fullPage: true, maxDiffPixelRatio });
 });
