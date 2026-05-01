@@ -2,6 +2,27 @@
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
+## Installation (From GitHub Releases)
+
+1. Open the repository Releases page on GitHub.
+2. Download the installer for your OS from the latest release assets.
+
+### macOS (`.app.zip`)
+
+1. Download `*.app.zip`.
+2. Unzip it.
+3. Drag the `.app` into `Applications`.
+4. First launch: right-click the app -> `Open` -> confirm `Open`.
+
+### Windows (`.msi`)
+
+1. Download `*.msi`.
+2. Run the installer.
+3. If SmartScreen appears: `More info` -> `Run anyway`.
+
+If no release assets are visible yet, no release has been published for that version.
+In that case, use the source setup path below until a release is published.
+
 ## Start Here (By Role)
 
 - Service operator (run live captions): [Operator Guide](./docs/OPERATOR_GUIDE.md)
