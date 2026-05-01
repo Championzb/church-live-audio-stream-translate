@@ -46,6 +46,7 @@ Speech pipeline note:
 - Rolling context is maintained separately for English output and source-language transcript text to keep chunk-to-chunk recognition more stable.
 - Built-in consistency rules are always on for Korean -> Chinese output (anchor and polarity checks); no user rule setup is required.
 - In Translation Mode, use the `Source` toggle next to the Chinese panel download button to show/hide the source-language caption panel; active highlight indicates the panel is visible. The source panel header also includes a close icon (`✕`) for quick hide. Main page layout remains unchanged.
+- Main window focuses on the target-language panel. The source panel is shown in Translation Mode and controlled by the `Source` toggle next to the target panel download button; active highlight indicates the source panel is visible.
 - When the source panel is hidden in Translation Mode, the reference script panel keeps a stable width while only the target panel expands.
 - Source panel labels now follow the selected source language (instead of always showing `English`).
 

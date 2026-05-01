@@ -1385,6 +1385,10 @@ body.presentation-mode .caption-card.is-collapsed {
   display: none !important;
 }
 
+body:not(.presentation-mode) #sourceCaptionCard {
+  display: none !important;
+}
+
 .caption-card::after {
   content: '';
   position: absolute;
