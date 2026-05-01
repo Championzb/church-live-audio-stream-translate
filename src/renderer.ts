@@ -184,7 +184,7 @@ const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
 const TEST_AUDIO_ALLOWED_EXTENSIONS = new Set([
   'wav', 'mp3', 'm4a', 'aac', 'flac', 'ogg', 'opus', 'oga',
-  'webm', 'mp4', 'mpeg', 'mpga', 'aif', 'aiff', 'wma'
+  'webm', 'mpeg', 'mpga', 'aif', 'aiff', 'wma'
 ]);
 const SOURCE_PANEL_COLLAPSED_STORAGE_KEY = 'church-source-panel-collapsed';
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
@@ -2341,6 +2341,55 @@ function openTestAudioFilePicker(restoreValue = '') {
       setAudioInputSelection(restoreValue);
     }
   };
+
+  const asAnyWindow = window as any;
+  if (typeof asAnyWindow.showOpenFilePicker === 'function') {
+    (async () => {
+      try {
+        const handles = await asAnyWindow.showOpenFilePicker({
+          multiple: false,
+          excludeAcceptAllOption: true,
+          types: [
+            {
+              description: 'Audio files',
+              accept: {
+                'audio/*': [
+                  '.wav', '.mp3', '.m4a', '.aac', '.flac',
+                  '.ogg', '.opus', '.oga', '.webm',
+                  '.mpeg', '.mpga', '.aif', '.aiff', '.wma'
+                ]
+              }
+            }
+          ]
+        });
+        const file = await handles?.[0]?.getFile?.();
+        if (!file) {
+          restoreSelection();
+          return;
+        }
+        if (!isSupportedTestAudioFile(file)) {
+          setStatusKey('status.testAudioInvalidType');
+          restoreSelection();
+          return;
+        }
+        setSelectedTestAudioFile(file);
+      } catch {
+        // User canceled or picker unavailable; fallback below.
+        try {
+          if (typeof testAudioFileInput.showPicker === 'function') {
+            testAudioFileInput.showPicker();
+          } else {
+            testAudioFileInput.click();
+          }
+        } catch {
+          setStatusKey('status.testAudioPickerBlocked');
+        } finally {
+          window.setTimeout(restoreSelection, 0);
+        }
+      }
+    })();
+    return;
+  }
 
   try {
     if (typeof testAudioFileInput.showPicker === 'function') {
