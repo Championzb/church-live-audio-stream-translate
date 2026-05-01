@@ -1456,6 +1456,14 @@ body:not(.presentation-mode) #sourceCaptionCard {
   font-size: 0.96rem;
 }
 
+#toggleSourcePanelHeader {
+  display: none;
+}
+
+body.presentation-mode #toggleSourcePanelHeader {
+  display: inline-flex;
+}
+
 .live-line {
   min-height: 24px;
   margin-bottom: 12px;
