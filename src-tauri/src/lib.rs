@@ -206,6 +206,7 @@ fn build_audio_form(
     mime: &str,
     model: &str,
     prompt: Option<&str>,
+    language: Option<&str>,
 ) -> Result<Form, String> {
     let file_part = Part::bytes(audio_bytes.to_vec())
         .file_name(format!("segment.{extension}"))
@@ -219,6 +220,12 @@ fn build_audio_form(
         let trimmed = prompt_text.trim();
         if !trimmed.is_empty() {
             form = form.text("prompt", trimmed.to_string());
+        }
+    }
+    if let Some(language_code) = language {
+        let trimmed = language_code.trim();
+        if !trimmed.is_empty() {
+            form = form.text("language", trimmed.to_string());
         }
     }
     Ok(form)
@@ -429,6 +436,16 @@ fn source_language_label(code: &str) -> &'static str {
         "japanese" => "Japanese",
         "chinese" => "Chinese",
         _ => "English",
+    }
+}
+
+fn source_language_api_code(code: &str) -> Option<&'static str> {
+    match code {
+        "korean" => Some("ko"),
+        "japanese" => Some("ja"),
+        "chinese" => Some("zh"),
+        "english" => Some("en"),
+        _ => None,
     }
 }
 
@@ -1154,6 +1171,7 @@ async fn process_segment(
             &mime,
             "gpt-4o-mini-transcribe",
             stt_prompt.as_deref(),
+            source_language_api_code("english"),
         )?;
 
         let transcription_response = client
@@ -1179,201 +1197,14 @@ async fn process_segment(
             .map_err(|e| format!("Transcription response decode failed: {e}"))?;
         transcription_json.text.unwrap_or_default().trim().to_string()
     } else {
-        let whisper_form = build_audio_form(
-            &audio_bytes,
-            extension,
-            &mime,
-            "whisper-1",
-            stt_prompt.as_deref(),
-        )?;
-
-        let whisper_response = client
-            .post("https://api.openai.com/v1/audio/translations")
-            .bearer_auth(&api_key)
-            .multipart(whisper_form)
-            .send()
-            .await;
-
-        if let Ok(resp) = whisper_response {
-            if resp.status().is_success() {
-                let whisper_json = resp
-                    .json::<WhisperResponse>()
-                    .await
-                    .map_err(|e| format!("Whisper response decode failed: {e}"))?;
-                let whisper_text = whisper_json.text.unwrap_or_default().trim().to_string();
-                if !whisper_text.is_empty() {
-                    whisper_text
-                } else {
-                    let transcribe_form = build_audio_form(
-                        &audio_bytes,
-                        extension,
-                        &mime,
-                        "gpt-4o-mini-transcribe",
-                        stt_prompt.as_deref(),
-                    )?;
-                    let transcribe_response = client
-                        .post("https://api.openai.com/v1/audio/transcriptions")
-                        .bearer_auth(&api_key)
-                        .multipart(transcribe_form)
-                        .send()
-                        .await
-                        .map_err(|e| format!("Korean fallback transcription failed: {e}"))?;
-                    if !transcribe_response.status().is_success() {
-                        let status = transcribe_response.status();
-                        let body = transcribe_response
-                            .text()
-                            .await
-                            .unwrap_or_else(|_| "Unable to read error body".to_string());
-                        return Err(format!(
-                            "Korean fallback transcription failed ({status}): {body}"
-                        ));
-                    }
-                    let transcribe_json = transcribe_response
-                        .json::<WhisperResponse>()
-                        .await
-                        .map_err(|e| format!("Korean fallback decode failed: {e}"))?;
-                    let korean_text = transcribe_json.text.unwrap_or_default().trim().to_string();
-                    if korean_text.is_empty() {
-                        return Err("Korean fallback produced empty text.".to_string());
-                    }
-                    let english_request = serde_json::json!({
-                        "model": "gpt-4o-mini",
-                        "input": [
-                            {
-                                "role": "system",
-                                "content": [
-                                    {
-                                        "type": "input_text",
-                                        "text": "Translate Korean sermon text into natural, faithful English. Return only translated English."
-                                    }
-                                ]
-                            },
-                            {
-                                "role": "user",
-                                "content": [
-                                    {
-                                        "type": "input_text",
-                                        "text": korean_text
-                                    }
-                                ]
-                            }
-                        ]
-                    });
-                    let english_response = client
-                        .post("https://api.openai.com/v1/responses")
-                        .bearer_auth(&api_key)
-                        .json(&english_request)
-                        .send()
-                        .await
-                        .map_err(|e| format!("Korean fallback EN translation failed: {e}"))?;
-                    if !english_response.status().is_success() {
-                        let status = english_response.status();
-                        let body = english_response
-                            .text()
-                            .await
-                            .unwrap_or_else(|_| "Unable to read error body".to_string());
-                        return Err(format!(
-                            "Korean fallback EN translation failed ({status}): {body}"
-                        ));
-                    }
-                    let english_json = english_response
-                        .json::<serde_json::Value>()
-                        .await
-                        .map_err(|e| format!("Korean fallback EN decode failed: {e}"))?;
-                    extract_responses_text(&english_json)
-                }
-            } else {
-                let transcribe_form = build_audio_form(
-                    &audio_bytes,
-                    extension,
-                    &mime,
-                    "gpt-4o-mini-transcribe",
-                    stt_prompt.as_deref(),
-                )?;
-                let transcribe_response = client
-                    .post("https://api.openai.com/v1/audio/transcriptions")
-                    .bearer_auth(&api_key)
-                    .multipart(transcribe_form)
-                    .send()
-                    .await
-                    .map_err(|e| format!("Korean fallback transcription failed: {e}"))?;
-                if !transcribe_response.status().is_success() {
-                    let status = transcribe_response.status();
-                    let body = transcribe_response
-                        .text()
-                        .await
-                        .unwrap_or_else(|_| "Unable to read error body".to_string());
-                    return Err(format!(
-                        "Whisper translation and fallback transcription both failed ({status}): {body}"
-                    ));
-                }
-                let transcribe_json = transcribe_response
-                    .json::<WhisperResponse>()
-                    .await
-                    .map_err(|e| format!("Korean fallback decode failed: {e}"))?;
-                let korean_text = transcribe_json.text.unwrap_or_default().trim().to_string();
-                if korean_text.is_empty() {
-                    return Err("Korean fallback produced empty text.".to_string());
-                }
-                let english_request = serde_json::json!({
-                    "model": "gpt-4o-mini",
-                    "input": [
-                        {
-                            "role": "system",
-                            "content": [
-                                {
-                                    "type": "input_text",
-                                    "text": "Translate Korean sermon text into natural, faithful English. Return only translated English."
-                                }
-                            ]
-                        },
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "input_text",
-                                    "text": korean_text
-                                }
-                            ]
-                        }
-                    ]
-                });
-                let english_response = client
-                    .post("https://api.openai.com/v1/responses")
-                    .bearer_auth(&api_key)
-                    .json(&english_request)
-                    .send()
-                    .await
-                    .map_err(|e| format!("Korean fallback EN translation failed: {e}"))?;
-                if !english_response.status().is_success() {
-                    let status = english_response.status();
-                    let body = english_response
-                        .text()
-                        .await
-                        .unwrap_or_else(|_| "Unable to read error body".to_string());
-                    return Err(format!(
-                        "Korean fallback EN translation failed ({status}): {body}"
-                    ));
-                }
-                let english_json = english_response
-                    .json::<serde_json::Value>()
-                    .await
-                    .map_err(|e| format!("Korean fallback EN decode failed: {e}"))?;
-                extract_responses_text(&english_json)
-            }
-        } else {
-            return Err("Whisper request failed and fallback could not start.".to_string());
-        }
-    };
-
-    let english_text = if source_language != "english" && source_language != "korean" {
         let source_label = source_language_label(&source_language);
         let transcribe_form = build_audio_form(
             &audio_bytes,
             extension,
             &mime,
-            "gpt-4o-mini-transcribe",
+            "whisper-1",
             stt_prompt.as_deref(),
+            source_language_api_code(&source_language),
         )?;
         let transcribe_response = client
             .post("https://api.openai.com/v1/audio/transcriptions")
@@ -1441,8 +1272,6 @@ async fn process_segment(
             .await
             .map_err(|e| format!("{source_label} -> English decode failed: {e}"))?;
         extract_responses_text(&english_json)
-    } else {
-        english_text
     };
 
     if english_text.is_empty() {

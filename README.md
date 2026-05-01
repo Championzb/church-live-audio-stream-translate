@@ -40,6 +40,9 @@ In that case, use the source setup path below until a release is published.
 Default audio capture preset for new sessions:
 - `Tune Audio` ON, `VAD Threshold` `0.050`, `Silence Hold` `1900ms`, `Max Segment` `12000ms`.
 
+Speech pipeline note:
+- For non-English source audio (Korean/Japanese/Chinese), the app now transcribes in the source language first using `/v1/audio/transcriptions` with an explicit language code, then translates source text to English, then to the selected target language.
+
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 
 ## Release / QA Docs
