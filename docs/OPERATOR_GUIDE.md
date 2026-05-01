@@ -5,8 +5,8 @@ Use this during live worship translation.
 ## At A Glance
 
 - Multi-language sermon input: Korean, English, Japanese, Chinese.
-- Primary flow: speech -> English (internal) -> target language captions.
-- Target-language-first UI with optional Translation Mode (`F6`) showing English + target panels.
+- Primary flow: speech -> source transcript -> target language captions.
+- Target-language-first UI with optional Translation Mode (`F6`) showing source + target panels.
 - Built-in controls: start/stop (`F8`), suspend (`F7`), lock (`F2`), reset (`F4`), help (`F1`).
 - Projector window for subtitle-only second-screen output.
 

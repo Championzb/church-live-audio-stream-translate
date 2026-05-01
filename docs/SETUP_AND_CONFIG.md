@@ -22,8 +22,8 @@ Use this when preparing the machine, keys, and language aids before service.
 
 ## Stable STT Keywords vs Glossary
 
-- `Stable STT Keywords`: improves speech recognition (audio -> English transcript).
-- `Glossary`: enforces preferred translation wording (English -> target language).
+- `Stable STT Keywords`: improves speech recognition (audio -> source transcript).
+- `Glossary`: enforces preferred translation wording (source -> target language).
 - They are related but not interchangeable. Keep both.
 
 ## Audio Input Options (Windows/macOS)

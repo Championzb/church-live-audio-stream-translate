@@ -39,7 +39,7 @@ Expected:
 3. Pause briefly to trigger segment flush.
 
 Expected:
-- English caption panel updates
+- Source panel updates in Translation Mode (or remains hidden in main target-first view)
 - Output caption panel updates
 - Mode summary queue rises/falls and returns near zero
 - Cost summary increments from 0.00
@@ -51,7 +51,7 @@ Expected:
 3. Wait for processing to complete.
 
 Expected:
-- English and translated panels update
+- Source and translated panels update in Translation Mode (or target panel in main view)
 - Transcript receives one new entry
 - Status shows successful file test completion
 

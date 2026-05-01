@@ -1,4 +1,4 @@
-# Church Live Audio Translate (Multi-language Input -> English -> Multi-language Output)
+# Church Live Audio Translate (Audio -> Source Transcript -> Target Translation)
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
@@ -43,7 +43,7 @@ Default audio capture preset for new sessions:
 Speech pipeline note:
 - For non-English source audio (Korean/Japanese/Chinese), the app transcribes in the source language first using `/v1/audio/transcriptions` with an explicit language code, then translates directly from source text to the selected target language.
 - The backend applies source-transcript quality gates (language mismatch / low-confidence segment mix) and skips weak segments instead of forwarding likely hallucinated text.
-- Rolling context is maintained separately for English output and source-language transcript text to keep chunk-to-chunk recognition more stable.
+- Rolling context is maintained separately for source-language transcript text and translated output context to keep chunk-to-chunk quality stable.
 - Built-in consistency rules are always on for Korean -> Chinese output (anchor and polarity checks); no user rule setup is required.
 - In Translation Mode, use the `Source` toggle next to the Chinese panel download button to show/hide the source-language caption panel; active highlight indicates the panel is visible. The source panel header also includes a close icon (`✕`) for quick hide. Main page layout remains unchanged.
 - Main window focuses on the target-language panel. The source panel is shown in Translation Mode and controlled by the `Source` toggle next to the target panel download button; active highlight indicates the source panel is visible.
