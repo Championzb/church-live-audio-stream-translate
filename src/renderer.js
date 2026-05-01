@@ -177,6 +177,10 @@ const RETRY_DELAYS_MS = [300, 700];
 const TEST_FILE_SEGMENT_MS = 12000;
 const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
+const TEST_AUDIO_ALLOWED_EXTENSIONS = new Set([
+    'wav', 'mp3', 'm4a', 'aac', 'flac', 'ogg', 'opus', 'oga',
+    'webm', 'mp4', 'mpeg', 'mpga', 'aif', 'aiff', 'wma'
+]);
 const SOURCE_PANEL_COLLAPSED_STORAGE_KEY = 'church-source-panel-collapsed';
 const TRANSLATION_INPUT_COST_PER_1M = 0.15;
 const TRANSLATION_OUTPUT_COST_PER_1M = 0.6;
@@ -372,6 +376,7 @@ const UI_TEXT = {
         'status.fileTestFinished': 'Finished file test: {name}',
         'status.fileTestFailed': 'File test failed: {error}',
         'status.testAudioSelected': 'Test audio input selected: {name}. Press Start (F8) to run.',
+        'status.testAudioInvalidType': 'Selected file is not a supported audio file.',
         'status.testAudioMissing': 'Select a test audio file before pressing Start (F8).',
         'status.testAudioPickerBlocked': 'Unable to open test audio file picker. Please retry and check file access permissions.',
         'status.scriptLoaded': 'Reference script loaded: {lines} lines',
@@ -610,6 +615,7 @@ const UI_TEXT = {
         'status.fileTestFinished': '文件测试完成：{name}',
         'status.fileTestFailed': '文件测试失败：{error}',
         'status.testAudioSelected': '测试音频输入已选择：{name}。按开始（F8）运行。',
+        'status.testAudioInvalidType': '所选文件不是支持的音频文件。',
         'status.testAudioMissing': '请先选择测试音频文件，再按开始（F8）。',
         'status.testAudioPickerBlocked': '无法打开测试音频文件选择器。请重试并检查文件访问权限。',
         'status.scriptLoaded': '参考讲稿已加载：{lines} 行',
@@ -2200,6 +2206,21 @@ function setSelectedTestAudioFile(file) {
         setStatusKey('status.testAudioSelected', { name: selectedTestAudioFile.name });
     }
 }
+function isSupportedTestAudioFile(file) {
+    if (!file)
+        return false;
+    const mime = String(file.type || '').toLowerCase();
+    if (mime.startsWith('audio/')) {
+        return true;
+    }
+    const name = String(file.name || '');
+    const lastDot = name.lastIndexOf('.');
+    if (lastDot < 0 || lastDot === name.length - 1) {
+        return false;
+    }
+    const ext = name.slice(lastDot + 1).toLowerCase();
+    return TEST_AUDIO_ALLOWED_EXTENSIONS.has(ext);
+}
 function openTestAudioFilePicker(restoreValue = '') {
     const restoreSelection = () => {
         if (audioInputSelect.value === TEST_AUDIO_PICKER_VALUE || liveAudioInputSelect.value === TEST_AUDIO_PICKER_VALUE) {
@@ -3134,6 +3155,12 @@ testAudioFileInput.addEventListener('change', async (event) => {
     if (!file) {
         testAudioFileInput.value = '';
         setAudioInputSelection(lastNonPickerAudioInputValue || '');
+        return;
+    }
+    if (!isSupportedTestAudioFile(file)) {
+        testAudioFileInput.value = '';
+        setAudioInputSelection(lastNonPickerAudioInputValue || '');
+        setStatusKey('status.testAudioInvalidType');
         return;
     }
     setSelectedTestAudioFile(file);

@@ -51,6 +51,7 @@ Speech pipeline note:
 - Source panel labels now follow the selected source language (instead of always showing `English`).
 - Projector window now includes the same `Source` show/hide behavior (default hidden), and the target panel expands when source is hidden.
 - Projector source heading now follows the selected source language (for example, `Korean`).
+- Test audio picker accepts audio files only; non-audio selections are rejected with a status warning.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 
