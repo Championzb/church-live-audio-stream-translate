@@ -2052,33 +2052,34 @@ body.presentation-mode .translation-live-bar {
 
 body.presentation-mode .captions {
   --presentation-script-width: clamp(320px, 28vw, 420px);
-  display: flex !important;
-  flex-direction: row;
-  align-items: stretch;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 10px;
+  align-items: stretch;
 }
 
 body.presentation-mode .captions > .caption-card {
-  flex: 1 1 0;
   min-width: 0;
 }
 
-body.presentation-mode.has-reference-script .captions > #sourceCaptionCard,
-body.presentation-mode.has-reference-script .captions > .translated-card {
-  flex: 1 1 calc((100% - var(--presentation-script-width) - 20px) / 2);
+body.presentation-mode .script-reference-card {
+  display: none;
 }
 
-body.presentation-mode.has-reference-script .captions > .script-reference-card {
-  flex: 0 0 var(--presentation-script-width);
+body.presentation-mode.has-reference-script .captions {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--presentation-script-width);
 }
 
 body.presentation-mode.source-panel-collapsed #sourceCaptionCard {
   display: none !important;
 }
 
-body.presentation-mode.has-reference-script.source-panel-collapsed .captions > .translated-card {
-  flex: 0 0 calc(100% - var(--presentation-script-width) - 10px);
-  max-width: calc(100% - var(--presentation-script-width) - 10px);
+body.presentation-mode.source-panel-collapsed .captions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+  grid-template-columns: minmax(0, 1fr) var(--presentation-script-width);
 }
 
 #closeSourcePanel {
@@ -2166,10 +2167,11 @@ body.presentation-mode .script-reference-card .script-content {
 
 @media (max-width: 760px) {
   body.presentation-mode .captions {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  body.presentation-mode.has-reference-script .captions > .script-reference-card {
-    flex: 1 1 auto;
+  body.presentation-mode.has-reference-script .captions,
+  body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
