@@ -107,12 +107,12 @@
             <button id="liveExitTranslationMode" class="icon-btn" aria-label="Exit Translation Mode">←</button>
             <div class="live-bar-tuning">
               <label id="labelLiveVadThreshold" for="liveVadThreshold">VAD Threshold</label>
-              <input id="liveVadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
-              <span id="liveVadValue">0.040</span>
+              <input id="liveVadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.05" />
+              <span id="liveVadValue">0.050</span>
               <label id="labelLiveSilenceMs" for="liveSilenceMs">Silence Hold (ms)</label>
-              <input id="liveSilenceMs" type="number" min="200" max="3000" step="100" value="1500" />
+              <input id="liveSilenceMs" type="number" min="200" max="3000" step="100" value="1900" />
               <label id="labelLiveMaxSegmentMs" for="liveMaxSegmentMs">Max Segment (ms)</label>
-              <input id="liveMaxSegmentMs" type="number" min="1200" max="25000" step="100" value="15000" />
+              <input id="liveMaxSegmentMs" type="number" min="1200" max="25000" step="100" value="12000" />
               <details id="liveSegmentationHelpPopover" class="segmentation-help-popover segmentation-help-popover--live">
                 <summary id="liveSegmentationHelpToggle" class="segmentation-help-icon" aria-label="Segmentation Help">ⓘ</summary>
                 <div id="liveSegmentationHelp" class="tuning-help">
@@ -157,12 +157,12 @@
                 </div>
                 <div class="row tuning-row">
                   <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
-                  <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.04" />
-                  <span id="vadValue">0.040</span>
+                  <input id="vadThreshold" type="range" min="0.01" max="0.12" step="0.005" value="0.05" />
+                  <span id="vadValue">0.050</span>
                   <label id="labelSilenceMs" for="silenceMs">Silence Hold (ms)</label>
-                  <input id="silenceMs" type="number" min="200" max="3000" step="100" value="1500" />
+                  <input id="silenceMs" type="number" min="200" max="3000" step="100" value="1900" />
                   <label id="labelMaxSegmentMs" for="maxSegmentMs">Max Segment (ms)</label>
-                  <input id="maxSegmentMs" type="number" min="1200" max="25000" step="100" value="15000" />
+                  <input id="maxSegmentMs" type="number" min="1200" max="25000" step="100" value="12000" />
                   <details id="segmentationHelpPopover" class="segmentation-help-popover">
                     <summary id="segmentationHelpToggle" class="segmentation-help-icon" aria-label="Segmentation Help">ⓘ</summary>
                     <div id="segmentationHelp" class="tuning-help">
@@ -247,7 +247,7 @@
                   <label id="labelMockMode" for="mockMode">Mock Mode (No API)</label>
                 </div>
                 <div class="row settings-toggle-inline settings-mock-toggle">
-                  <input id="tuneAudio" type="checkbox" />
+                  <input id="tuneAudio" type="checkbox" checked />
                   <label id="labelTuneAudio" for="tuneAudio">Tune Audio (Echo/Noise/Auto Gain)</label>
                 </div>
               </div>

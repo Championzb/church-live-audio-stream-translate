@@ -34,6 +34,15 @@ Use this when preparing the machine, keys, and language aids before service.
 
 Tip: use the cleanest source possible (usually mixer AUX out via USB interface) for best recognition quality.
 
+## Default Audio Tuning Preset
+
+Default capture preset (when no saved override exists):
+
+- `Tune Audio`: ON
+- `VAD Threshold`: `0.050`
+- `Silence Hold (ms)`: `1900`
+- `Max Segment (ms)`: `12000`
+
 ## App Logs
 
 - macOS log file: `~/Library/Logs/com.church.live.translate/app.log`

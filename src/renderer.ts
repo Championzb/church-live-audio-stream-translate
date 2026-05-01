@@ -725,6 +725,10 @@ const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
 const MOCK_MODE_STORAGE_KEY = 'church-mock-mode';
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const REAL_COST_REFRESH_MS = 5 * 60 * 1000;
+const DEFAULT_TUNE_AUDIO_ENABLED = true;
+const DEFAULT_VAD_THRESHOLD = 0.05;
+const DEFAULT_SILENCE_MS = 1900;
+const DEFAULT_MAX_SEGMENT_MS = 12000;
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
@@ -2682,9 +2686,9 @@ async function ensureMainInitialized() {
   running = Boolean(runState.running);
   setRunningButtonState();
 
-  const savedVadThreshold = loadNumericSetting('church-vad-threshold', 0.04, 0.01, 0.12);
-  const savedSilenceMs = loadNumericSetting('church-silence-ms', 1500, 200, 3000);
-  const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', 15000, 1200, 25000);
+  const savedVadThreshold = loadNumericSetting('church-vad-threshold', DEFAULT_VAD_THRESHOLD, 0.01, 0.12);
+  const savedSilenceMs = loadNumericSetting('church-silence-ms', DEFAULT_SILENCE_MS, 200, 3000);
+  const savedMaxSegmentMs = loadNumericSetting('church-max-segment-ms', DEFAULT_MAX_SEGMENT_MS, 1200, 25000);
 
   vadThresholdInput.value = savedVadThreshold.toString();
   liveVadThresholdInput.value = savedVadThreshold.toString();
@@ -2723,7 +2727,7 @@ async function ensureMainInitialized() {
   mockModeEnabled = savedMockMode === '1';
   mockModeInput.checked = mockModeEnabled;
   const savedTuneAudio = localStorage.getItem('church-tune-audio');
-  tuneAudioEnabled = savedTuneAudio === '1';
+  tuneAudioEnabled = savedTuneAudio ? savedTuneAudio === '1' : DEFAULT_TUNE_AUDIO_ENABLED;
   tuneAudioInput.checked = tuneAudioEnabled;
 
   const savedControlsLocked = localStorage.getItem('church-controls-locked');

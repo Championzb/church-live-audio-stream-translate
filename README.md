@@ -37,6 +37,9 @@ In that case, use the source setup path below until a release is published.
 - [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md)
 - [Script Prep Prompt](./docs/SCRIPT_PREP_PROMPT.md)
 
+Default audio capture preset for new sessions:
+- `Tune Audio` ON, `VAD Threshold` `0.050`, `Silence Hold` `1900ms`, `Max Segment` `12000ms`.
+
 ## Release / QA Docs
 
 - Distribution playbook: [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md)
