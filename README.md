@@ -40,6 +40,8 @@ In that case, use the source setup path below until a release is published.
 Default audio capture preset for new sessions:
 - `Tune Audio` ON, `VAD Threshold` `0.050`, `Silence Hold` `1900ms`, `Max Segment` `12000ms`.
 
+Language Aids now shows stable STT keywords separately from sermon-specific keywords, with a direct `Open Script Keywords` shortcut.
+
 ## Release / QA Docs
 
 - Distribution playbook: [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md)

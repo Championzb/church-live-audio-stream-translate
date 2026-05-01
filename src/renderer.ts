@@ -69,6 +69,7 @@ const toggleHelpButton = document.getElementById('toggleHelp') as any;
 const toggleLockControlsButton = document.getElementById('toggleLockControls') as any;
 const toggleOutputWindowButton = document.getElementById('toggleOutputWindow') as any;
 const openScriptManagerButton = document.getElementById('openScriptManager') as any;
+const openScriptManagerFromSettingsButton = document.getElementById('openScriptManagerFromSettings') as any;
 const scriptPanelOpenScriptManagerButton = document.getElementById('scriptPanelOpenScriptManager') as any;
 const testAudioFileInput = document.getElementById('testAudioFileInput') as any;
 const uploadReferenceScriptButton = document.getElementById('uploadReferenceScript') as any;
@@ -161,6 +162,8 @@ const liveMaxSegmentHelpTextEl = document.getElementById('liveMaxSegmentHelpText
 const labelGlossaryEl = document.getElementById('labelGlossary') as any;
 const labelSttKeywordsEl = document.getElementById('labelSttKeywords') as any;
 const sttKeywordsHintEl = document.getElementById('sttKeywordsHint') as any;
+const labelSermonKeywordsStatusEl = document.getElementById('labelSermonKeywordsStatus') as any;
+const sermonKeywordsSettingsMetaEl = document.getElementById('sermonKeywordsSettingsMeta') as any;
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop') as any;
 const englishHeadingEl = document.getElementById('englishHeading') as any;
 const helpTitleEl = document.getElementById('helpTitle') as any;
@@ -246,10 +249,12 @@ const UI_TEXT = {
     'help.silenceMs': 'Silence Hold: how long silence must last before ending a segment.',
     'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
     'label.glossary': 'Glossary (one term per line, EN=ZH)',
-    'label.sttKeywords': 'STT Keywords (English terms, comma or newline separated)',
+    'label.sttKeywords': 'Stable STT Keywords (English terms, comma or newline separated)',
+    'label.sermonKeywordsStatus': 'Sermon-Specific Keywords (From Script Modal)',
     'label.scriptActions': 'Script',
     'label.keywordActions': 'Keywords',
-    'hint.sttKeywords': 'Used for speech-recognition priming (names, places, theological terms).',
+    'hint.sttKeywords': 'Stable week-to-week speech-recognition priming. Sermon-specific keywords are managed separately below.',
+    'button.openSermonKeywords': 'Open Script Keywords',
     'label.autoSaveOnStop': 'Auto-save on stop',
     'heading.english': 'English',
     'button.saveKey': 'Save Key',
@@ -481,10 +486,12 @@ const UI_TEXT = {
     'help.silenceMs': '静音保持：静音持续多久后才结束当前片段。',
     'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
     'label.glossary': '术语表（每行一个，EN=ZH）',
-    'label.sttKeywords': 'STT 关键词（英文术语，逗号或换行分隔）',
+    'label.sttKeywords': '稳定 STT 关键词（英文术语，逗号或换行分隔）',
+    'label.sermonKeywordsStatus': '讲道专用关键词（来自讲稿面板）',
     'label.scriptActions': '讲稿',
     'label.keywordActions': '关键词',
-    'hint.sttKeywords': '用于语音识别预热（人名、地名、神学术语）。',
+    'hint.sttKeywords': '用于每周稳定语音识别预热。讲道专用关键词请在下方单独管理。',
+    'button.openSermonKeywords': '打开讲稿关键词',
     'label.autoSaveOnStop': '停止时自动保存',
     'heading.english': '英文',
     'button.saveKey': '保存密钥',
@@ -850,9 +857,11 @@ function countKeywordTerms(content: string) {
 function updateSermonKeywordsUi() {
   const hasKeywords = Boolean(sermonKeywordsText.trim());
   const terms = countKeywordTerms(sermonKeywordsText);
-  sermonKeywordsMetaEl.textContent = hasKeywords
+  const metaText = hasKeywords
     ? t('sermonKeywords.metaLoaded', { terms })
     : t('sermonKeywords.metaNone');
+  sermonKeywordsMetaEl.textContent = metaText;
+  sermonKeywordsSettingsMetaEl.textContent = metaText;
   clearSermonKeywordsButton.disabled = controlsLocked || !hasKeywords;
 }
 
@@ -1174,6 +1183,7 @@ function setControlsLocked(nextLocked) {
     sourceLanguageSelect,
     targetLanguageSelect,
     openScriptManagerButton,
+    openScriptManagerFromSettingsButton,
     scriptPanelOpenScriptManagerButton,
     uploadReferenceScriptButton,
     pasteReferenceScriptButton,
@@ -1440,6 +1450,7 @@ function setStaticButtonTooltips() {
   toggleOutputWindowButton.title = t('tooltip.outputWindow');
   liveToggleOutputWindowButton.title = t('tooltip.outputWindow');
   openScriptManagerButton.title = t('tooltip.scriptManager');
+  openScriptManagerFromSettingsButton.title = t('tooltip.scriptManager');
   scriptPanelOpenScriptManagerButton.title = t('tooltip.scriptManager');
   segmentationHelpToggleEl.title = t('tooltip.segmentationHelp');
   segmentationHelpToggleEl.setAttribute('aria-label', t('tooltip.segmentationHelp'));
@@ -1797,6 +1808,7 @@ function applyUiLanguage() {
   labelGlossaryEl.textContent = t('label.glossary');
   labelSttKeywordsEl.textContent = t('label.sttKeywords');
   sttKeywordsHintEl.textContent = t('hint.sttKeywords');
+  labelSermonKeywordsStatusEl.textContent = t('label.sermonKeywordsStatus');
   labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
 
   englishHeadingEl.textContent = t('heading.english');
@@ -1818,6 +1830,7 @@ function applyUiLanguage() {
     toggleHelpButton.textContent = t('button.help');
   }
   setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
+  openScriptManagerFromSettingsButton.textContent = t('button.openSermonKeywords');
   setIconButton(scriptPanelOpenScriptManagerButton, '📜', t('button.scriptManager'));
   setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
   setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
@@ -3197,6 +3210,10 @@ liveToggleOutputWindowButton.addEventListener('click', async () => {
 });
 
 openScriptManagerButton.addEventListener('click', () => {
+  setScriptModalVisible(true);
+});
+
+openScriptManagerFromSettingsButton.addEventListener('click', () => {
   setScriptModalVisible(true);
 });
 
