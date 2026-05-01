@@ -1939,6 +1939,14 @@ body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
 }
 
+#closeSourcePanel {
+  display: none;
+}
+
+body.presentation-mode #closeSourcePanel {
+  display: inline-flex;
+}
+
 body.presentation-mode.has-reference-script .script-reference-card {
   display: grid;
 }

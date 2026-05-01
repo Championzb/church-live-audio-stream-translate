@@ -118,6 +118,7 @@ const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
 const sourceCaptionCardEl = document.getElementById('sourceCaptionCard') as any;
 const toggleSourcePanelHeaderButton = document.getElementById('toggleSourcePanelHeader') as any;
+const closeSourcePanelButton = document.getElementById('closeSourcePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
 const englishLiveEl = document.getElementById('englishLive') as any;
 const chineseLiveEl = document.getElementById('chineseLive') as any;
@@ -3133,6 +3134,13 @@ if (toggleSourcePanelHeaderButton) {
   toggleSourcePanelHeaderButton.addEventListener('click', () => {
     if (!presentationMode) return;
     setSourcePanelCollapsed(!sourcePanelCollapsed);
+  });
+}
+
+if (closeSourcePanelButton) {
+  closeSourcePanelButton.addEventListener('click', () => {
+    if (!presentationMode) return;
+    setSourcePanelCollapsed(true);
   });
 }
 

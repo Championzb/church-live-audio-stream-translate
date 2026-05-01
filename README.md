@@ -45,7 +45,7 @@ Speech pipeline note:
 - The backend applies source-transcript quality gates (language mismatch / low-confidence segment mix) and skips weak segments instead of forwarding likely hallucinated text.
 - Rolling context is maintained separately for English output and source-language transcript text to keep chunk-to-chunk recognition more stable.
 - Built-in consistency rules are always on for Korean -> Chinese output (anchor and polarity checks); no user rule setup is required.
-- In Translation Mode, use the `Source` toggle next to the Chinese panel download button to show/hide the source-language caption panel; active highlight indicates the panel is visible. Main page layout remains unchanged.
+- In Translation Mode, use the `Source` toggle next to the Chinese panel download button to show/hide the source-language caption panel; active highlight indicates the panel is visible. The source panel header also includes a close icon (`✕`) for quick hide. Main page layout remains unchanged.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 

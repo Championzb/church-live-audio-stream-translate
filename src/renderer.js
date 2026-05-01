@@ -114,6 +114,7 @@ const englishPanel = document.getElementById('englishPanel');
 const chinesePanel = document.getElementById('chinesePanel');
 const sourceCaptionCardEl = document.getElementById('sourceCaptionCard');
 const toggleSourcePanelHeaderButton = document.getElementById('toggleSourcePanelHeader');
+const closeSourcePanelButton = document.getElementById('closeSourcePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
@@ -2965,6 +2966,13 @@ if (toggleSourcePanelHeaderButton) {
         if (!presentationMode)
             return;
         setSourcePanelCollapsed(!sourcePanelCollapsed);
+    });
+}
+if (closeSourcePanelButton) {
+    closeSourcePanelButton.addEventListener('click', () => {
+        if (!presentationMode)
+            return;
+        setSourcePanelCollapsed(true);
     });
 }
 targetLanguageSelect.addEventListener('change', async () => {
