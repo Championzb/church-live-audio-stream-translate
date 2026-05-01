@@ -574,6 +574,70 @@ fn sanitize_source_transcript(text: &str) -> String {
     cleaned_lines.join("\n")
 }
 
+fn contains_any(text: &str, terms: &[&str]) -> bool {
+    terms.iter().any(|term| text.contains(term))
+}
+
+fn korean_chinese_consistency_warnings(korean_text: &str, chinese_text: &str) -> Vec<String> {
+    let mut warnings: Vec<String> = Vec::new();
+    let ko = korean_text.trim();
+    let zh = chinese_text.trim();
+    if ko.is_empty() || zh.is_empty() {
+        return warnings;
+    }
+
+    let anchor_pairs: [(&[&str], &[&str], &str); 6] = [
+        (
+            &["하나님", "주님", "여호와"],
+            &["神", "上帝", "耶和华", "主"],
+            "God/Lord anchor missing in Chinese output",
+        ),
+        (
+            &["성경", "말씀"],
+            &["圣经", "经文", "神的话", "话语"],
+            "Bible/Word anchor missing in Chinese output",
+        ),
+        (
+            &["어디", "어느", "장소"],
+            &["哪里", "何处", "地方", "所在"],
+            "Place/where anchor missing in Chinese output",
+        ),
+        (
+            &["보시", "보고 계", "지켜보", "감찰"],
+            &["看", "注视", "鉴察", "监察", "看顾", "察看"],
+            "Watching/seeing anchor missing in Chinese output",
+        ),
+        (
+            &["죄", "범죄", "악"],
+            &["罪", "犯罪", "过犯", "恶"],
+            "Sin/moral anchor missing in Chinese output",
+        ),
+        (
+            &["코람데오", "coram deo", "하나님 앞"],
+            &["Coram Deo", "在神面前", "神面前"],
+            "Coram Deo / before-God anchor missing in Chinese output",
+        ),
+    ];
+
+    for (ko_terms, zh_terms, warning_text) in anchor_pairs {
+        if contains_any(ko, ko_terms) && !contains_any(zh, zh_terms) {
+            warnings.push(warning_text.to_string());
+        }
+    }
+
+    let ko_has_no_place = (ko.contains("어디") || ko.contains("장소")) && contains_any(ko, &["없", "아무도 안 보", "안 보이"]);
+    let zh_has_neg_place = contains_any(zh, &["没有地方", "无处", "沒有地方", "沒有任何地方", "根本没有"]);
+    let zh_has_pos_place = contains_any(zh, &["有地方", "有一个地方", "存在地方", "可以找到地方"]);
+    if ko_has_no_place && !zh_has_neg_place {
+        warnings.push("Korean no-place polarity may be missing in Chinese output".to_string());
+    }
+    if ko_has_no_place && zh_has_pos_place {
+        warnings.push("Possible polarity flip: Korean says no hidden place, Chinese suggests a place exists".to_string());
+    }
+
+    warnings
+}
+
 fn transcription_quality_warning(
     source_language: &str,
     expected_language_code: Option<&str>,
@@ -1708,10 +1772,18 @@ async fn process_segment(
                 });
             }
 
+            let secondary_warnings = if source_language == "korean"
+                && (target_language == "zh-hans" || target_language == "zh-hant")
+            {
+                korean_chinese_consistency_warnings(&source_text_for_context, &translated_text)
+            } else {
+                Vec::new()
+            };
+
             Ok(SegmentResult {
                 english: english_text,
                 translated: translated_text,
-                warning: String::new(),
+                warning: secondary_warnings.join("; "),
             })
         }
         Err(error) => Ok(SegmentResult {
