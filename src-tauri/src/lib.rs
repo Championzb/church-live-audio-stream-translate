@@ -1864,7 +1864,10 @@ fn export_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse, St
 }
 
 #[tauri::command]
-fn auto_save_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse, String> {
+fn auto_save_transcript(
+    entries: Vec<TranscriptEntry>,
+    output_dir: Option<String>,
+) -> Result<ExportResponse, String> {
     if entries.is_empty() {
         return Ok(ExportResponse {
             ok: false,
@@ -1873,11 +1876,25 @@ fn auto_save_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse,
         });
     }
 
-    let home_dir =
-        std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
-    let sessions_dir = std::path::Path::new(&home_dir)
-        .join("Desktop")
-        .join("ChurchTranslateSessions");
+    let sessions_dir = if let Some(dir) = output_dir {
+        let trimmed = dir.trim();
+        if trimmed.is_empty() {
+            let home_dir =
+                std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
+            std::path::Path::new(&home_dir)
+                .join("Desktop")
+                .join("ChurchTranslateSessions")
+        } else {
+            PathBuf::from(trimmed)
+        }
+    } else {
+        let home_dir =
+            std::env::var("HOME").map_err(|_| "Could not locate HOME directory.".to_string())?;
+        std::path::Path::new(&home_dir)
+            .join("Desktop")
+            .join("ChurchTranslateSessions")
+    };
+
     fs::create_dir_all(&sessions_dir)
         .map_err(|e| format!("Failed to create session folder: {e}"))?;
 
@@ -1905,6 +1922,12 @@ fn auto_save_transcript(entries: Vec<TranscriptEntry>) -> Result<ExportResponse,
         path: Some(file_path.display().to_string()),
         message: None,
     })
+}
+
+#[tauri::command]
+fn pick_auto_save_folder() -> Result<Option<String>, String> {
+    let selected = rfd::FileDialog::new().pick_folder();
+    Ok(selected.map(|path| path.display().to_string()))
 }
 
 #[tauri::command]
@@ -2216,6 +2239,7 @@ pub fn run() {
             process_segment,
             export_transcript,
             auto_save_transcript,
+            pick_auto_save_folder,
             import_glossary,
             export_glossary,
             toggle_output_window,

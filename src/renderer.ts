@@ -175,6 +175,8 @@ const addSttKeywordButton = document.getElementById('addSttKeyword') as any;
 const clearSttKeywordsButton = document.getElementById('clearSttKeywords') as any;
 const sttKeywordChipsEl = document.getElementById('sttKeywordChips') as any;
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop') as any;
+const pickAutoSaveFolderButton = document.getElementById('pickAutoSaveFolder') as any;
+const autoSaveFolderPathEl = document.getElementById('autoSaveFolderPath') as any;
 const englishHeadingEl = document.getElementById('englishHeading') as any;
 const helpTitleEl = document.getElementById('helpTitle') as any;
 const helpF8El = document.getElementById('helpF8') as any;
@@ -190,6 +192,7 @@ const RETRY_DELAYS_MS = [300, 700];
 const TEST_FILE_SEGMENT_MS = 12000;
 const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
+const AUTO_SAVE_FOLDER_STORAGE_KEY = 'church-auto-save-folder';
 const TEST_AUDIO_ALLOWED_EXTENSIONS = new Set([
   'wav', 'mp3', 'm4a', 'aac', 'flac', 'ogg', 'opus', 'oga',
   'webm', 'mpeg', 'mpga', 'aif', 'aiff', 'wma'
@@ -226,6 +229,7 @@ let pendingSegmentDurationMs = 0;
 let pendingSegmentEndedAtMs = 0;
 let testStreamActive = false;
 let selectedTestAudioFile: File | null = null;
+let autoSaveFolderPath = '';
 let glossaryTerms: string[] = [];
 let stableSttKeywordTerms: string[] = [];
 let lastNonPickerAudioInputValue = '';
@@ -277,6 +281,8 @@ const UI_TEXT = {
     'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
     'sttKeywords.empty': 'No stable keywords yet. Paste terms above and click Add.',
     'label.autoSaveOnStop': 'Auto-save on stop',
+    'button.pickFolder': 'Choose Folder',
+    'autosave.defaultPath': 'Default: Desktop/ChurchTranslateSessions',
     'heading.english': 'Source',
     'button.saveKey': 'Save Key',
     'button.refresh': 'Refresh',
@@ -426,6 +432,9 @@ const UI_TEXT = {
     'status.autoSaved': 'Stopped and auto-saved transcript: {path}',
     'status.stopped': 'Stopped',
     'status.autoSaveFailed': 'Stopped (auto-save failed: {error})',
+    'status.autoSaveFolderSet': 'Auto-save folder set: {path}',
+    'status.autoSaveFolderPickCanceled': 'Auto-save folder selection canceled',
+    'status.autoSaveFolderPickFailed': 'Failed to choose auto-save folder: {error}',
     'status.apiKeySaved': 'API key configured and saved securely',
     'status.adminApiKeySaved': 'Admin key saved securely',
     'status.apiKeyCopied': 'OpenAI API key copied',
@@ -523,6 +532,8 @@ const UI_TEXT = {
     'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
     'sttKeywords.empty': '尚无稳定关键词。请在上方粘贴后点击添加。',
     'label.autoSaveOnStop': '停止时自动保存',
+    'button.pickFolder': '选择文件夹',
+    'autosave.defaultPath': '默认：桌面/ChurchTranslateSessions',
     'heading.english': '源文',
     'button.saveKey': '保存密钥',
     'button.refresh': '刷新',
@@ -672,6 +683,9 @@ const UI_TEXT = {
     'status.autoSaved': '已停止并自动保存转录：{path}',
     'status.stopped': '已停止',
     'status.autoSaveFailed': '已停止（自动保存失败：{error}）',
+    'status.autoSaveFolderSet': '自动保存文件夹已设置：{path}',
+    'status.autoSaveFolderPickCanceled': '已取消自动保存文件夹选择',
+    'status.autoSaveFolderPickFailed': '选择自动保存文件夹失败：{error}',
     'status.apiKeySaved': 'API 密钥已配置并安全保存',
     'status.adminApiKeySaved': '管理员密钥已安全保存',
     'status.apiKeyCopied': '已复制 OpenAI API 密钥',
@@ -1152,6 +1166,24 @@ function setStatusKey(key, values = {}) {
   setStatus(t(key, values));
 }
 
+function updateAutoSaveFolderUi() {
+  if (!autoSaveFolderPathEl) return;
+  autoSaveFolderPathEl.textContent = autoSaveFolderPath || t('autosave.defaultPath');
+  autoSaveFolderPathEl.title = autoSaveFolderPath || t('autosave.defaultPath');
+}
+
+function setAutoSaveFolder(path: string, options: { persist?: boolean } = {}) {
+  autoSaveFolderPath = String(path || '').trim();
+  if (options.persist !== false) {
+    if (autoSaveFolderPath) {
+      localStorage.setItem(AUTO_SAVE_FOLDER_STORAGE_KEY, autoSaveFolderPath);
+    } else {
+      localStorage.removeItem(AUTO_SAVE_FOLDER_STORAGE_KEY);
+    }
+  }
+  updateAutoSaveFolderUi();
+}
+
 function maskApiKey(rawApiKey) {
   const trimmed = (rawApiKey || '').trim();
   if (!trimmed) return 'hidden';
@@ -1468,6 +1500,7 @@ function setControlsLocked(nextLocked) {
     importGlossaryButton,
     exportGlossaryButton,
     autoSaveOnStopInput,
+    pickAutoSaveFolderButton,
     clearSttKeywordsButton,
     clearSermonKeywordsButton
   ];
@@ -2129,6 +2162,7 @@ function applyUiLanguage() {
   if (clearGlossaryTermsButton) clearGlossaryTermsButton.textContent = t('button.clearKeywords');
   if (addSttKeywordButton) addSttKeywordButton.textContent = t('button.addKeyword');
   if (clearSttKeywordsButton) clearSttKeywordsButton.textContent = t('button.clearKeywords');
+  if (pickAutoSaveFolderButton) pickAutoSaveFolderButton.textContent = t('button.pickFolder');
   importGlossaryButton.textContent = t('button.import');
   exportGlossaryButton.textContent = t('button.export');
   closeHelpButton.textContent = t('button.close');
@@ -2140,6 +2174,7 @@ function applyUiLanguage() {
   updateSermonKeywordsUi();
   renderGlossaryUi();
   renderStableSttKeywordsUi();
+  updateAutoSaveFolderUi();
   labelMainApiKeyEl.textContent = t('label.apiKey');
   labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
   labelMainProjectIdEl.textContent = t('label.projectId');
@@ -3010,7 +3045,10 @@ async function setRunning(nextRunning) {
     clearCurrentLiveTranslation();
     if (autoSaveOnStopInput.checked && transcriptEntries.length) {
       try {
-        const saveResult = await invoke('auto_save_transcript', { entries: transcriptEntries });
+        const saveResult = await invoke('auto_save_transcript', {
+          entries: transcriptEntries,
+          outputDir: autoSaveFolderPath || null
+        });
         if (saveResult.ok) {
           setStatusKey('status.autoSaved', { path: saveResult.path });
         } else {
@@ -3095,6 +3133,7 @@ async function ensureMainInitialized() {
 
   const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
   autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
+  setAutoSaveFolder(localStorage.getItem(AUTO_SAVE_FOLDER_STORAGE_KEY) || '', { persist: false });
 
   const savedMockMode = localStorage.getItem(MOCK_MODE_STORAGE_KEY);
   mockModeEnabled = savedMockMode === '1';
@@ -3831,6 +3870,22 @@ liveMaxSegmentMsInput.addEventListener('change', () => {
 autoSaveOnStopInput.addEventListener('change', () => {
   localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');
 });
+
+if (pickAutoSaveFolderButton) {
+  pickAutoSaveFolderButton.addEventListener('click', async () => {
+    try {
+      const selectedPath = await invoke('pick_auto_save_folder');
+      if (selectedPath && String(selectedPath).trim()) {
+        setAutoSaveFolder(String(selectedPath));
+        setStatusKey('status.autoSaveFolderSet', { path: String(selectedPath) });
+      } else {
+        setStatusKey('status.autoSaveFolderPickCanceled');
+      }
+    } catch (err) {
+      setStatusKey('status.autoSaveFolderPickFailed', { error: (err && err.message) || String(err) });
+    }
+  });
+}
 
 resetSessionButton.addEventListener('click', () => {
   resetSessionState();

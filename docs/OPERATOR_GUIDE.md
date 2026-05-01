@@ -20,7 +20,7 @@ Use this during live worship translation.
 6. Use `Suspend` (`F7`) during songs/prayer if needed.
 7. Use `Translation Mode` (`F6`) for subtitle-focused layout.
 8. Open `Projector Window` for audience output.
-9. Export transcript or rely on auto-save on stop.
+9. Export transcript or rely on auto-save on stop (folder from `Settings -> Translation Controls`, default `~/Desktop/ChurchTranslateSessions`).
 
 ## Hotkeys
 

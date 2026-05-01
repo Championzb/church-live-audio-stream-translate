@@ -20,6 +20,12 @@ Use this when preparing the machine, keys, and language aids before service.
 - Reference sermon text:
   - `Script` modal -> upload/paste source or target script for context
 
+## Auto-save Output Folder
+
+- `Settings` -> `Translation Controls` -> `Auto-save on stop`
+- Use `Choose Folder` to set the transcript auto-save destination.
+- If no custom folder is selected, default path is `~/Desktop/ChurchTranslateSessions`.
+
 ## Stable STT Keywords vs Glossary
 
 - `Stable STT Keywords`: improves speech recognition (audio -> source transcript).

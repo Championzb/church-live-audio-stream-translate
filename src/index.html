@@ -172,6 +172,14 @@
                     </div>
                   </details>
                 </div>
+                <div class="row translation-autosave-row">
+                  <div class="settings-toggle-inline">
+                    <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
+                    <input id="autoSaveOnStop" type="checkbox" checked />
+                  </div>
+                  <button id="pickAutoSaveFolder" type="button">Choose Folder</button>
+                  <span id="autoSaveFolderPath" class="input-hint autosave-path">Default: Desktop/ChurchTranslateSessions</span>
+                </div>
               </div>
             </details>
           </section>
@@ -289,10 +297,6 @@
                   <button id="saveGlossary">Save Language Aids</button>
                   <button id="importGlossary">Import</button>
                   <button id="exportGlossary">Export</button>
-                  <div class="settings-toggle-inline">
-                    <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
-                    <input id="autoSaveOnStop" type="checkbox" checked />
-                  </div>
                 </div>
               </div>
             </details>

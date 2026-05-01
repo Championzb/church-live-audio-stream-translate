@@ -1057,6 +1057,24 @@ h1 {
   min-height: 40px;
 }
 
+.translation-autosave-row {
+  display: grid;
+  grid-template-columns: auto auto minmax(220px, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.translation-autosave-row .settings-toggle-inline {
+  margin-left: 0;
+}
+
+.autosave-path {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .settings-toggle-inline {
   margin-left: 8px;
   display: inline-flex;
@@ -1843,6 +1861,15 @@ body.presentation-mode #toggleSourcePanelHeader {
 
   .stt-keyword-input-row {
     grid-template-columns: 1fr;
+  }
+
+  .translation-autosave-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .autosave-path {
+    white-space: normal;
   }
 
   .translation-live-bar {
