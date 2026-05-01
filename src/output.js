@@ -4,12 +4,31 @@ const chinesePanel = document.getElementById('chinesePanel');
 const translatedHeadingEl = document.getElementById('translatedHeading');
 const englishLiveEl = document.getElementById('englishLive');
 const chineseLiveEl = document.getElementById('chineseLive');
+const projectorCaptionsEl = document.getElementById('projectorCaptions');
+const toggleProjectorSourceButton = document.getElementById('toggleProjectorSource');
 const outputWindowMinimizeButton = document.getElementById('outputWindowMinimize');
 const outputWindowMaximizeButton = document.getElementById('outputWindowMaximize');
 const outputWindowCloseButton = document.getElementById('outputWindowClose');
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
+const OUTPUT_SOURCE_VISIBLE_STORAGE_KEY = 'church-output-source-visible';
 const PROJECTOR_MAX_HISTORY_LINES = 2;
+let projectorSourceVisible = false;
+
+function setProjectorSourceVisible(visible, options = {}) {
+  projectorSourceVisible = Boolean(visible);
+  if (projectorCaptionsEl) {
+    projectorCaptionsEl.classList.toggle('source-hidden', !projectorSourceVisible);
+  }
+  if (toggleProjectorSourceButton) {
+    toggleProjectorSourceButton.classList.toggle('is-active', projectorSourceVisible);
+    toggleProjectorSourceButton.setAttribute('aria-pressed', projectorSourceVisible ? 'true' : 'false');
+    toggleProjectorSourceButton.title = projectorSourceVisible ? 'Hide source panel' : 'Show source panel';
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(OUTPUT_SOURCE_VISIBLE_STORAGE_KEY, projectorSourceVisible ? '1' : '0');
+  }
+}
 
 async function resolveTauriApis(maxWaitMs = 5000) {
   const startedAt = Date.now();
@@ -161,6 +180,14 @@ function bindWindowControls(invoke) {
 }
 
 async function boot() {
+  const savedSourceVisible = localStorage.getItem(OUTPUT_SOURCE_VISIBLE_STORAGE_KEY);
+  setProjectorSourceVisible(savedSourceVisible === '1', { persist: false });
+  if (toggleProjectorSourceButton) {
+    toggleProjectorSourceButton.addEventListener('click', () => {
+      setProjectorSourceVisible(!projectorSourceVisible);
+    });
+  }
+
   const { invoke, listen } = await resolveTauriApis();
   bindProjectorTitlebar(invoke);
   bindWindowControls(invoke);

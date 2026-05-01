@@ -159,6 +159,10 @@ main {
   padding-bottom: 0;
 }
 
+.captions.source-hidden {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 article {
   border: 1px solid rgba(100, 132, 170, 0.4);
   border-radius: 14px;
@@ -172,12 +176,37 @@ article {
   backdrop-filter: blur(8px);
 }
 
+.caption-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 h2 {
   margin: 0 0 10px;
   font-size: clamp(2rem, 2.8vw, 2.6rem);
   line-height: 1.08;
   letter-spacing: 0.01em;
   overflow-wrap: anywhere;
+}
+
+.source-toggle-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(95, 126, 162, 0.58);
+  background: rgba(8, 19, 36, 0.62);
+  color: #dbeafe;
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.01em;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.source-toggle-btn.is-active {
+  border-color: rgba(45, 212, 191, 0.82);
+  background: rgba(13, 51, 57, 0.76);
+  color: #ccfbf1;
 }
 
 .live-line {

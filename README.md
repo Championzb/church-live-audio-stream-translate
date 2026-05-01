@@ -49,6 +49,7 @@ Speech pipeline note:
 - Main window focuses on the target-language panel. The source panel is shown in Translation Mode and controlled by the `Source` toggle next to the target panel download button; active highlight indicates the source panel is visible.
 - When the source panel is hidden in Translation Mode, the reference script panel keeps a stable width while only the target panel expands.
 - Source panel labels now follow the selected source language (instead of always showing `English`).
+- Projector window now includes the same `Source` show/hide behavior (default hidden), and the target panel expands when source is hidden.
 
 Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
 

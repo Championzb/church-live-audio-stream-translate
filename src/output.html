@@ -17,14 +17,19 @@
           <button id="outputWindowClose" class="window-control-btn danger" type="button" aria-label="Close">×</button>
         </div>
       </div>
-      <section class="captions">
-        <article>
-          <h2>Source</h2>
+      <section id="projectorCaptions" class="captions source-hidden">
+        <article id="projectorSourceArticle">
+          <div class="caption-header">
+            <h2>Source</h2>
+          </div>
           <div id="englishLive" class="live-line"></div>
           <div id="englishPanel" class="panel"></div>
         </article>
         <article>
-          <h2 id="translatedHeading">Translation</h2>
+          <div class="caption-header">
+            <h2 id="translatedHeading">Translation</h2>
+            <button id="toggleProjectorSource" class="source-toggle-btn" type="button" aria-label="Toggle source panel">Source</button>
+          </div>
           <div id="chineseLive" class="live-line"></div>
           <div id="chinesePanel" class="panel"></div>
         </article>
