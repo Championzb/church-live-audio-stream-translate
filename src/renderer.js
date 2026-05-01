@@ -861,16 +861,6 @@ function normalizeKeywordToken(rawToken) {
         .replace(/^[`'"]+/, '')
         .replace(/[`'",;]+$/, '')
         .trim();
-    const aliasMatch = token.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
-    if (aliasMatch) {
-        const primary = aliasMatch[1].trim();
-        const alias = aliasMatch[2].trim();
-        const primaryLooksSourceLanguage = /[가-힣一-龯ぁ-んァ-ヶ]/.test(primary);
-        const aliasLooksEnglish = /[A-Za-z]/.test(alias);
-        if (primaryLooksSourceLanguage && aliasLooksEnglish) {
-            token = primary;
-        }
-    }
     return token.trim();
 }
 function parseKeywordTerms(content) {
@@ -891,7 +881,7 @@ function parseKeywordTerms(content) {
     return terms;
 }
 function normalizeKeywordText(content) {
-    return parseKeywordTerms(content).join('\n');
+    return parseKeywordTerms(content).join(', ');
 }
 function countKeywordTerms(content) {
     return parseKeywordTerms(content).length;
@@ -900,7 +890,7 @@ function formatKeywordList(content) {
     const tokens = parseKeywordTerms(content);
     if (!tokens.length)
         return t('sermonKeywords.metaNone');
-    return tokens.join('\n');
+    return tokens.join(', ');
 }
 function setStableSttKeywords(rawKeywordsText, options = {}) {
     const normalized = normalizeKeywordText(String(rawKeywordsText || ''));
