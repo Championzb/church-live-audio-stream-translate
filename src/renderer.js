@@ -52,6 +52,7 @@ const settingsPageEl = document.getElementById('settingsPage');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
 const mockModeInput = document.getElementById('mockMode');
+const tuneAudioInput = document.getElementById('tuneAudio');
 const audioInputValueEl = document.getElementById('audioInputValue');
 const audioInputMenuEl = document.getElementById('audioInputMenu');
 const audioInputSelect = document.getElementById('audioInput');
@@ -136,6 +137,7 @@ const labelAudioInputEl = document.getElementById('labelAudioInput');
 const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput');
 const labelThemeEl = document.getElementById('labelTheme');
 const labelMockModeEl = document.getElementById('labelMockMode');
+const labelTuneAudioEl = document.getElementById('labelTuneAudio');
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
 const labelVadThresholdEl = document.getElementById('labelVadThreshold');
@@ -206,6 +208,7 @@ let activePairLineId = 0;
 let selectedPairLineId = 0;
 let transcriptPanelsAutoPin = true;
 let mockModeEnabled = false;
+let tuneAudioEnabled = false;
 let outputWindowOpen = false;
 let outputWindowReady = false;
 let lastOutputHeartbeatAt = 0;
@@ -225,6 +228,7 @@ const UI_TEXT = {
         'label.audioInput': 'Audio Input',
         'label.theme': 'Theme',
         'label.mockMode': 'Mock Mode (No API)',
+        'label.tuneAudio': 'Tune Audio (Echo/Noise/Auto Gain)',
         'label.sourceLanguage': 'Source Language',
         'label.targetLanguage': 'Output Language',
         'label.vadThreshold': 'VAD Threshold',
@@ -388,6 +392,8 @@ const UI_TEXT = {
         'status.adminApiKeyCopied': 'OpenAI admin key copied',
         'status.projectIdSaved': 'Project ID saved',
         'status.themeSet': 'Theme changed to {theme}',
+        'status.audioTuningEnabled': 'Audio tuning enabled (echo cancellation, noise suppression, auto gain)',
+        'status.audioTuningDisabled': 'Audio tuning disabled (raw microphone capture)',
         'status.apiKeyFailed': 'Failed to configure API key',
         'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
         'status.glossarySaved': 'Glossary saved',
@@ -456,6 +462,7 @@ const UI_TEXT = {
         'label.audioInput': '音频输入',
         'label.theme': '主题',
         'label.mockMode': '模拟模式（不调用 API）',
+        'label.tuneAudio': '音频调优（回声/降噪/自动增益）',
         'label.sourceLanguage': '源语言',
         'label.targetLanguage': '输出语言',
         'label.vadThreshold': 'VAD 阈值',
@@ -619,6 +626,8 @@ const UI_TEXT = {
         'status.adminApiKeyCopied': '已复制 OpenAI 管理员密钥',
         'status.projectIdSaved': 'Project ID 已保存',
         'status.themeSet': '主题已切换为 {theme}',
+        'status.audioTuningEnabled': '已启用音频调优（回声消除、降噪、自动增益）',
+        'status.audioTuningDisabled': '已关闭音频调优（原始麦克风采集）',
         'status.apiKeyFailed': '配置 API 密钥失败',
         'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
         'status.glossarySaved': '术语表已保存',
@@ -1133,6 +1142,7 @@ function setControlsLocked(nextLocked) {
         liveAudioInputSelect,
         themeSelect,
         mockModeInput,
+        tuneAudioInput,
         sourceLanguageSelect,
         targetLanguageSelect,
         openScriptManagerButton,
@@ -1691,6 +1701,7 @@ function applyUiLanguage() {
     labelLiveAudioInputEl.textContent = t('label.audioInput');
     labelThemeEl.textContent = t('label.theme');
     labelMockModeEl.textContent = t('label.mockMode');
+    labelTuneAudioEl.textContent = t('label.tuneAudio');
     labelSourceLanguageEl.textContent = t('label.sourceLanguage');
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
     labelVadThresholdEl.textContent = t('label.vadThreshold');
@@ -2341,9 +2352,9 @@ async function setupAudioPipeline() {
     mediaStream = await navigator.mediaDevices.getUserMedia({
         audio: {
             deviceId: deviceId ? { exact: deviceId } : undefined,
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
+            echoCancellation: tuneAudioEnabled,
+            noiseSuppression: tuneAudioEnabled,
+            autoGainControl: tuneAudioEnabled,
             channelCount: 1
         },
         video: false
@@ -2576,6 +2587,9 @@ async function ensureMainInitialized() {
     const savedMockMode = localStorage.getItem(MOCK_MODE_STORAGE_KEY);
     mockModeEnabled = savedMockMode === '1';
     mockModeInput.checked = mockModeEnabled;
+    const savedTuneAudio = localStorage.getItem('church-tune-audio');
+    tuneAudioEnabled = savedTuneAudio === '1';
+    tuneAudioInput.checked = tuneAudioEnabled;
     const savedControlsLocked = localStorage.getItem('church-controls-locked');
     setControlsLocked(savedControlsLocked === '1');
     updateTranslatedHeading();
@@ -2876,6 +2890,11 @@ mockModeInput.addEventListener('change', () => {
     localStorage.setItem(MOCK_MODE_STORAGE_KEY, mockModeEnabled ? '1' : '0');
     updateModeSummary();
     setStatusKey(mockModeEnabled ? 'status.mockModeEnabled' : 'status.mockModeDisabled');
+});
+tuneAudioInput.addEventListener('change', () => {
+    tuneAudioEnabled = Boolean(tuneAudioInput.checked);
+    localStorage.setItem('church-tune-audio', tuneAudioEnabled ? '1' : '0');
+    setStatusKey(tuneAudioEnabled ? 'status.audioTuningEnabled' : 'status.audioTuningDisabled');
 });
 sourceLanguageSelect.addEventListener('change', async () => {
     await syncTranslationConfig();

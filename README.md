@@ -26,7 +26,7 @@ In that case, use the source setup path below until a release is published.
 ## Start Here (By Role)
 
 - Service operator (run live captions): [Operator Guide](./docs/OPERATOR_GUIDE.md)
-- Church admin / setup owner (keys, language aids, audio setup): [Setup And Configuration](./docs/SETUP_AND_CONFIG.md)
+- Church admin / setup owner (keys, language aids, audio setup, Tune Audio processing toggle): [Setup And Configuration](./docs/SETUP_AND_CONFIG.md)
 - Developer / maintainer (architecture, APIs, latency): [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md)
 - Sermon prep helper prompt (Korean script -> Chinese script + STT keywords): [Script Prep Prompt](./docs/SCRIPT_PREP_PROMPT.md)
 
