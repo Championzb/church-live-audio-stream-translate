@@ -31,29 +31,40 @@ npm run typecheck
 
 ## Sequence And Latency
 
+If your markdown viewer cannot render Mermaid, use the text fallback right below.
+
 ```mermaid
 sequenceDiagram
-  participant FE as "Frontend (VAD + Queue)"
-  participant BE as "Tauri Backend"
-  participant OA as "OpenAI Audio API"
-  participant OR as "OpenAI Responses API"
+  participant FE as Frontend (VAD + Queue)
+  participant BE as Tauri Backend
+  participant OA as OpenAI Audio API
+  participant OR as OpenAI Responses API
 
-  FE->>FE: "Capture audio + VAD segmentation"
-  Note over FE: "Latency hotspot #1: VAD timers\nSilence Hold + Max Segment govern send timing"
+  FE->>FE: Capture audio and run VAD segmentation
+  Note over FE: Latency hotspot 1: VAD timers and segment boundaries
 
-  FE->>BE: "invoke(process_segment, audio chunk)"
-  BE->>OA: "POST /v1/audio/translations (whisper-1)\nwith STT prompt priming"
-  OA-->>BE: "English transcript"
-  Note over OA,BE: "Latency hotspot #2: speech model inference + network RTT"
+  FE->>BE: invoke(process_segment, audio chunk)
+  BE->>OA: POST /v1/audio/translations (whisper-1)
+  OA-->>BE: English transcript
+  Note over OA,BE: Latency hotspot 2: speech model inference plus network RTT
 
-  BE->>OR: "POST /v1/responses (gpt-4o-mini)\nEnglish -> target language"
-  OR-->>BE: "Translated text"
-  Note over OR,BE: "Latency hotspot #3: text model inference + network RTT"
+  BE->>OR: POST /v1/responses (gpt-4o-mini)
+  OR-->>BE: Translated text
+  Note over OR,BE: Latency hotspot 3: text model inference plus network RTT
 
-  BE-->>FE: "{ english, translated, warning }"
-  FE->>FE: "Render transcript cards + projector sync"
-  Note over FE: "Small local cost; queue wait can add delay under heavy speech"
+  BE-->>FE: Return english, translated, warning
+  FE->>FE: Render transcript cards and projector sync
+  Note over FE: Queue wait can add delay under heavy speech
 ```
+
+Text fallback:
+
+1. Frontend captures audio and segments with VAD.
+2. Frontend sends `process_segment` chunk to backend.
+3. Backend calls `/v1/audio/translations` and gets English transcript.
+4. Backend calls `/v1/responses` for target-language translation.
+5. Backend returns `{ english, translated, warning }`.
+6. Frontend renders panels and syncs projector output.
 
 ## Normal Korean -> Chinese Call Pattern (2 APIs)
 
