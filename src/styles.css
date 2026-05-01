@@ -948,6 +948,8 @@ h1 {
 .stt-keyword-editor {
   display: grid;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 
 .stt-keyword-input-row {
@@ -1026,6 +1028,15 @@ h1 {
 
 .settings-form-row--stack > label {
   margin-bottom: 2px;
+  grid-row: 1;
+}
+
+.settings-form-row--stack > .stt-keyword-editor {
+  grid-row: 2;
+}
+
+.settings-form-row--stack > .input-hint {
+  grid-row: 3;
 }
 
 .input-hint {
