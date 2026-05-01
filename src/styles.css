@@ -1656,6 +1656,23 @@ button:disabled {
   color: var(--text-subtle);
 }
 
+.keyword-list-preview {
+  margin: 0;
+  padding: 10px 12px;
+  min-height: 72px;
+  max-height: 180px;
+  overflow-y: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--section-border);
+  background: var(--surface-inset);
+  color: var(--text);
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 #mainApiKeyInput {
   width: min(420px, 100%);
   flex: 1;

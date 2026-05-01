@@ -40,6 +40,8 @@ In that case, use the source setup path below until a release is published.
 Default audio capture preset for new sessions:
 - `Tune Audio` ON, `VAD Threshold` `0.050`, `Silence Hold` `1900ms`, `Max Segment` `12000ms`.
 
+Script modal keyword tools now show both sermon keyword term count and the full loaded keyword list.
+
 ## Release / QA Docs
 
 - Distribution playbook: [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md)

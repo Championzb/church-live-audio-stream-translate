@@ -80,8 +80,10 @@ const pasteSermonKeywordsButton = document.getElementById('pasteSermonKeywords')
 const clearSermonKeywordsButton = document.getElementById('clearSermonKeywords') as any;
 const sermonKeywordsInput = document.getElementById('sermonKeywordsInput') as any;
 const sermonKeywordsMetaEl = document.getElementById('sermonKeywordsMeta') as any;
+const sermonKeywordsListEl = document.getElementById('sermonKeywordsList') as any;
 const scriptActionsLabelEl = document.getElementById('scriptActionsLabel') as any;
 const keywordActionsLabelEl = document.getElementById('keywordActionsLabel') as any;
+const labelSermonKeywordsListEl = document.getElementById('labelSermonKeywordsList') as any;
 const scriptModal = document.getElementById('scriptModal') as any;
 const scriptModalTitleEl = document.getElementById('scriptModalTitle') as any;
 const scriptModalSubtitleEl = document.getElementById('scriptModalSubtitle') as any;
@@ -249,6 +251,7 @@ const UI_TEXT = {
     'label.sttKeywords': 'Stable STT Keywords (English terms, comma or newline separated)',
     'label.scriptActions': 'Script',
     'label.keywordActions': 'Keywords',
+    'label.sermonKeywordsList': 'Loaded Keyword List',
     'hint.sttKeywords': 'Stable week-to-week speech-recognition priming. Sermon-specific keywords are managed in the Script modal.',
     'label.autoSaveOnStop': 'Auto-save on stop',
     'heading.english': 'English',
@@ -484,6 +487,7 @@ const UI_TEXT = {
     'label.sttKeywords': '稳定 STT 关键词（英文术语，逗号或换行分隔）',
     'label.scriptActions': '讲稿',
     'label.keywordActions': '关键词',
+    'label.sermonKeywordsList': '已加载关键词列表',
     'hint.sttKeywords': '用于每周稳定语音识别预热。讲道专用关键词请在讲稿面板中管理。',
     'label.autoSaveOnStop': '停止时自动保存',
     'heading.english': '英文',
@@ -847,6 +851,16 @@ function countKeywordTerms(content: string) {
   return tokens.length;
 }
 
+function formatKeywordList(content: string) {
+  if (!content) return t('sermonKeywords.metaNone');
+  const tokens = content
+    .split(/[\n,;]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0);
+  if (!tokens.length) return t('sermonKeywords.metaNone');
+  return tokens.join('\n');
+}
+
 function updateSermonKeywordsUi() {
   const hasKeywords = Boolean(sermonKeywordsText.trim());
   const terms = countKeywordTerms(sermonKeywordsText);
@@ -854,6 +868,7 @@ function updateSermonKeywordsUi() {
     ? t('sermonKeywords.metaLoaded', { terms })
     : t('sermonKeywords.metaNone');
   sermonKeywordsMetaEl.textContent = metaText;
+  sermonKeywordsListEl.textContent = formatKeywordList(sermonKeywordsText);
   clearSermonKeywordsButton.disabled = controlsLocked || !hasKeywords;
 }
 
@@ -1798,6 +1813,7 @@ function applyUiLanguage() {
   labelGlossaryEl.textContent = t('label.glossary');
   labelSttKeywordsEl.textContent = t('label.sttKeywords');
   sttKeywordsHintEl.textContent = t('hint.sttKeywords');
+  labelSermonKeywordsListEl.textContent = t('label.sermonKeywordsList');
   labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
 
   englishHeadingEl.textContent = t('heading.english');

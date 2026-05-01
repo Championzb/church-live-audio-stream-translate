@@ -14,6 +14,7 @@ Use this when preparing the machine, keys, and language aids before service.
   - `Settings` -> `Language Aids` -> `STT Keywords`
 - Sermon-specific terms:
   - `Script` modal -> upload/paste sermon keywords each service
+  - Script modal now shows both keyword term count and full loaded keyword list
 - Translation consistency terms:
   - `Glossary` (`EN=ZH`, one per line)
 - Reference sermon text:
