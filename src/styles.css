@@ -950,6 +950,27 @@ h1 {
   gap: 8px;
 }
 
+.glossary-editor {
+  gap: 10px;
+}
+
+.glossary-editor #glossaryDraft {
+  width: 100%;
+  min-width: 0;
+}
+
+.glossary-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.glossary-editor-actions > button {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
 .stt-keyword-input-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
