@@ -37,7 +37,8 @@ Create two deduplicated keyword lists:
 - Examples: person names, place names, event names, unusual theological terms, key phrases.
 
 Keyword formatting rules:
-- Prefer English forms when possible (best for STT priming in this pipeline).
+- Prefer source-language forms first (for Korean source, prioritize Korean terms).
+- Optionally append English aliases in parentheses when they are commonly used in church context.
 - Keep each keyword concise (1-4 words when possible).
 - No duplicates (case-insensitive).
 - Max 80 items per list.
