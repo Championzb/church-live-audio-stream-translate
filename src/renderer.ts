@@ -859,23 +859,68 @@ function countScriptLines(content) {
   return content.split(/\r?\n/).filter((line) => line.trim().length > 0).length;
 }
 
+function normalizeKeywordToken(rawToken: string) {
+  let token = String(rawToken || '').trim();
+  if (!token) return '';
+
+  token = token
+    .replace(/^\[+/, '')
+    .replace(/\]+$/, '')
+    .replace(/^[-*•]\s+/, '')
+    .replace(/^\d+[\.)]\s+/, '')
+    .replace(/^[`'"]+/, '')
+    .replace(/[`'",;]+$/, '')
+    .trim();
+
+  const aliasMatch = token.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+  if (aliasMatch) {
+    const primary = aliasMatch[1].trim();
+    const alias = aliasMatch[2].trim();
+    const primaryLooksSourceLanguage = /[가-힣一-龯ぁ-んァ-ヶ]/.test(primary);
+    const aliasLooksEnglish = /[A-Za-z]/.test(alias);
+    if (primaryLooksSourceLanguage && aliasLooksEnglish) {
+      token = primary;
+    }
+  }
+
+  return token.trim();
+}
+
+function parseKeywordTerms(content: string) {
+  if (!content) return [];
+  const seen = new Set<string>();
+  const terms: string[] = [];
+  for (const rawToken of content.split(/[\n,;]+/)) {
+    const token = normalizeKeywordToken(rawToken);
+    if (!token) continue;
+    const dedupeKey = token.toLocaleLowerCase();
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    terms.push(token);
+  }
+  return terms;
+}
+
+function normalizeKeywordText(content: string) {
+  return parseKeywordTerms(content).join('\n');
+}
+
 function countKeywordTerms(content: string) {
-  if (!content) return 0;
-  const tokens = content
-    .split(/[\n,;]+/)
-    .map((token) => token.trim())
-    .filter((token) => token.length > 0);
-  return tokens.length;
+  return parseKeywordTerms(content).length;
 }
 
 function formatKeywordList(content: string) {
-  if (!content) return t('sermonKeywords.metaNone');
-  const tokens = content
-    .split(/[\n,;]+/)
-    .map((token) => token.trim())
-    .filter((token) => token.length > 0);
+  const tokens = parseKeywordTerms(content);
   if (!tokens.length) return t('sermonKeywords.metaNone');
   return tokens.join('\n');
+}
+
+function setStableSttKeywords(rawKeywordsText, options: { persist?: boolean } = {}) {
+  const normalized = normalizeKeywordText(String(rawKeywordsText || ''));
+  sttKeywordsInput.value = normalized;
+  if (options.persist !== false) {
+    localStorage.setItem('church-stt-keywords', normalized);
+  }
 }
 
 function updateSermonKeywordsUi() {
@@ -890,7 +935,7 @@ function updateSermonKeywordsUi() {
 }
 
 function setSermonKeywords(rawKeywordsText) {
-  sermonKeywordsText = String(rawKeywordsText || '').replace(/\r\n/g, '\n').trim();
+  sermonKeywordsText = normalizeKeywordText(String(rawKeywordsText || ''));
   updateSermonKeywordsUi();
 }
 
@@ -2793,7 +2838,10 @@ async function setRunning(nextRunning) {
 
 async function syncTranslationConfig() {
   const glossary = glossaryInput.value || '';
-  const stt_keywords = sttKeywordsInput.value || '';
+  const stt_keywords = normalizeKeywordText(sttKeywordsInput.value || '');
+  if (stt_keywords !== (sttKeywordsInput.value || '')) {
+    sttKeywordsInput.value = stt_keywords;
+  }
   await invoke('set_translation_config', {
     config: {
       glossary,
@@ -2834,7 +2882,7 @@ async function ensureMainInitialized() {
   }
   const savedSttKeywords = localStorage.getItem('church-stt-keywords');
   if (savedSttKeywords) {
-    sttKeywordsInput.value = savedSttKeywords;
+    setStableSttKeywords(savedSttKeywords, { persist: false });
   }
   setReferenceScript(localStorage.getItem(REFERENCE_SCRIPT_STORAGE_KEY) || '', { persist: false });
   setSermonKeywords('');
@@ -3095,9 +3143,9 @@ mainProjectIdInput.addEventListener('keydown', async (event) => {
 });
 
 saveGlossaryButton.addEventListener('click', async () => {
+  setStableSttKeywords(sttKeywordsInput.value || '');
   await syncTranslationConfig();
   localStorage.setItem('church-glossary', glossaryInput.value || '');
-  localStorage.setItem('church-stt-keywords', sttKeywordsInput.value || '');
   setStatusKey('status.languageAidsSaved');
 });
 
@@ -3386,6 +3434,16 @@ clearSermonKeywordsButton.addEventListener('click', async () => {
   setSermonKeywords('');
   await syncTranslationConfig();
   setStatusKey('status.sermonKeywordsCleared');
+});
+
+sttKeywordsInput.addEventListener('paste', () => {
+  window.setTimeout(() => {
+    setStableSttKeywords(sttKeywordsInput.value || '');
+  }, 0);
+});
+
+sttKeywordsInput.addEventListener('blur', () => {
+  setStableSttKeywords(sttKeywordsInput.value || '');
 });
 
 closeScriptModalButton.addEventListener('click', () => {
