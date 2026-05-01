@@ -467,6 +467,16 @@ fn source_language_api_code(code: &str) -> Option<&'static str> {
     }
 }
 
+fn canonical_language_code(code: &str) -> Option<&'static str> {
+    match code.trim().to_lowercase().as_str() {
+        "ko" | "korean" => Some("ko"),
+        "ja" | "japanese" => Some("ja"),
+        "zh" | "chinese" | "zh-cn" | "zh-tw" => Some("zh"),
+        "en" | "english" => Some("en"),
+        _ => None,
+    }
+}
+
 fn target_language_label(code: &str) -> &'static str {
     match code {
         "zh-hans" => "Simplified Chinese",
@@ -571,7 +581,9 @@ fn transcription_quality_warning(
     }
 
     if let (Some(expected), Some(detected)) = (expected_language_code, response.language.as_deref()) {
-        if !detected.is_empty() && detected != expected {
+        let expected_canonical = canonical_language_code(expected).unwrap_or(expected);
+        let detected_canonical = canonical_language_code(detected).unwrap_or(detected);
+        if !detected.trim().is_empty() && detected_canonical != expected_canonical {
             return Some(format!(
                 "language mismatch (expected {expected}, detected {detected})"
             ));
