@@ -1859,22 +1859,6 @@ body.presentation-mode #toggleSourcePanelHeader {
     grid-template-columns: 1fr;
   }
 
-  body.presentation-mode .captions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  body.presentation-mode.has-reference-script .captions {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 400px);
-  }
-
-  body.presentation-mode.source-panel-collapsed .captions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
-  }
-
   .stt-keyword-input-row {
     grid-template-columns: 1fr;
   }
@@ -2067,6 +2051,7 @@ body.presentation-mode .translation-live-bar {
 }
 
 body.presentation-mode .captions {
+  --presentation-script-width: clamp(320px, 28vw, 420px);
   display: flex !important;
   flex-direction: row;
   align-items: stretch;
@@ -2078,8 +2063,13 @@ body.presentation-mode .captions > .caption-card {
   min-width: 0;
 }
 
+body.presentation-mode.has-reference-script .captions > #sourceCaptionCard,
+body.presentation-mode.has-reference-script .captions > .translated-card {
+  flex: 1 1 calc((100% - var(--presentation-script-width) - 20px) / 2);
+}
+
 body.presentation-mode.has-reference-script .captions > .script-reference-card {
-  flex: 0 0 clamp(320px, 28vw, 420px);
+  flex: 0 0 var(--presentation-script-width);
 }
 
 body.presentation-mode.source-panel-collapsed #sourceCaptionCard {
@@ -2087,7 +2077,8 @@ body.presentation-mode.source-panel-collapsed #sourceCaptionCard {
 }
 
 body.presentation-mode.has-reference-script.source-panel-collapsed .captions > .translated-card {
-  flex: 1 1 auto;
+  flex: 0 0 calc(100% - var(--presentation-script-width) - 10px);
+  max-width: calc(100% - var(--presentation-script-width) - 10px);
 }
 
 #closeSourcePanel {
