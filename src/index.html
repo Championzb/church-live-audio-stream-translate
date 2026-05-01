@@ -259,8 +259,16 @@
               <summary id="languageAidsSummary">Language Aids</summary>
               <div class="card-body">
                 <div class="row settings-form-row settings-form-row--stack">
-                  <label id="labelGlossary" for="glossary">Glossary (one term per line, EN=ZH)</label>
-                  <textarea id="glossary" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典"></textarea>
+                  <label id="labelGlossary" for="glossaryDraft">Glossary (paste one/multiple terms, then remove by chip)</label>
+                  <div class="stt-keyword-editor">
+                    <div class="stt-keyword-input-row">
+                      <input id="glossaryDraft" type="text" placeholder="Holy Spirit=圣灵, Grace=恩典" autocomplete="off" />
+                      <button id="addGlossaryTerm" type="button">Add</button>
+                      <button id="clearGlossaryTerms" type="button">Clear</button>
+                    </div>
+                    <div id="glossaryChips" class="stt-keyword-chip-list" aria-live="polite"></div>
+                  </div>
+                  <textarea id="glossary" class="stt-keywords-storage" rows="3" placeholder="Holy Spirit=圣灵&#10;Grace=恩典" aria-hidden="true" tabindex="-1"></textarea>
                 </div>
                 <div class="row settings-form-row settings-form-row--stack">
                   <label id="labelSttKeywords" for="sttKeywordDraft">Stable STT Keywords (paste one/multiple terms, then remove by chip)</label>

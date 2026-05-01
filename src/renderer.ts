@@ -131,6 +131,10 @@ const vadValueEl = document.getElementById('vadValue') as any;
 const silenceMsInput = document.getElementById('silenceMs') as any;
 const maxSegmentMsInput = document.getElementById('maxSegmentMs') as any;
 const glossaryInput = document.getElementById('glossary') as any;
+const glossaryDraftInput = document.getElementById('glossaryDraft') as any;
+const addGlossaryTermButton = document.getElementById('addGlossaryTerm') as any;
+const clearGlossaryTermsButton = document.getElementById('clearGlossaryTerms') as any;
+const glossaryChipsEl = document.getElementById('glossaryChips') as any;
 const sttKeywordsInput = document.getElementById('sttKeywords') as any;
 const saveGlossaryButton = document.getElementById('saveGlossary') as any;
 const importGlossaryButton = document.getElementById('importGlossary') as any;
@@ -222,6 +226,7 @@ let pendingSegmentDurationMs = 0;
 let pendingSegmentEndedAtMs = 0;
 let testStreamActive = false;
 let selectedTestAudioFile: File | null = null;
+let glossaryTerms: string[] = [];
 let stableSttKeywordTerms: string[] = [];
 let lastNonPickerAudioInputValue = '';
 let lineSequence = 0;
@@ -261,12 +266,14 @@ const UI_TEXT = {
     'help.vadThreshold': 'VAD Threshold: lower catches quieter speech but may trigger on noise.',
     'help.silenceMs': 'Silence Hold: how long silence must last before ending a segment.',
     'help.maxSegmentMs': 'Max Segment: hard cap on segment length for latency control.',
-    'label.glossary': 'Glossary (one term per line, EN=ZH)',
+    'label.glossary': 'Glossary (paste one/multiple terms, then remove by chip)',
     'label.sttKeywords': 'Stable STT Keywords (paste one/multiple terms, then remove by chip)',
     'label.scriptActions': 'Script',
     'label.keywordActions': 'Keywords',
     'label.sermonKeywordsList': 'Loaded Keyword List',
     'hint.sttKeywords': 'Stable week-to-week speech-recognition priming. Sermon-specific keywords are managed in the Script modal.',
+    'placeholder.glossary': 'Holy Spirit=圣灵, Grace=恩典',
+    'glossary.empty': 'No glossary terms yet. Paste terms above and click Add.',
     'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
     'sttKeywords.empty': 'No stable keywords yet. Paste terms above and click Add.',
     'label.autoSaveOnStop': 'Auto-save on stop',
@@ -505,12 +512,14 @@ const UI_TEXT = {
     'help.vadThreshold': 'VAD 阈值：越低越容易捕捉轻声，也更可能被噪声触发。',
     'help.silenceMs': '静音保持：静音持续多久后才结束当前片段。',
     'help.maxSegmentMs': '最长片段：即使一直在说话，超过该时长也会强制切段。',
-    'label.glossary': '术语表（每行一个，EN=ZH）',
+    'label.glossary': '术语表（可粘贴一行/多行，按标签快速删除）',
     'label.sttKeywords': '稳定 STT 关键词（可粘贴一行/多行，按标签快速删除）',
     'label.scriptActions': '讲稿',
     'label.keywordActions': '关键词',
     'label.sermonKeywordsList': '已加载关键词列表',
     'hint.sttKeywords': '用于每周稳定语音识别预热。讲道专用关键词请在讲稿面板中管理。',
+    'placeholder.glossary': 'Holy Spirit=圣灵, Grace=恩典',
+    'glossary.empty': '尚无术语条目。请在上方粘贴后点击添加。',
     'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
     'sttKeywords.empty': '尚无稳定关键词。请在上方粘贴后点击添加。',
     'label.autoSaveOnStop': '停止时自动保存',
@@ -925,6 +934,102 @@ function formatKeywordList(content: string) {
   const tokens = parseKeywordTerms(content);
   if (!tokens.length) return t('sermonKeywords.metaNone');
   return tokens.join(', ');
+}
+
+function normalizeGlossaryToken(rawToken: string) {
+  return normalizeKeywordToken(rawToken).replace(/\s*=\s*/g, '=').trim();
+}
+
+function glossaryDedupKey(token: string) {
+  const normalized = String(token || '')
+    .normalize('NFKC')
+    .replace(/\s*=\s*/g, '=')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const eqIdx = normalized.indexOf('=');
+  if (eqIdx <= 0) return normalized.toLocaleLowerCase();
+  return normalized.slice(0, eqIdx).trim().toLocaleLowerCase();
+}
+
+function parseGlossaryTerms(content: string) {
+  if (!content) return [];
+  const map = new Map<string, string>();
+  for (const rawToken of content.split(/[\n,;]+/)) {
+    const token = normalizeGlossaryToken(rawToken);
+    if (!token) continue;
+    map.set(glossaryDedupKey(token), token);
+  }
+  return Array.from(map.values());
+}
+
+function renderGlossaryUi() {
+  if (!glossaryChipsEl) return;
+  glossaryChipsEl.innerHTML = '';
+  if (!glossaryTerms.length) {
+    const emptyEl = document.createElement('span');
+    emptyEl.className = 'input-hint';
+    emptyEl.textContent = t('glossary.empty');
+    glossaryChipsEl.appendChild(emptyEl);
+  } else {
+    glossaryTerms.forEach((term, index) => {
+      const chip = document.createElement('span');
+      chip.className = 'stt-keyword-chip';
+
+      const text = document.createElement('span');
+      text.textContent = term;
+      chip.appendChild(text);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'stt-keyword-chip-remove';
+      removeButton.dataset.glossaryIndex = String(index);
+      removeButton.textContent = '×';
+      removeButton.setAttribute('aria-label', `${t('button.clearKeywords')}: ${term}`);
+      removeButton.disabled = controlsLocked;
+      chip.appendChild(removeButton);
+      glossaryChipsEl.appendChild(chip);
+    });
+  }
+
+  if (addGlossaryTermButton) addGlossaryTermButton.disabled = controlsLocked;
+  if (clearGlossaryTermsButton) clearGlossaryTermsButton.disabled = controlsLocked || !glossaryTerms.length;
+}
+
+function setGlossaryTerms(rawGlossaryText: string, options: { persist?: boolean } = {}) {
+  glossaryTerms = parseGlossaryTerms(String(rawGlossaryText || ''));
+  const normalized = glossaryTerms.join('\n');
+  glossaryInput.value = normalized;
+  renderGlossaryUi();
+  if (options.persist !== false) {
+    localStorage.setItem('church-glossary', normalized);
+  }
+}
+
+function addGlossaryTerms(rawGlossaryText: string) {
+  const incoming = parseGlossaryTerms(String(rawGlossaryText || ''));
+  if (!incoming.length) return false;
+
+  const dedupeIndex = new Map<string, number>();
+  glossaryTerms.forEach((term, index) => {
+    dedupeIndex.set(glossaryDedupKey(term), index);
+  });
+
+  incoming.forEach((term) => {
+    const key = glossaryDedupKey(term);
+    const existingIndex = dedupeIndex.get(key);
+    if (typeof existingIndex === 'number') {
+      glossaryTerms[existingIndex] = term;
+    } else {
+      dedupeIndex.set(key, glossaryTerms.length);
+      glossaryTerms.push(term);
+    }
+  });
+
+  const normalized = glossaryTerms.join('\n');
+  glossaryInput.value = normalized;
+  renderGlossaryUi();
+  localStorage.setItem('church-glossary', normalized);
+  return true;
 }
 
 function renderStableSttKeywordsUi() {
@@ -1352,6 +1457,9 @@ function setControlsLocked(nextLocked) {
     liveSilenceMsInput,
     maxSegmentMsInput,
     liveMaxSegmentMsInput,
+    glossaryDraftInput,
+    addGlossaryTermButton,
+    clearGlossaryTermsButton,
     glossaryInput,
     sttKeywordDraftInput,
     addSttKeywordButton,
@@ -1371,6 +1479,7 @@ function setControlsLocked(nextLocked) {
   localStorage.setItem('church-controls-locked', controlsLocked ? '1' : '0');
   updateReferenceScriptUi();
   updateSermonKeywordsUi();
+  renderGlossaryUi();
   renderStableSttKeywordsUi();
   setStatusKey(controlsLocked ? 'status.controlsLocked' : 'status.controlsUnlocked');
   updateHotkeyPills();
@@ -1973,6 +2082,9 @@ function applyUiLanguage() {
   liveSilenceHelpTextEl.textContent = t('help.silenceMs');
   liveMaxSegmentHelpTextEl.textContent = t('help.maxSegmentMs');
   labelGlossaryEl.textContent = t('label.glossary');
+  if (glossaryDraftInput) {
+    glossaryDraftInput.placeholder = t('placeholder.glossary');
+  }
   labelSttKeywordsEl.textContent = t('label.sttKeywords');
   sttKeywordsHintEl.textContent = t('hint.sttKeywords');
   if (sttKeywordDraftInput) {
@@ -2013,6 +2125,8 @@ function applyUiLanguage() {
   setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
   setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
   saveGlossaryButton.textContent = t('button.saveLanguageAids');
+  if (addGlossaryTermButton) addGlossaryTermButton.textContent = t('button.addKeyword');
+  if (clearGlossaryTermsButton) clearGlossaryTermsButton.textContent = t('button.clearKeywords');
   if (addSttKeywordButton) addSttKeywordButton.textContent = t('button.addKeyword');
   if (clearSttKeywordsButton) clearSttKeywordsButton.textContent = t('button.clearKeywords');
   importGlossaryButton.textContent = t('button.import');
@@ -2024,6 +2138,7 @@ function applyUiLanguage() {
   scriptModalTitleEl.textContent = t('modal.scriptTitle');
   scriptModalSubtitleEl.textContent = t('modal.scriptSubtitle');
   updateSermonKeywordsUi();
+  renderGlossaryUi();
   renderStableSttKeywordsUi();
   labelMainApiKeyEl.textContent = t('label.apiKey');
   labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
@@ -2913,7 +3028,10 @@ async function setRunning(nextRunning) {
 }
 
 async function syncTranslationConfig() {
-  const glossary = glossaryInput.value || '';
+  const glossary = parseGlossaryTerms(glossaryInput.value || '').join('\n');
+  if (glossary !== (glossaryInput.value || '')) {
+    glossaryInput.value = glossary;
+  }
   const stt_keywords = normalizeKeywordText(sttKeywordsInput.value || '');
   if (stt_keywords !== (sttKeywordsInput.value || '')) {
     sttKeywordsInput.value = stt_keywords;
@@ -2954,7 +3072,9 @@ async function ensureMainInitialized() {
 
   const savedGlossary = localStorage.getItem('church-glossary');
   if (savedGlossary) {
-    glossaryInput.value = savedGlossary;
+    setGlossaryTerms(savedGlossary, { persist: false });
+  } else {
+    setGlossaryTerms('', { persist: false });
   }
   const savedSttKeywords = localStorage.getItem('church-stt-keywords');
   if (savedSttKeywords) {
@@ -3219,18 +3339,17 @@ mainProjectIdInput.addEventListener('keydown', async (event) => {
 });
 
 saveGlossaryButton.addEventListener('click', async () => {
+  setGlossaryTerms(glossaryInput.value || '');
   setStableSttKeywords(sttKeywordsInput.value || '');
   await syncTranslationConfig();
-  localStorage.setItem('church-glossary', glossaryInput.value || '');
   setStatusKey('status.languageAidsSaved');
 });
 
 importGlossaryButton.addEventListener('click', async () => {
   const result = await invoke('import_glossary');
   if (result.ok && typeof result.content === 'string') {
-    glossaryInput.value = result.content;
+    setGlossaryTerms(result.content);
     await syncTranslationConfig();
-    localStorage.setItem('church-glossary', glossaryInput.value || '');
     setStatusKey('status.glossaryImported');
   } else {
     setStatus(result.message || t('status.glossaryImportCanceled'));
@@ -3238,6 +3357,7 @@ importGlossaryButton.addEventListener('click', async () => {
 });
 
 exportGlossaryButton.addEventListener('click', async () => {
+  setGlossaryTerms(glossaryInput.value || '');
   const result = await invoke('export_glossary', { content: glossaryInput.value || '' });
   if (result.ok) {
     setStatusKey('status.glossaryExported', { path: result.path });
@@ -3511,6 +3631,60 @@ clearSermonKeywordsButton.addEventListener('click', async () => {
   await syncTranslationConfig();
   setStatusKey('status.sermonKeywordsCleared');
 });
+
+if (addGlossaryTermButton) {
+  addGlossaryTermButton.addEventListener('click', () => {
+    const draft = glossaryDraftInput?.value || '';
+    const added = addGlossaryTerms(draft);
+    if (added) {
+      glossaryDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+}
+
+if (clearGlossaryTermsButton) {
+  clearGlossaryTermsButton.addEventListener('click', () => {
+    setGlossaryTerms('');
+    void syncTranslationConfig();
+  });
+}
+
+if (glossaryDraftInput) {
+  glossaryDraftInput.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    const added = addGlossaryTerms(glossaryDraftInput.value || '');
+    if (added) {
+      glossaryDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+
+  glossaryDraftInput.addEventListener('paste', (event: ClipboardEvent) => {
+    const clipboardText = event.clipboardData?.getData('text') || '';
+    if (!clipboardText.trim()) return;
+    event.preventDefault();
+    const added = addGlossaryTerms(clipboardText);
+    if (added) {
+      glossaryDraftInput.value = '';
+      void syncTranslationConfig();
+    }
+  });
+}
+
+if (glossaryChipsEl) {
+  glossaryChipsEl.addEventListener('click', (event: MouseEvent) => {
+    const target = event.target as HTMLElement | null;
+    const removeButton = target?.closest?.('button[data-glossary-index]') as HTMLButtonElement | null;
+    if (!removeButton) return;
+    const index = Number(removeButton.dataset.glossaryIndex);
+    if (Number.isNaN(index) || index < 0 || index >= glossaryTerms.length) return;
+    glossaryTerms.splice(index, 1);
+    setGlossaryTerms(glossaryTerms.join('\n'));
+    void syncTranslationConfig();
+  });
+}
 
 if (addSttKeywordButton) {
   addSttKeywordButton.addEventListener('click', () => {
