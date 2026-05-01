@@ -44,6 +44,7 @@ In that case, use the source setup path below until a release is published.
 - QA checklist: [docs/TEST_PLAN.md](./docs/TEST_PLAN.md)
 - QA merge/release gate: [docs/QA_GATE.md](./docs/QA_GATE.md)
 - UI review rubric: [docs/UI_REVIEW_RUBRIC.md](./docs/UI_REVIEW_RUBRIC.md)
+- Automated version bump workflow: `.github/workflows/release-version.yml`
 
 ## Automated Test Commands
 

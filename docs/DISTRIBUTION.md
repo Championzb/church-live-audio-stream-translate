@@ -43,6 +43,22 @@ The workflow `.github/workflows/distribution.yml` can be triggered in two ways:
 - Push a tag like `v0.3.0`
 - Manual run from GitHub Actions (`workflow_dispatch`)
 
+### Automatic version bump + tag (recommended maintainer flow)
+
+Use workflow `.github/workflows/release-version.yml`:
+
+1. Open GitHub Actions -> `Release Version`.
+2. Click `Run workflow`.
+3. Choose bump type: `patch`, `minor`, or `major`.
+
+What it does automatically:
+
+- Bumps `package.json` version (and `package-lock.json`).
+- Syncs `src-tauri/tauri.conf.json` version to match.
+- Commits version files to `main`.
+- Creates and pushes tag `vX.Y.Z`.
+- Tag push triggers `.github/workflows/distribution.yml`.
+
 CI behavior:
 
 - Builds macOS `.app` + Windows `.msi` bundles
