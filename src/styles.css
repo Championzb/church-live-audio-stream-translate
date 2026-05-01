@@ -1385,12 +1385,9 @@ body.presentation-mode .caption-card.is-collapsed {
   display: none !important;
 }
 
-#toggleSourcePanelHeader {
-  display: none;
-}
-
-body.presentation-mode #toggleSourcePanelHeader {
+#translationLiveBar #toggleSourcePanelHeader {
   display: inline-flex;
+  margin-right: 8px;
 }
 
 .caption-card::after {
