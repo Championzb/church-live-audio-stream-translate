@@ -116,7 +116,9 @@ const windowMaximizeButton = document.getElementById('windowMaximize') as any;
 const windowCloseButton = document.getElementById('windowClose') as any;
 const englishPanel = document.getElementById('englishPanel') as any;
 const chinesePanel = document.getElementById('chinesePanel') as any;
+const captionsSectionEl = document.getElementById('captionsSection') as any;
 const sourceCaptionCardEl = document.getElementById('sourceCaptionCard') as any;
+const translatedCaptionCardEl = document.querySelector('.translated-card') as any;
 const toggleSourcePanelHeaderButton = document.getElementById('toggleSourcePanelHeader') as any;
 const closeSourcePanelButton = document.getElementById('closeSourcePanel') as any;
 const translatedHeadingEl = document.getElementById('translatedHeading') as any;
@@ -1146,6 +1148,7 @@ function updateReferenceScriptUi() {
     ? t('script.metaLoaded', { lines: countScriptLines(referenceScriptText) })
     : t('script.metaNone');
   clearReferenceScriptButton.disabled = controlsLocked || !hasScript;
+  applyPresentationCaptionLayout();
 }
 
 function setReferenceScript(rawScriptText, options: { persist?: boolean } = {}) {
@@ -1468,6 +1471,69 @@ function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolea
   }
   if (options.persist !== false) {
     localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, sourcePanelCollapsed ? '1' : '0');
+  }
+  applyPresentationCaptionLayout();
+}
+
+function clearPresentationCaptionInlineLayout() {
+  if (!captionsSectionEl || !translatedCaptionCardEl || !scriptReferenceCardEl || !sourceCaptionCardEl) return;
+  captionsSectionEl.style.removeProperty('gap');
+  translatedCaptionCardEl.style.removeProperty('flex');
+  translatedCaptionCardEl.style.removeProperty('max-width');
+  translatedCaptionCardEl.style.removeProperty('width');
+  sourceCaptionCardEl.style.removeProperty('flex');
+  sourceCaptionCardEl.style.removeProperty('max-width');
+  sourceCaptionCardEl.style.removeProperty('width');
+  scriptReferenceCardEl.style.removeProperty('flex');
+  scriptReferenceCardEl.style.removeProperty('max-width');
+  scriptReferenceCardEl.style.removeProperty('width');
+}
+
+function applyPresentationCaptionLayout() {
+  if (!captionsSectionEl || !translatedCaptionCardEl || !scriptReferenceCardEl || !sourceCaptionCardEl) return;
+  if (!presentationMode) {
+    clearPresentationCaptionInlineLayout();
+    return;
+  }
+
+  const hasScript = document.body.classList.contains('has-reference-script');
+  if (!hasScript) {
+    clearPresentationCaptionInlineLayout();
+    return;
+  }
+
+  const collapsed = document.body.classList.contains('source-panel-collapsed');
+  const captionsWidth = captionsSectionEl.clientWidth;
+  if (!Number.isFinite(captionsWidth) || captionsWidth <= 0) return;
+
+  const computed = window.getComputedStyle(captionsSectionEl);
+  const gapValue = Number.parseFloat(computed.columnGap || computed.gap || '10');
+  const gap = Number.isFinite(gapValue) ? gapValue : 10;
+
+  const currentScriptWidth = scriptReferenceCardEl.getBoundingClientRect().width;
+  const fallbackScriptWidth = Math.max(320, Math.min(420, captionsWidth * 0.28));
+  const scriptWidth = Number.isFinite(currentScriptWidth) && currentScriptWidth > 0
+    ? currentScriptWidth
+    : fallbackScriptWidth;
+
+  scriptReferenceCardEl.style.flex = `0 0 ${scriptWidth}px`;
+  scriptReferenceCardEl.style.width = `${scriptWidth}px`;
+
+  if (collapsed) {
+    const translatedWidth = Math.max(0, captionsWidth - scriptWidth - gap);
+    translatedCaptionCardEl.style.flex = `0 0 ${translatedWidth}px`;
+    translatedCaptionCardEl.style.width = `${translatedWidth}px`;
+    translatedCaptionCardEl.style.maxWidth = `${translatedWidth}px`;
+    sourceCaptionCardEl.style.removeProperty('flex');
+    sourceCaptionCardEl.style.removeProperty('width');
+    sourceCaptionCardEl.style.removeProperty('max-width');
+  } else {
+    translatedCaptionCardEl.style.flex = '1 1 0';
+    translatedCaptionCardEl.style.removeProperty('width');
+    translatedCaptionCardEl.style.removeProperty('max-width');
+    sourceCaptionCardEl.style.flex = '1 1 0';
+    sourceCaptionCardEl.style.removeProperty('width');
+    sourceCaptionCardEl.style.removeProperty('max-width');
   }
 }
 
@@ -1810,6 +1876,7 @@ function setPresentationMode(nextMode) {
   if (presentationMode) {
     renderPanels(activePairLineId, selectedPairLineId);
   }
+  applyPresentationCaptionLayout();
   updateModeSummary();
 }
 
@@ -4057,6 +4124,7 @@ window.addEventListener('keydown', (event) => {
 window.addEventListener('resize', () => {
   if (!pairedLines.length) return;
   renderPanels(activePairLineId, selectedPairLineId);
+  applyPresentationCaptionLayout();
 });
 
 boot();
