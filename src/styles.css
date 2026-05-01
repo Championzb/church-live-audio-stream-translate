@@ -1859,6 +1859,22 @@ body.presentation-mode #toggleSourcePanelHeader {
     grid-template-columns: 1fr;
   }
 
+  body.presentation-mode .captions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.presentation-mode.has-reference-script .captions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 400px);
+  }
+
+  body.presentation-mode.source-panel-collapsed .captions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  }
+
   .stt-keyword-input-row {
     grid-template-columns: 1fr;
   }
