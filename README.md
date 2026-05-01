@@ -21,6 +21,7 @@ Desktop subtitle app for Windows and macOS using Tauri.
 - Distribution playbook: [docs/DISTRIBUTION.md](./docs/DISTRIBUTION.md)
 - Signing and notarization: [docs/SIGNING.md](./docs/SIGNING.md)
 - QA checklist: [docs/TEST_PLAN.md](./docs/TEST_PLAN.md)
+- QA merge/release gate: [docs/QA_GATE.md](./docs/QA_GATE.md)
 
 ## Open Source Project Docs
 
