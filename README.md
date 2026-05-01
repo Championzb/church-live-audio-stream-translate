@@ -2,6 +2,8 @@
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
+English | [简体中文](./README.zh-CN.md)
+
 ## What This App Does
 
 - Captures live sermon audio from your selected input device.
