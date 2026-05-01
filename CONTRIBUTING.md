@@ -36,6 +36,7 @@ npm run typecheck
 - Reference related issues where applicable.
 - Update docs (`README.md` or `/docs`) when user-facing behavior changes.
 - Ensure the app still starts and key flows are verified before requesting review.
+- Follow the merge gate in [docs/QA_GATE.md](./docs/QA_GATE.md).
 
 ## Commit Guidelines
 
