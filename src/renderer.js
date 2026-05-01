@@ -251,7 +251,7 @@ const UI_TEXT = {
         'label.sermonKeywordsList': 'Loaded Keyword List',
         'hint.sttKeywords': 'Stable week-to-week speech-recognition priming. Sermon-specific keywords are managed in the Script modal.',
         'label.autoSaveOnStop': 'Auto-save on stop',
-        'heading.english': 'English',
+        'heading.english': 'Source',
         'button.saveKey': 'Save Key',
         'button.refresh': 'Refresh',
         'button.start': 'Start (F8)',
@@ -392,7 +392,7 @@ const UI_TEXT = {
         'status.noScriptToClear': 'No reference script is loaded',
         'status.testAudioPlaybackBlocked': 'Test audio playback was blocked by the browser. Streaming test still continues.',
         'status.audioDeviceAccessError': 'Audio device access error: {error}',
-        'status.running': 'Running: capturing {source} audio and generating English + {target} captions',
+        'status.running': 'Running: capturing {source} audio and generating {source} + {target} captions',
         'status.startFailed': 'Start failed: {error}',
         'status.autoSaved': 'Stopped and auto-saved transcript: {path}',
         'status.stopped': 'Stopped',
@@ -454,8 +454,8 @@ const UI_TEXT = {
         'theme.broadcast-clean': 'Broadcast Clean',
         'theme.paper-light': 'Paper Light',
         'theme.minimal-mono': 'Minimal Mono',
-        'source.korean': '{language} (translate to English)',
-        'source.english': '{language} (direct transcription)',
+        'source.korean': '{language}',
+        'source.english': '{language}',
         'source.japanese': '{language}',
         'source.chinese': '{language}',
         'device.default': 'System Default',
@@ -489,7 +489,7 @@ const UI_TEXT = {
         'label.sermonKeywordsList': '已加载关键词列表',
         'hint.sttKeywords': '用于每周稳定语音识别预热。讲道专用关键词请在讲稿面板中管理。',
         'label.autoSaveOnStop': '停止时自动保存',
-        'heading.english': '英文',
+        'heading.english': '源文',
         'button.saveKey': '保存密钥',
         'button.refresh': '刷新',
         'button.start': '开始（F8）',
@@ -630,7 +630,7 @@ const UI_TEXT = {
         'status.noScriptToClear': '当前没有已加载的参考讲稿',
         'status.testAudioPlaybackBlocked': '浏览器阻止了测试音频播放，流式测试仍会继续。',
         'status.audioDeviceAccessError': '音频设备访问错误：{error}',
-        'status.running': '运行中：采集{source}音频，生成英文与{target}字幕',
+        'status.running': '运行中：采集{source}音频，生成{source}与{target}字幕',
         'status.startFailed': '启动失败：{error}',
         'status.autoSaved': '已停止并自动保存转录：{path}',
         'status.stopped': '已停止',
@@ -692,8 +692,8 @@ const UI_TEXT = {
         'theme.broadcast-clean': '投屏高对比',
         'theme.paper-light': '浅色纸面',
         'theme.minimal-mono': '极简单色',
-        'source.korean': '{language}（先翻译为英文）',
-        'source.english': '{language}（直接转录）',
+        'source.korean': '{language}',
+        'source.english': '{language}',
         'source.japanese': '{language}',
         'source.chinese': '{language}',
         'device.default': '系统默认',
@@ -1723,6 +1723,9 @@ function clearCurrentLiveTranslation() {
 function updateTranslatedHeading() {
     translatedHeadingEl.textContent = languageName(targetLanguageSelect.value || 'zh-hans');
 }
+function updateSourceHeading() {
+    englishHeadingEl.textContent = languageName(sourceLanguageSelect.value || 'korean');
+}
 function updateSourceLanguageOptionLabels() {
     const labels = {
         korean: t('source.korean', { language: languageName('korean') }),
@@ -1775,7 +1778,7 @@ function applyUiLanguage() {
     sttKeywordsHintEl.textContent = t('hint.sttKeywords');
     labelSermonKeywordsListEl.textContent = t('label.sermonKeywordsList');
     labelAutoSaveOnStopEl.textContent = t('label.autoSaveOnStop');
-    englishHeadingEl.textContent = t('heading.english');
+    updateSourceHeading();
     saveKeyButton.textContent = t('button.saveKey');
     saveMainApiKeyButton.textContent = t('button.saveKey');
     cancelMainApiKeyButton.textContent = t('button.cancel');
@@ -2650,6 +2653,7 @@ async function ensureMainInitialized() {
     const savedSourcePanelCollapsed = localStorage.getItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY);
     sourcePanelCollapsed = savedSourcePanelCollapsed !== '0';
     setSourcePanelCollapsed(sourcePanelCollapsed, { persist: false });
+    updateSourceHeading();
     updateTranslatedHeading();
     await syncTranslationConfig();
     updateModeSummary();
@@ -2958,6 +2962,7 @@ sourceLanguageSelect.addEventListener('change', async () => {
     await syncTranslationConfig();
     localStorage.setItem('church-source-language', sourceLanguageSelect.value || 'korean');
     setStatusKey('status.sourceSet', { source: languageName(sourceLanguageSelect.value || 'korean') });
+    updateSourceHeading();
     updateModeSummary();
     updateCostSummary();
 });
