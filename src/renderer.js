@@ -876,6 +876,15 @@ function normalizeKeywordToken(rawToken) {
         .trim();
     return token.trim();
 }
+function keywordDedupKey(token) {
+    return String(token || '')
+        .normalize('NFKC')
+        .replace(/\s*\(\s*/g, '(')
+        .replace(/\s*\)\s*/g, ')')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLocaleLowerCase();
+}
 function parseKeywordTerms(content) {
     if (!content)
         return [];
@@ -885,7 +894,7 @@ function parseKeywordTerms(content) {
         const token = normalizeKeywordToken(rawToken);
         if (!token)
             continue;
-        const dedupeKey = token.toLocaleLowerCase();
+        const dedupeKey = keywordDedupKey(token);
         if (seen.has(dedupeKey))
             continue;
         seen.add(dedupeKey);
@@ -951,9 +960,9 @@ function addStableSttKeywords(rawKeywordsText) {
     const incoming = parseKeywordTerms(String(rawKeywordsText || ''));
     if (!incoming.length)
         return false;
-    const dedupeKeys = new Set(stableSttKeywordTerms.map((term) => term.toLocaleLowerCase()));
+    const dedupeKeys = new Set(stableSttKeywordTerms.map((term) => keywordDedupKey(term)));
     incoming.forEach((term) => {
-        const dedupeKey = term.toLocaleLowerCase();
+        const dedupeKey = keywordDedupKey(term);
         if (dedupeKeys.has(dedupeKey))
             return;
         dedupeKeys.add(dedupeKey);
