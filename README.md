@@ -2,6 +2,50 @@
 
 Desktop subtitle app for Windows and macOS using Tauri.
 
+## What This App Does
+
+- Captures live sermon audio from your selected input device.
+- Produces source-language transcript + target-language translation in near real-time.
+- Supports Korean, English, Japanese, and Chinese as source input.
+- Supports Simplified Chinese, Traditional Chinese, Korean, Japanese, Spanish, and English as target output.
+- Provides an optional projector window for audience display.
+- Includes glossary + keyword aids to improve church-term consistency.
+
+## Typical Usage Cases
+
+- Church services needing live translated captions for multilingual congregations.
+- Bilingual ministry teams where one operator manages audio input and translation output.
+- Small teams that want local control over workflow and prompt tuning.
+- Services that need source transcript visibility for reviewers while audience sees target language.
+
+## Key Benefits
+
+- Target-first live UI designed for service operations.
+- Source-aware pipeline (`Audio -> Source -> Target`) to reduce pivot-language drift.
+- Source/target toggle controls for both main translation view and projector view.
+- Script + sermon keyword workflow for weekly prep and terminology consistency.
+- Open-source and self-hosted workflow flexibility.
+
+## Limitations vs Commercial Live Audio Translation Platforms
+
+- No guaranteed SLA, uptime contract, or managed support desk.
+- More operator setup responsibility (audio routing, keys, quality tuning, service-day checks).
+- Fewer enterprise features out of the box (team admin console, analytics dashboards, compliance bundles).
+- Quality depends more on local environment and operator tuning than fully managed platforms.
+- Release cadence and long-term maintenance depend on this project/community, not a commercial roadmap commitment.
+
+## Is This The Right Tool For You?
+
+Use this project if you want:
+- Strong control over translation workflow and church-specific term tuning.
+- A practical operator UI with projector support for live services.
+- Open-source flexibility over turnkey managed platform features.
+
+Consider a commercial platform if you need:
+- Formal support/SLA requirements.
+- Minimal setup overhead for non-technical teams.
+- Enterprise governance/compliance/reporting features from day one.
+
 ## Installation (From GitHub Releases)
 
 1. Open the repository Releases page on GitHub.
