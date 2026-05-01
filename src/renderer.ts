@@ -2606,6 +2606,15 @@ function isSupportedTestAudioFile(file: File) {
   return TEST_AUDIO_ALLOWED_EXTENSIONS.has(ext);
 }
 
+function decodeBase64ToBytes(base64Text: string) {
+  const binary = atob(String(base64Text || ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 function openTestAudioFilePicker(restoreValue = '') {
   const restoreSelection = () => {
     if (audioInputSelect.value === TEST_AUDIO_PICKER_VALUE || liveAudioInputSelect.value === TEST_AUDIO_PICKER_VALUE) {
@@ -2613,53 +2622,62 @@ function openTestAudioFilePicker(restoreValue = '') {
     }
   };
 
-  const asAnyWindow = window as any;
-  if (typeof asAnyWindow.showOpenFilePicker === 'function') {
-    (async () => {
-      try {
-        const handles = await asAnyWindow.showOpenFilePicker({
-          multiple: false,
-          excludeAcceptAllOption: true,
-          types: [
-            {
-              description: 'Audio files',
-              accept: {
-                'audio/*': [
-                  '.wav', '.mp3', '.m4a', '.aac', '.flac',
-                  '.ogg', '.opus', '.oga', '.webm',
-                  '.mpeg', '.mpga', '.aif', '.aiff', '.wma'
-                ]
-              }
-            }
-          ]
+  (async () => {
+    try {
+      const picked = await invoke('pick_test_audio_file');
+      if (picked && picked.name && picked.bytesBase64) {
+        const bytes = decodeBase64ToBytes(picked.bytesBase64);
+        const file = new File([bytes], String(picked.name), {
+          type: String(picked.mimeType || 'application/octet-stream')
         });
-        const file = await handles?.[0]?.getFile?.();
-        if (!file) {
-          restoreSelection();
-          return;
-        }
         if (!isSupportedTestAudioFile(file)) {
           setStatusKey('status.testAudioInvalidType');
           restoreSelection();
           return;
         }
         setSelectedTestAudioFile(file);
-      } catch {
-        // User canceled or picker unavailable; fallback below.
-        try {
-          if (typeof testAudioFileInput.showPicker === 'function') {
-            testAudioFileInput.showPicker();
-          } else {
-            testAudioFileInput.click();
-          }
-        } catch {
-          setStatusKey('status.testAudioPickerBlocked');
-        } finally {
-          window.setTimeout(restoreSelection, 0);
-        }
+        return;
       }
-    })();
-    return;
+      restoreSelection();
+      return;
+    } catch {
+      // Fallback below for environments where native picker is unavailable.
+    }
+
+  const asAnyWindow = window as any;
+  if (typeof asAnyWindow.showOpenFilePicker === 'function') {
+    try {
+      const handles = await asAnyWindow.showOpenFilePicker({
+        multiple: false,
+        excludeAcceptAllOption: true,
+        types: [
+          {
+            description: 'Audio files',
+            accept: {
+              'audio/*': [
+                '.wav', '.mp3', '.m4a', '.aac', '.flac',
+                '.ogg', '.opus', '.oga', '.webm',
+                '.mpeg', '.mpga', '.aif', '.aiff', '.wma'
+              ]
+            }
+          }
+        ]
+      });
+      const file = await handles?.[0]?.getFile?.();
+      if (!file) {
+        restoreSelection();
+        return;
+      }
+      if (!isSupportedTestAudioFile(file)) {
+        setStatusKey('status.testAudioInvalidType');
+        restoreSelection();
+        return;
+      }
+      setSelectedTestAudioFile(file);
+      return;
+    } catch {
+      // User canceled or picker unavailable; fallback below.
+    }
   }
 
   try {
@@ -2677,6 +2695,7 @@ function openTestAudioFilePicker(restoreValue = '') {
   } finally {
     window.setTimeout(restoreSelection, 0);
   }
+  })();
 }
 
 async function processReferenceScriptFile(file) {

@@ -102,6 +102,14 @@ struct SavedRawKeysResponse {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PickedTestAudioFileResponse {
+    name: String,
+    mime_type: String,
+    bytes_base64: String,
+}
+
+#[derive(Serialize)]
 struct RunningResponse {
     running: bool,
 }
@@ -259,6 +267,29 @@ fn log_api_key_storage(message: &str) {
 
 fn log_project_costs(message: &str) {
     log::info!("[project-costs] {message}");
+}
+
+fn mime_from_audio_extension(path: &std::path::Path) -> String {
+    let ext = path
+        .extension()
+        .and_then(|v| v.to_str())
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    match ext.as_str() {
+        "wav" => "audio/wav",
+        "mp3" => "audio/mpeg",
+        "m4a" => "audio/mp4",
+        "aac" => "audio/aac",
+        "flac" => "audio/flac",
+        "ogg" | "oga" => "audio/ogg",
+        "opus" => "audio/opus",
+        "webm" => "audio/webm",
+        "mpeg" | "mpga" => "audio/mpeg",
+        "aif" | "aiff" => "audio/aiff",
+        "wma" => "audio/x-ms-wma",
+        _ => "application/octet-stream",
+    }
+    .to_string()
 }
 
 fn truncate_for_log(value: &str, max_chars: usize) -> String {
@@ -1931,6 +1962,37 @@ fn pick_auto_save_folder() -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
+fn pick_test_audio_file() -> Result<Option<PickedTestAudioFileResponse>, String> {
+    let selected = rfd::FileDialog::new()
+        .add_filter(
+            "Audio files",
+            &[
+                "wav", "mp3", "m4a", "aac", "flac", "ogg", "opus", "oga", "webm", "mpeg",
+                "mpga", "aif", "aiff", "wma",
+            ],
+        )
+        .pick_file();
+
+    let Some(path) = selected else {
+        return Ok(None);
+    };
+
+    let bytes = fs::read(&path).map_err(|e| format!("Failed to read selected audio file: {e}"))?;
+    let name = path
+        .file_name()
+        .and_then(|v| v.to_str())
+        .unwrap_or("test-audio")
+        .to_string();
+    let mime_type = mime_from_audio_extension(&path);
+
+    Ok(Some(PickedTestAudioFileResponse {
+        name,
+        mime_type,
+        bytes_base64: base64::engine::general_purpose::STANDARD.encode(bytes),
+    }))
+}
+
+#[tauri::command]
 fn import_glossary() -> Result<GlossaryReadResponse, String> {
     let open_path = rfd::FileDialog::new()
         .add_filter("Text file", &["txt"])
@@ -2240,6 +2302,7 @@ pub fn run() {
             export_transcript,
             auto_save_transcript,
             pick_auto_save_folder,
+            pick_test_audio_file,
             import_glossary,
             export_glossary,
             toggle_output_window,
