@@ -341,8 +341,7 @@ const UI_TEXT = {
     'tooltip.maxSegmentMs': 'Maximum segment duration before force-splitting, even if speech continues.',
     'tooltip.sourcePanelExpand': 'Expand source transcript panel.',
     'tooltip.sourcePanelCollapse': 'Collapse source transcript panel.',
-    'button.sourcePanelShow': 'Show Source',
-    'button.sourcePanelHide': 'Hide Source',
+    'button.sourcePanel': 'Source',
     'help.title': 'Quick Controls',
     'help.f8': '<strong>F8</strong>: Start/Stop translation',
     'help.f7': '<strong>F7</strong>: Suspend/Resume translation',
@@ -581,8 +580,7 @@ const UI_TEXT = {
     'tooltip.maxSegmentMs': '片段最大时长。即使持续说话，到达该时长也会强制切分。',
     'tooltip.sourcePanelExpand': '展开源语言转录面板。',
     'tooltip.sourcePanelCollapse': '收起源语言转录面板。',
-    'button.sourcePanelShow': '显示源面板',
-    'button.sourcePanelHide': '隐藏源面板',
+    'button.sourcePanel': '源文',
     'help.title': '快捷控制',
     'help.f8': '<strong>F8</strong>：开始/停止翻译',
     'help.f7': '<strong>F7</strong>：暂停/恢复翻译',
@@ -1188,9 +1186,7 @@ function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolea
   document.body.classList.toggle('source-panel-collapsed', appliedCollapsed);
   sourceCaptionCardEl.classList.toggle('is-collapsed', appliedCollapsed);
   if (toggleSourcePanelHeaderButton) {
-    toggleSourcePanelHeaderButton.innerHTML = appliedCollapsed
-      ? `<kbd>SRC</kbd> ${t('button.sourcePanelShow')}`
-      : `<kbd>SRC</kbd> ${t('button.sourcePanelHide')}`;
+    toggleSourcePanelHeaderButton.textContent = t('button.sourcePanel');
     toggleSourcePanelHeaderButton.title = appliedCollapsed
       ? t('tooltip.sourcePanelExpand')
       : t('tooltip.sourcePanelCollapse');
@@ -1200,6 +1196,7 @@ function setSourcePanelCollapsed(collapsed: boolean, options: { persist?: boolea
     );
     toggleSourcePanelHeaderButton.setAttribute('aria-expanded', appliedCollapsed ? 'false' : 'true');
     toggleSourcePanelHeaderButton.disabled = !presentationMode;
+    toggleSourcePanelHeaderButton.classList.toggle('is-active', !appliedCollapsed);
   }
   if (options.persist !== false) {
     localStorage.setItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY, sourcePanelCollapsed ? '1' : '0');
