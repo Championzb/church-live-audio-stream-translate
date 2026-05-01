@@ -100,7 +100,7 @@ Expected:
 ## 6) Auto-save on stop
 
 1. Ensure `Auto-save on stop` is enabled.
-2. Optional: set a custom folder via `Settings -> Translation Controls -> Choose Folder`.
+2. Optional: set a custom folder via `Settings -> Choose Folder`.
 3. Run short session and click `Stop`.
 4. Check selected folder (or default `~/Desktop/ChurchTranslateSessions` if no custom folder).
 

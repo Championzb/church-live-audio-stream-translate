@@ -22,7 +22,7 @@ Use this when preparing the machine, keys, and language aids before service.
 
 ## Auto-save Output Folder
 
-- `Settings` -> `Translation Controls` -> `Auto-save on stop`
+- `Settings` -> `Auto-save on stop`
 - Use `Choose Folder` to set the transcript auto-save destination.
 - If no custom folder is selected, default path is `~/Desktop/ChurchTranslateSessions`.
 

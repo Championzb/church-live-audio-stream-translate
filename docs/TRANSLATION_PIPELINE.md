@@ -101,4 +101,4 @@ Text fallback:
 - Translation Mode uses sticky live control bar + compact hotkey map.
 - Script panel supports independent scrolling in Translation Mode.
 - Segment queue is sequential with retries to reduce burst failures.
-- Auto-save writes transcript files to the folder selected under `Settings -> Translation Controls` when enabled (default: `~/Desktop/ChurchTranslateSessions`).
+- Auto-save writes transcript files to the folder selected in `Settings` when enabled (default: `~/Desktop/ChurchTranslateSessions`).
