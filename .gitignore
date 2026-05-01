@@ -6,3 +6,5 @@ src-tauri/gen
 dist
 
 .env
+playwright-report
+test-results

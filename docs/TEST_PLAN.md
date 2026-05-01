@@ -2,6 +2,15 @@
 
 This checklist helps validate Church Live Translate before each service or release.
 
+## Automated checks
+
+Run before manual validation:
+
+```bash
+npm run typecheck
+npm run test:visual
+```
+
 ## 1) Launch and setup
 
 1. Run:

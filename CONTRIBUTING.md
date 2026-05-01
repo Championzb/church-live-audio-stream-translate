@@ -29,6 +29,18 @@ Type-check frontend code:
 npm run typecheck
 ```
 
+Run visual regression checks:
+
+```bash
+npm run test:visual
+```
+
+If your PR intentionally changes UI, update baselines:
+
+```bash
+npm run test:visual:update
+```
+
 ## Pull Request Guidelines
 
 - Keep changes focused and easy to review.
