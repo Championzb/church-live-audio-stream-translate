@@ -6,6 +6,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     strategy:
@@ -70,7 +73,7 @@ jobs:
           args: --bundles ${{ matrix.bundle }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: church-live-translate-${{ matrix.label }}
           path: |

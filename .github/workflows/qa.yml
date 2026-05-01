@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   qa:
     runs-on: macos-latest
@@ -35,7 +38,7 @@ jobs:
 
       - name: Upload visual artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: visual-regression-artifacts
           path: |
