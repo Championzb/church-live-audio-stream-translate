@@ -1167,7 +1167,7 @@ function setSourcePanelCollapsed(collapsed, options = {}) {
         toggleSourcePanelButton.setAttribute('aria-expanded', nextCollapsed ? 'false' : 'true');
     }
     if (restoreSourcePanelFloatingButton) {
-        restoreSourcePanelFloatingButton.textContent = `▸ ${t('label.sourceLanguage')}`;
+        restoreSourcePanelFloatingButton.textContent = '▸';
         restoreSourcePanelFloatingButton.title = t('tooltip.sourcePanelExpand');
         restoreSourcePanelFloatingButton.setAttribute('aria-label', t('tooltip.sourcePanelExpand'));
     }
