@@ -1932,11 +1932,11 @@ body.presentation-mode.source-panel-collapsed .captions {
 }
 
 body.presentation-mode.has-reference-script .captions {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(320px, 0.85fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(340px, 420px);
 }
 
 body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
 }
 
 #closeSourcePanel {
