@@ -49,6 +49,7 @@ npm run test:visual:update
 - Update docs (`README.md` or `/docs`) when user-facing behavior changes.
 - Ensure the app still starts and key flows are verified before requesting review.
 - Follow the merge gate in [docs/QA_GATE.md](./docs/QA_GATE.md).
+- For UI changes, follow [docs/UI_REVIEW_RUBRIC.md](./docs/UI_REVIEW_RUBRIC.md).
 
 ## Commit Guidelines
 

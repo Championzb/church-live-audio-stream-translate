@@ -24,6 +24,7 @@ Describe what changed and why.
 
 ## UI Validation (Required For UI Changes)
 
+- [ ] Reviewed against `docs/UI_REVIEW_RUBRIC.md`
 - [ ] Before/after screenshots attached
 - [ ] No clipping/overlap at desktop width
 - [ ] No layout break at narrow/mobile width
