@@ -90,6 +90,8 @@ Text fallback:
 - Non-English STT uses `response_format=verbose_json` and checks segment confidence metadata before translation.
 - Segments are skipped when confidence signals are weak (language mismatch, high no-speech ratio, low log-probability concentration, or repetition signatures).
 - Basic anti-hallucination cleanup removes assistant-style meta replies and repeated duplicate lines before text translation.
+- Korean -> Chinese includes built-in secondary consistency checks (Korean anchor terms and no-place polarity against Chinese output) and emits warnings when mismatches are detected.
+- These secondary rules are built-in defaults and do not require user-provided rule configuration.
 
 ## Deep Reference Notes
 
