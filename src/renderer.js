@@ -1474,10 +1474,11 @@ function applyPresentationCaptionLayout() {
     const gapValue = Number.parseFloat(computed.columnGap || computed.gap || '10');
     const gap = Number.isFinite(gapValue) ? gapValue : 10;
     const currentScriptWidth = scriptReferenceCardEl.getBoundingClientRect().width;
-    const fallbackScriptWidth = Math.max(320, Math.min(420, captionsWidth * 0.28));
-    const scriptWidth = Number.isFinite(currentScriptWidth) && currentScriptWidth > 0
+    const fallbackScriptWidth = captionsWidth * 0.28;
+    const preferredScriptWidth = Number.isFinite(currentScriptWidth) && currentScriptWidth > 0
         ? currentScriptWidth
         : fallbackScriptWidth;
+    const scriptWidth = Math.max(320, Math.min(420, preferredScriptWidth));
     scriptReferenceCardEl.style.flex = `0 0 ${scriptWidth}px`;
     scriptReferenceCardEl.style.width = `${scriptWidth}px`;
     if (collapsed) {
