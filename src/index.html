@@ -252,14 +252,6 @@
                   <input id="tuneAudio" type="checkbox" checked />
                   <label id="labelTuneAudio" for="tuneAudio">Tune Audio (Echo/Noise/Auto Gain)</label>
                 </div>
-                <div class="row settings-form-row">
-                  <label id="labelAsrQualityPreset" for="asrQualityPreset">ASR Confidence Guard</label>
-                  <select id="asrQualityPreset">
-                    <option value="strict">Strict</option>
-                    <option value="balanced" selected>Balanced</option>
-                    <option value="permissive">Permissive</option>
-                  </select>
-                </div>
                 <div class="row translation-autosave-row">
                   <div class="settings-toggle-inline">
                     <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
@@ -274,6 +266,14 @@
             <details class="control-card settings-card settings-card--glossary glossary-card" open>
               <summary id="languageAidsSummary">Language Aids</summary>
               <div class="card-body">
+                <div class="row settings-form-row">
+                  <label id="labelAsrQualityPreset" for="asrQualityPreset">ASR Confidence Guard</label>
+                  <select id="asrQualityPreset">
+                    <option value="strict">Strict</option>
+                    <option value="balanced" selected>Balanced</option>
+                    <option value="permissive">Permissive</option>
+                  </select>
+                </div>
                 <div class="row settings-form-row settings-form-row--stack">
                   <label id="labelGlossary" for="glossaryDraft">Glossary</label>
                   <div class="stt-keyword-editor">
