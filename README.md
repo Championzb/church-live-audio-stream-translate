@@ -100,6 +100,7 @@ Speech pipeline note:
 - Test audio picker accepts audio files only; non-audio selections are rejected with a status warning.
 - Test audio picker now uses a native audio-filtered dialog first (with web/runtime fallback validation if needed).
 - `Auto-save on stop` is configured in the `Settings` page, and you can choose a custom save folder (default remains `~/Desktop/ChurchTranslateSessions`).
+- `ASR Confidence Guard` preset is configurable in `Settings` (`Strict`, `Balanced`, `Permissive`) to control how aggressively low-confidence source segments are skipped.
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Glossary terms now use the same chip editor pattern: paste one/multi-line `source=target` terms, add in batch, remove by chip, and keep import/export compatibility.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.

@@ -26,6 +26,13 @@ Use this when preparing the machine, keys, and language aids before service.
 - Use `Choose Folder` to set the transcript auto-save destination.
 - If no custom folder is selected, default path is `~/Desktop/ChurchTranslateSessions`.
 
+## ASR Confidence Guard Preset
+
+- `Settings` -> `ASR Confidence Guard`
+- `Strict`: blocks uncertain source transcript segments more aggressively.
+- `Balanced` (default): general weekly service setting.
+- `Permissive`: allows more borderline segments through (fewer skips, higher noise risk).
+
 ## Stable STT Keywords vs Glossary
 
 - `Stable STT Keywords`: improves speech recognition (audio -> source transcript).

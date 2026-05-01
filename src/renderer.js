@@ -147,6 +147,8 @@ const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput');
 const labelThemeEl = document.getElementById('labelTheme');
 const labelMockModeEl = document.getElementById('labelMockMode');
 const labelTuneAudioEl = document.getElementById('labelTuneAudio');
+const labelAsrQualityPresetEl = document.getElementById('labelAsrQualityPreset');
+const asrQualityPresetSelect = document.getElementById('asrQualityPreset');
 const labelSourceLanguageEl = document.getElementById('labelSourceLanguage');
 const labelTargetLanguageEl = document.getElementById('labelTargetLanguage');
 const labelVadThresholdEl = document.getElementById('labelVadThreshold');
@@ -188,6 +190,7 @@ const TEST_FILE_SEGMENT_MS = 12000;
 const TEST_AUDIO_PICKER_VALUE = '__pick_test_audio_file__';
 const TEST_AUDIO_INPUT_VALUE = '__test_audio_file__';
 const AUTO_SAVE_FOLDER_STORAGE_KEY = 'church-auto-save-folder';
+const ASR_QUALITY_PRESET_STORAGE_KEY = 'church-asr-quality-preset';
 const TEST_AUDIO_ALLOWED_EXTENSIONS = new Set([
     'wav', 'mp3', 'm4a', 'aac', 'flac', 'ogg', 'opus', 'oga',
     'webm', 'mpeg', 'mpga', 'aif', 'aiff', 'wma'
@@ -254,6 +257,7 @@ const UI_TEXT = {
         'label.theme': 'Theme',
         'label.mockMode': 'Mock Mode (No API)',
         'label.tuneAudio': 'Tune Audio (Echo/Noise/Auto Gain)',
+        'label.asrQualityPreset': 'ASR Confidence Guard',
         'label.sourceLanguage': 'Source Language',
         'label.targetLanguage': 'Output Language',
         'label.vadThreshold': 'VAD Threshold',
@@ -273,6 +277,9 @@ const UI_TEXT = {
         'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
         'sttKeywords.empty': 'No stable keywords yet. Paste terms above and click Add.',
         'label.autoSaveOnStop': 'Auto-save on stop',
+        'preset.strict': 'Strict',
+        'preset.balanced': 'Balanced',
+        'preset.permissive': 'Permissive',
         'button.pickFolder': 'Choose Folder',
         'autosave.defaultPath': 'Default: Desktop/ChurchTranslateSessions',
         'heading.english': 'Source',
@@ -435,6 +442,7 @@ const UI_TEXT = {
         'status.themeSet': 'Theme changed to {theme}',
         'status.audioTuningEnabled': 'Audio tuning enabled (echo cancellation, noise suppression, auto gain)',
         'status.audioTuningDisabled': 'Audio tuning disabled (raw microphone capture)',
+        'status.asrQualityPresetSet': 'ASR confidence guard set to {preset}',
         'status.apiKeyFailed': 'Failed to configure API key',
         'status.apiKeyRequired': 'Enter your OpenAI API key to continue',
         'status.glossarySaved': 'Glossary saved',
@@ -504,6 +512,7 @@ const UI_TEXT = {
         'label.theme': '主题',
         'label.mockMode': '模拟模式（不调用 API）',
         'label.tuneAudio': '音频调优（回声/降噪/自动增益）',
+        'label.asrQualityPreset': 'ASR 置信度保护',
         'label.sourceLanguage': '源语言',
         'label.targetLanguage': '输出语言',
         'label.vadThreshold': 'VAD 阈值',
@@ -523,6 +532,9 @@ const UI_TEXT = {
         'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
         'sttKeywords.empty': '尚无稳定关键词。请在上方粘贴后点击添加。',
         'label.autoSaveOnStop': '停止时自动保存',
+        'preset.strict': '严格',
+        'preset.balanced': '均衡',
+        'preset.permissive': '宽松',
         'button.pickFolder': '选择文件夹',
         'autosave.defaultPath': '默认：桌面/ChurchTranslateSessions',
         'heading.english': '源文',
@@ -685,6 +697,7 @@ const UI_TEXT = {
         'status.themeSet': '主题已切换为 {theme}',
         'status.audioTuningEnabled': '已启用音频调优（回声消除、降噪、自动增益）',
         'status.audioTuningDisabled': '已关闭音频调优（原始麦克风采集）',
+        'status.asrQualityPresetSet': 'ASR 置信度保护已设置为 {preset}',
         'status.apiKeyFailed': '配置 API 密钥失败',
         'status.apiKeyRequired': '请输入 OpenAI API 密钥后继续',
         'status.glossarySaved': '术语表已保存',
@@ -1439,6 +1452,7 @@ function setControlsLocked(nextLocked) {
         themeSelect,
         mockModeInput,
         tuneAudioInput,
+        asrQualityPresetSelect,
         sourceLanguageSelect,
         targetLanguageSelect,
         openScriptManagerButton,
@@ -2013,6 +2027,12 @@ function applyUiLanguage() {
     labelThemeEl.textContent = t('label.theme');
     labelMockModeEl.textContent = t('label.mockMode');
     labelTuneAudioEl.textContent = t('label.tuneAudio');
+    labelAsrQualityPresetEl.textContent = t('label.asrQualityPreset');
+    if (asrQualityPresetSelect) {
+        asrQualityPresetSelect.querySelector('option[value="strict"]').textContent = t('preset.strict');
+        asrQualityPresetSelect.querySelector('option[value="balanced"]').textContent = t('preset.balanced');
+        asrQualityPresetSelect.querySelector('option[value="permissive"]').textContent = t('preset.permissive');
+    }
     labelSourceLanguageEl.textContent = t('label.sourceLanguage');
     labelTargetLanguageEl.textContent = t('label.targetLanguage');
     labelVadThresholdEl.textContent = t('label.vadThreshold');
@@ -2965,7 +2985,8 @@ async function syncTranslationConfig() {
             sermon_stt_keywords: sermonKeywordsText,
             reference_script: referenceScriptText,
             target_language: targetLanguageSelect.value || 'zh-hans',
-            source_language: sourceLanguageSelect.value || 'korean'
+            source_language: sourceLanguageSelect.value || 'korean',
+            asr_quality_preset: asrQualityPresetSelect.value || 'balanced'
         }
     });
 }
@@ -3007,6 +3028,13 @@ async function ensureMainInitialized() {
     const savedTargetLanguage = localStorage.getItem('church-target-language');
     if (savedTargetLanguage && LANGUAGE_DISPLAY.en[savedTargetLanguage]) {
         targetLanguageSelect.value = savedTargetLanguage;
+    }
+    const savedAsrQualityPreset = localStorage.getItem(ASR_QUALITY_PRESET_STORAGE_KEY);
+    if (savedAsrQualityPreset && ['strict', 'balanced', 'permissive'].includes(savedAsrQualityPreset)) {
+        asrQualityPresetSelect.value = savedAsrQualityPreset;
+    }
+    else {
+        asrQualityPresetSelect.value = 'balanced';
     }
     const savedAutoSaveOnStop = localStorage.getItem('church-auto-save-on-stop');
     autoSaveOnStopInput.checked = savedAutoSaveOnStop !== '0';
@@ -3326,6 +3354,15 @@ tuneAudioInput.addEventListener('change', () => {
     tuneAudioEnabled = Boolean(tuneAudioInput.checked);
     localStorage.setItem('church-tune-audio', tuneAudioEnabled ? '1' : '0');
     setStatusKey(tuneAudioEnabled ? 'status.audioTuningEnabled' : 'status.audioTuningDisabled');
+});
+asrQualityPresetSelect.addEventListener('change', async () => {
+    const nextPreset = ['strict', 'balanced', 'permissive'].includes(asrQualityPresetSelect.value)
+        ? asrQualityPresetSelect.value
+        : 'balanced';
+    asrQualityPresetSelect.value = nextPreset;
+    localStorage.setItem(ASR_QUALITY_PRESET_STORAGE_KEY, nextPreset);
+    await syncTranslationConfig();
+    setStatusKey('status.asrQualityPresetSet', { preset: t(`preset.${nextPreset}`) });
 });
 sourceLanguageSelect.addEventListener('change', async () => {
     await syncTranslationConfig();

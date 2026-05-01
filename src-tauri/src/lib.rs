@@ -29,6 +29,7 @@ struct AppState {
     reference_script: Mutex<String>,
     target_language: Mutex<String>,
     source_language: Mutex<String>,
+    asr_quality_preset: Mutex<String>,
     rolling_english_context: Mutex<String>,
     rolling_source_context: Mutex<String>,
     latest_output_caption: Mutex<Option<OutputCaptionPayload>>,
@@ -61,6 +62,8 @@ struct TranslationConfig {
     target_language: Option<String>,
     #[serde(alias = "sourceLanguage")]
     source_language: Option<String>,
+    #[serde(alias = "asrQualityPreset")]
+    asr_quality_preset: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -693,6 +696,7 @@ fn korean_chinese_consistency_warnings(korean_text: &str, chinese_text: &str) ->
 fn transcription_quality_warning(
     source_language: &str,
     expected_language_code: Option<&str>,
+    asr_quality_preset: &str,
     response: &WhisperResponse,
     transcript_text: &str,
 ) -> Option<String> {
@@ -726,6 +730,12 @@ fn transcription_quality_warning(
     let mut high_no_speech = 0usize;
     let mut repetitive = 0usize;
     let mut scored = 0usize;
+    let (low_logprob_threshold, no_speech_threshold, compression_ratio_threshold, fail_ratio) =
+        match asr_quality_preset {
+            "strict" => (-0.9_f64, 0.55_f64, 2.2_f64, 0.50_f64),
+            "permissive" => (-1.2_f64, 0.75_f64, 2.8_f64, 0.75_f64),
+            _ => (-1.0_f64, 0.60_f64, 2.4_f64, 0.55_f64),
+        };
 
     for segment in segments {
         if segment
@@ -738,13 +748,13 @@ fn transcription_quality_warning(
             continue;
         }
         scored += 1;
-        if segment.avg_logprob.unwrap_or(0.0) < -1.0 {
+        if segment.avg_logprob.unwrap_or(0.0) < low_logprob_threshold {
             low_confidence += 1;
         }
-        if segment.no_speech_prob.unwrap_or(0.0) > 0.6 {
+        if segment.no_speech_prob.unwrap_or(0.0) > no_speech_threshold {
             high_no_speech += 1;
         }
-        if segment.compression_ratio.unwrap_or(0.0) > 2.4 {
+        if segment.compression_ratio.unwrap_or(0.0) > compression_ratio_threshold {
             repetitive += 1;
         }
     }
@@ -757,7 +767,7 @@ fn transcription_quality_warning(
     let no_speech_ratio = high_no_speech as f64 / scored as f64;
     let repetitive_ratio = repetitive as f64 / scored as f64;
 
-    if low_ratio > 0.55 || no_speech_ratio > 0.55 || repetitive_ratio > 0.55 {
+    if low_ratio > fail_ratio || no_speech_ratio > fail_ratio || repetitive_ratio > fail_ratio {
         return Some(format!(
             "low ASR confidence (low={low_confidence}/{scored}, no_speech={high_no_speech}/{scored}, repetitive={repetitive}/{scored})"
         ));
@@ -1089,6 +1099,11 @@ fn set_translation_config(
         Some("chinese") => "chinese".to_string(),
         _ => "korean".to_string(),
     };
+    let asr_quality_preset = match config.asr_quality_preset.as_deref() {
+        Some("strict") => "strict".to_string(),
+        Some("permissive") => "permissive".to_string(),
+        _ => "balanced".to_string(),
+    };
 
     {
         let mut glossary_guard = state
@@ -1136,6 +1151,14 @@ fn set_translation_config(
             .lock()
             .map_err(|_| "Failed to lock source language state".to_string())?;
         *source_language_guard = source_language;
+    }
+
+    {
+        let mut asr_quality_preset_guard = state
+            .asr_quality_preset
+            .lock()
+            .map_err(|_| "Failed to lock ASR quality preset state".to_string())?;
+        *asr_quality_preset_guard = asr_quality_preset;
     }
 
     {
@@ -1371,6 +1394,13 @@ async fn process_segment(
             .map_err(|_| "Failed to lock source language state".to_string())?;
         source_language_guard.clone()
     };
+    let asr_quality_preset = {
+        let asr_quality_preset_guard = state
+            .asr_quality_preset
+            .lock()
+            .map_err(|_| "Failed to lock ASR quality preset state".to_string())?;
+        asr_quality_preset_guard.clone()
+    };
 
     let reference_script = {
         let reference_script_guard = state
@@ -1567,6 +1597,7 @@ async fn process_segment(
         if let Some(quality_warning) = transcription_quality_warning(
             &source_language,
             source_language_code,
+            &asr_quality_preset,
             &transcribe_json,
             &source_text,
         ) {
@@ -2204,6 +2235,7 @@ pub fn run() {
             reference_script: Mutex::new(String::new()),
             target_language: Mutex::new("zh-hans".to_string()),
             source_language: Mutex::new("korean".to_string()),
+            asr_quality_preset: Mutex::new("balanced".to_string()),
             rolling_english_context: Mutex::new(String::new()),
             rolling_source_context: Mutex::new(String::new()),
             latest_output_caption: Mutex::new(None),
