@@ -1,6 +1,6 @@
 {
   "name": "church-live-audio-stream-translate",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Cross-platform live translation captions for church services",
   "license": "Apache-2.0",
   "type": "module",
