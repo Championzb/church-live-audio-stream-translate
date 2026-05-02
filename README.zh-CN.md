@@ -103,10 +103,13 @@ npm run start
 - `Tune Audio` 开启、`VAD Threshold` `0.050`、`Silence Hold` `1900ms`、`Max Segment` `12000ms`。
 
 语音处理流程说明：
-- 对非英语输入（韩语/日语/中文），应用先用 `/v1/audio/transcriptions` 按源语言转写，再直接从源文本翻译到目标语言。
-- 后端会执行源转写质量门控（语言不匹配 / 低置信度分段混杂），可疑分段会被跳过，避免传递疑似幻觉文本。
-- 会分别维护源语言上下文与目标翻译上下文，提升连续分段稳定性。
-- 韩语 -> 中文内置一致性规则默认开启（锚点与极性检查），无需额外配置。
+- 非英语输入（韩语/日语/中文）会先做源语言转写，再做源语言 -> 目标语言翻译。
+- 后端会对源转写执行质量门控，低质量分段会被跳过，降低幻觉输出风险。
+- 会分别维护源语言与目标语言的滚动上下文，提升连续分段稳定性。
+- 韩语 -> 中文默认启用内置一致性检查。
+
+技术细节与延迟分析请见 [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md)。
+操作界面与流程请见 [Operator Guide](./docs/OPERATOR_GUIDE.md) 与 [Setup And Configuration](./docs/SETUP_AND_CONFIG.md)。
 
 ## 发布 / QA 文档
 
