@@ -109,6 +109,7 @@ Speech pipeline note:
 - Settings page cards now use a non-overlapping responsive layout: `Appearance` and `Runtime & Audio` align side-by-side on wide screens, while `Language Aids` spans full width below.
 - Light themes refreshed for a more professional look: `Paper Light` now uses a clean slate-blue palette, and `Minimal Mono` uses a neutral editorial grayscale with blue focus/selection accents.
 - Dark default theme refreshed with a tighter navy/cyan broadcast palette for better depth, focus visibility, and transcript readability.
+- Dark theme further tuned to a premium midnight-blue profile with calmer surfaces, clearer sky-blue interaction highlights, and amber status contrast.
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Glossary terms now use the same chip editor pattern: paste one/multi-line `source=target` terms, add in batch, remove by chip, and keep import/export compatibility.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.
