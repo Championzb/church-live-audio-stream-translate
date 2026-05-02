@@ -62,6 +62,13 @@ Windows 与 macOS 桌面字幕应用（基于 Tauri）。
 3. 将 `.app` 拖入 `Applications`。
 4. 首次启动：右键应用 -> `打开` -> 再次确认 `打开`。
 
+如果 macOS 提示“应用已损坏，无法打开”，可先移除隔离属性后再启动：
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Church Live Translate.app"
+open "/Applications/Church Live Translate.app"
+```
+
 ### Windows（`.msi`）
 
 1. 下载 `*.msi`。

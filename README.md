@@ -62,6 +62,13 @@ Consider a commercial platform if you need:
 3. Drag the `.app` into `Applications`.
 4. First launch: right-click the app -> `Open` -> confirm `Open`.
 
+If macOS shows “app is damaged and can’t be opened”, remove quarantine attributes and retry:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Church Live Translate.app"
+open "/Applications/Church Live Translate.app"
+```
+
 ### Windows (`.msi`)
 
 1. Download `*.msi`.
