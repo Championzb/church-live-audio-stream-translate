@@ -17,6 +17,9 @@ use tauri::Size;
 use tauri::TitleBarStyle;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
+use tauri::menu::Menu;
+#[cfg(target_os = "macos")]
+use tauri::menu::{AboutMetadata, SubmenuBuilder};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -2213,6 +2216,68 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
 
 pub fn run() {
     tauri::Builder::default()
+        .menu(|app| {
+            #[cfg(target_os = "macos")]
+            {
+                let pkg_info = app.package_info();
+                let config = app.config();
+                let app_name = "Church Live Translate";
+                let about_metadata = AboutMetadata {
+                    name: Some(app_name.to_string()),
+                    version: Some(pkg_info.version.to_string()),
+                    copyright: config.bundle.copyright.clone(),
+                    authors: config.bundle.publisher.clone().map(|p| vec![p]),
+                    ..Default::default()
+                };
+
+                let app_menu = SubmenuBuilder::new(app, app_name)
+                    .about_with_text(format!("About {app_name}"), Some(about_metadata))
+                    .separator()
+                    .services()
+                    .separator()
+                    .hide_with_text(format!("Hide {app_name}"))
+                    .hide_others()
+                    .show_all()
+                    .separator()
+                    .quit_with_text(format!("Quit {app_name}"))
+                    .build()?;
+
+                let file_menu = SubmenuBuilder::new(app, "File").close_window().build()?;
+                let edit_menu = SubmenuBuilder::new(app, "Edit")
+                    .undo()
+                    .redo()
+                    .separator()
+                    .cut()
+                    .copy()
+                    .paste()
+                    .select_all()
+                    .build()?;
+                let view_menu = SubmenuBuilder::new(app, "View").fullscreen().build()?;
+                let window_menu = SubmenuBuilder::new(app, "Window")
+                    .minimize()
+                    .maximize()
+                    .separator()
+                    .close_window()
+                    .build()?;
+                let help_menu = SubmenuBuilder::new(app, "Help").build()?;
+
+                Menu::with_items(
+                    app,
+                    &[
+                        &app_menu,
+                        &file_menu,
+                        &edit_menu,
+                        &view_menu,
+                        &window_menu,
+                        &help_menu,
+                    ],
+                )
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                Menu::default(app)
+            }
+        })
         .plugin(
             tauri_plugin_log::Builder::new()
                 .level(log::LevelFilter::Info)
