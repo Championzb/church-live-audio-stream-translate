@@ -1744,7 +1744,10 @@ function initSettingsContextNav() {
       if (!targetId) return;
       const targetEl = document.getElementById(targetId) as HTMLElement | null;
       if (!targetEl) return;
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const controlsRect = settingsControlsEl.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const nextTop = Math.max(0, settingsControlsEl.scrollTop + (targetRect.top - controlsRect.top) - 6);
+      settingsControlsEl.scrollTo({ top: nextTop, behavior: 'smooth' });
       setActiveSettingsSection(targetId);
     });
   });
