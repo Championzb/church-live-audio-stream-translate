@@ -1446,6 +1446,26 @@ button:disabled {
   transform: none;
 }
 
+button.is-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.82;
+}
+
+button.is-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--text) 45%, transparent);
+  border-top-color: var(--accent);
+  transform: translateY(-50%);
+  animation: button-spin 0.7s linear infinite;
+}
+
 .icon-btn {
   min-width: 40px;
   width: 40px;
@@ -1622,6 +1642,37 @@ body:not(.presentation-mode) #sourceCaptionCard {
   font-size: 1rem;
   line-height: 1.55;
   color: var(--muted);
+}
+
+.empty-state-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 4px;
+}
+
+.empty-state-actions.hidden {
+  display: none !important;
+}
+
+.empty-state-actions button {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+}
+
+.empty-state-callout {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.empty-state-callout .input-hint {
+  margin: 0;
+}
+
+.empty-state-callout .empty-state-actions {
+  margin: 0;
 }
 
 .caption-card h2 {
@@ -1829,6 +1880,15 @@ body.density-compact .script-content {
 
 .line.active-current.active-selected {
   animation: none;
+}
+
+@keyframes button-spin {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
 }
 
 @keyframes active-line-pulse {

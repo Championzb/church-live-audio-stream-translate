@@ -135,6 +135,9 @@ const chineseLiveEl = document.getElementById('chineseLive');
 const scriptReferenceCardEl = document.getElementById('scriptReferenceCard');
 const referenceScriptHeadingEl = document.getElementById('referenceScriptHeading');
 const referenceScriptMetaEl = document.getElementById('referenceScriptMeta');
+const referenceScriptEmptyActionsEl = document.getElementById('referenceScriptEmptyActions');
+const referenceScriptQuickUploadButton = document.getElementById('referenceScriptQuickUpload');
+const referenceScriptQuickPasteButton = document.getElementById('referenceScriptQuickPaste');
 const referenceScriptContentEl = document.getElementById('referenceScriptContent');
 const vadThresholdInput = document.getElementById('vadThreshold');
 const vadValueEl = document.getElementById('vadValue');
@@ -326,6 +329,9 @@ const UI_TEXT = {
         'button.uploadScript': 'Upload Script',
         'button.pasteScript': 'Paste Script',
         'button.clearScript': 'Clear Script',
+        'button.pasteAndAdd': 'Paste & Add',
+        'button.quickUploadScript': 'Upload Script',
+        'button.quickPasteScript': 'Paste Script',
         'button.uploadSermonKeywords': 'Upload Sermon Keywords',
         'button.pasteSermonKeywords': 'Paste Sermon Keywords',
         'button.clearSermonKeywords': 'Clear Sermon Keywords',
@@ -473,6 +479,7 @@ const UI_TEXT = {
         'status.projectIdSaved': 'Project ID saved',
         'status.themeSet': 'Theme changed to {theme}',
         'status.transcriptDensitySet': 'Transcript density changed to {density}',
+        'status.clipboardPasted': 'Pasted from clipboard',
         'status.audioTuningEnabled': 'Audio tuning enabled (echo cancellation, noise suppression, auto gain)',
         'status.audioTuningDisabled': 'Audio tuning disabled (raw microphone capture)',
         'status.asrQualityPresetSet': 'ASR confidence guard set to {preset}',
@@ -501,6 +508,7 @@ const UI_TEXT = {
         'status.mockModeDisabled': 'Mock mode disabled: real API translation restored',
         'script.empty': 'No reference script loaded. Upload target-language script before translation for quick reference in translation mode.',
         'script.metaNone': 'No reference script loaded.',
+        'script.emptyAction': 'No reference script yet. Upload or paste to compare live translation side by side.',
         'script.metaLoaded': 'Loaded script: {lines} lines',
         'mode.running': 'running',
         'mode.stopped': 'stopped',
@@ -597,6 +605,9 @@ const UI_TEXT = {
         'button.uploadScript': '上传讲稿',
         'button.pasteScript': '粘贴讲稿',
         'button.clearScript': '清除讲稿',
+        'button.pasteAndAdd': '粘贴并添加',
+        'button.quickUploadScript': '上传讲稿',
+        'button.quickPasteScript': '粘贴讲稿',
         'button.uploadSermonKeywords': '上传讲道关键词',
         'button.pasteSermonKeywords': '粘贴讲道关键词',
         'button.clearSermonKeywords': '清除讲道关键词',
@@ -744,6 +755,7 @@ const UI_TEXT = {
         'status.projectIdSaved': 'Project ID 已保存',
         'status.themeSet': '主题已切换为 {theme}',
         'status.transcriptDensitySet': '字幕密度已切换为 {density}',
+        'status.clipboardPasted': '已从剪贴板粘贴',
         'status.audioTuningEnabled': '已启用音频调优（回声消除、降噪、自动增益）',
         'status.audioTuningDisabled': '已关闭音频调优（原始麦克风采集）',
         'status.asrQualityPresetSet': 'ASR 置信度保护已设置为 {preset}',
@@ -772,6 +784,7 @@ const UI_TEXT = {
         'status.mockModeDisabled': '模拟模式已关闭：恢复真实 API 翻译',
         'script.empty': '尚未加载参考讲稿。建议在翻译前上传目标语言讲稿，便于翻译模式中随时查看。',
         'script.metaNone': '尚未加载参考讲稿。',
+        'script.emptyAction': '暂无参考讲稿。可立即上传或粘贴以进行并排对照。',
         'script.metaLoaded': '已加载讲稿：{lines} 行',
         'mode.running': '运行中',
         'mode.stopped': '已停止',
@@ -915,6 +928,24 @@ function setIconButton(button, icon, label) {
     button.innerHTML = `<svg class="icon-glyph" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[icon]}</svg><span class="sr-only">${label}</span>`;
     button.setAttribute('aria-label', label);
 }
+async function withButtonLoading(button, action) {
+    if (!button) {
+        await action();
+        return;
+    }
+    const wasDisabled = Boolean(button.disabled);
+    button.disabled = true;
+    button.classList.add('is-loading');
+    button.setAttribute('aria-busy', 'true');
+    try {
+        await action();
+    }
+    finally {
+        button.classList.remove('is-loading');
+        button.removeAttribute('aria-busy');
+        button.disabled = wasDisabled;
+    }
+}
 function bindMainTitlebarDragFallback() {
     const titlebar = document.querySelector('.titlebar-actions');
     if (!(titlebar instanceof HTMLElement))
@@ -1056,10 +1087,26 @@ function renderGlossaryUi() {
         return;
     glossaryChipsEl.innerHTML = '';
     if (!glossaryTerms.length) {
+        const callout = document.createElement('div');
+        callout.className = 'empty-state-callout';
         const emptyEl = document.createElement('span');
         emptyEl.className = 'input-hint';
         emptyEl.textContent = t('glossary.empty');
-        glossaryChipsEl.appendChild(emptyEl);
+        callout.appendChild(emptyEl);
+        const actions = document.createElement('div');
+        actions.className = 'empty-state-actions';
+        const pasteButton = document.createElement('button');
+        pasteButton.type = 'button';
+        pasteButton.textContent = t('button.pasteAndAdd');
+        pasteButton.disabled = controlsLocked;
+        pasteButton.addEventListener('click', async () => {
+            await withButtonLoading(pasteButton, async () => {
+                await pasteGlossaryFromClipboard();
+            });
+        });
+        actions.appendChild(pasteButton);
+        callout.appendChild(actions);
+        glossaryChipsEl.appendChild(callout);
     }
     else {
         glossaryTerms.forEach((term, index) => {
@@ -1118,15 +1165,48 @@ function addGlossaryTerms(rawGlossaryText) {
     localStorage.setItem('church-glossary', normalized);
     return true;
 }
+async function pasteGlossaryFromClipboard() {
+    try {
+        const content = await navigator.clipboard.readText();
+        if (!content || !content.trim()) {
+            return false;
+        }
+        const changed = addGlossaryTerms(content);
+        if (changed) {
+            setStatusKey('status.clipboardPasted');
+        }
+        return changed;
+    }
+    catch {
+        setStatusKey('status.clipboardDenied');
+        return false;
+    }
+}
 function renderStableSttKeywordsUi() {
     if (!sttKeywordChipsEl)
         return;
     sttKeywordChipsEl.innerHTML = '';
     if (!stableSttKeywordTerms.length) {
+        const callout = document.createElement('div');
+        callout.className = 'empty-state-callout';
         const emptyEl = document.createElement('span');
         emptyEl.className = 'input-hint';
         emptyEl.textContent = t('sttKeywords.empty');
-        sttKeywordChipsEl.appendChild(emptyEl);
+        callout.appendChild(emptyEl);
+        const actions = document.createElement('div');
+        actions.className = 'empty-state-actions';
+        const pasteButton = document.createElement('button');
+        pasteButton.type = 'button';
+        pasteButton.textContent = t('button.pasteAndAdd');
+        pasteButton.disabled = controlsLocked;
+        pasteButton.addEventListener('click', async () => {
+            await withButtonLoading(pasteButton, async () => {
+                await pasteStableSttKeywordsFromClipboard();
+            });
+        });
+        actions.appendChild(pasteButton);
+        callout.appendChild(actions);
+        sttKeywordChipsEl.appendChild(callout);
     }
     else {
         stableSttKeywordTerms.forEach((term, index) => {
@@ -1178,6 +1258,23 @@ function addStableSttKeywords(rawKeywordsText) {
     localStorage.setItem('church-stt-keywords', normalized);
     return true;
 }
+async function pasteStableSttKeywordsFromClipboard() {
+    try {
+        const content = await navigator.clipboard.readText();
+        if (!content || !content.trim()) {
+            return false;
+        }
+        const changed = addStableSttKeywords(content);
+        if (changed) {
+            setStatusKey('status.clipboardPasted');
+        }
+        return changed;
+    }
+    catch {
+        setStatusKey('status.clipboardDenied');
+        return false;
+    }
+}
 function updateSermonKeywordsUi() {
     const hasKeywords = Boolean(sermonKeywordsText.trim());
     const terms = countKeywordTerms(sermonKeywordsText);
@@ -1196,10 +1293,21 @@ function updateReferenceScriptUi() {
     const hasScript = Boolean(referenceScriptText);
     document.body.classList.toggle('has-reference-script', hasScript);
     scriptReferenceCardEl.classList.toggle('has-script', hasScript);
-    referenceScriptContentEl.textContent = hasScript ? referenceScriptText : t('script.empty');
+    referenceScriptContentEl.textContent = hasScript ? referenceScriptText : t('script.emptyAction');
     referenceScriptMetaEl.textContent = hasScript
         ? t('script.metaLoaded', { lines: countScriptLines(referenceScriptText) })
         : t('script.metaNone');
+    if (referenceScriptEmptyActionsEl) {
+        referenceScriptEmptyActionsEl.classList.toggle('hidden', hasScript);
+    }
+    if (referenceScriptQuickUploadButton) {
+        referenceScriptQuickUploadButton.disabled = controlsLocked;
+        referenceScriptQuickUploadButton.textContent = t('button.quickUploadScript');
+    }
+    if (referenceScriptQuickPasteButton) {
+        referenceScriptQuickPasteButton.disabled = controlsLocked;
+        referenceScriptQuickPasteButton.textContent = t('button.quickPasteScript');
+    }
     clearReferenceScriptButton.disabled = controlsLocked || !hasScript;
 }
 function setReferenceScript(rawScriptText, options = {}) {
@@ -1571,6 +1679,8 @@ function setControlsLocked(nextLocked) {
         targetLanguageSelect,
         openScriptManagerButton,
         scriptPanelOpenScriptManagerButton,
+        referenceScriptQuickUploadButton,
+        referenceScriptQuickPasteButton,
         uploadReferenceScriptButton,
         pasteReferenceScriptButton,
         uploadSermonKeywordsButton,
@@ -1845,6 +1955,10 @@ function setStaticButtonTooltips() {
     uploadReferenceScriptButton.title = t('tooltip.uploadScript');
     pasteReferenceScriptButton.title = t('tooltip.pasteScript');
     clearReferenceScriptButton.title = t('tooltip.clearScript');
+    if (referenceScriptQuickUploadButton)
+        referenceScriptQuickUploadButton.title = t('tooltip.uploadScript');
+    if (referenceScriptQuickPasteButton)
+        referenceScriptQuickPasteButton.title = t('tooltip.pasteScript');
     uploadSermonKeywordsButton.title = t('tooltip.uploadSermonKeywords');
     pasteSermonKeywordsButton.title = t('tooltip.pasteSermonKeywords');
     clearSermonKeywordsButton.title = t('tooltip.clearSermonKeywords');
@@ -3324,16 +3438,18 @@ async function copyTextToClipboard(text, successStatusKey) {
     }
 }
 saveKeyButton.addEventListener('click', async () => {
-    const apiKey = apiKeyInput.value.trim();
-    const adminApiKey = adminApiKeyInput.value.trim();
-    saveProjectId(projectIdInput.value);
-    const adminSaved = await persistAdminApiKey(adminApiKey);
-    if (!adminSaved)
-        return;
-    const saved = await persistApiKey(apiKey, { enterMain: true });
-    if (saved) {
-        void refreshRealProjectCosts(true);
-    }
+    await withButtonLoading(saveKeyButton, async () => {
+        const apiKey = apiKeyInput.value.trim();
+        const adminApiKey = adminApiKeyInput.value.trim();
+        saveProjectId(projectIdInput.value);
+        const adminSaved = await persistAdminApiKey(adminApiKey);
+        if (!adminSaved)
+            return;
+        const saved = await persistApiKey(apiKey, { enterMain: true });
+        if (saved) {
+            void refreshRealProjectCosts(true);
+        }
+    });
 });
 maskedApiKeyEl.addEventListener('click', () => {
     setApiKeyModalVisible(true);
@@ -3363,7 +3479,9 @@ async function saveApiKeyModalChanges() {
     }
 }
 saveMainApiKeyButton.addEventListener('click', async () => {
-    await saveApiKeyModalChanges();
+    await withButtonLoading(saveMainApiKeyButton, async () => {
+        await saveApiKeyModalChanges();
+    });
 });
 openSettingsPageButton.addEventListener('click', () => {
     setMainView(mainView === 'settings' ? 'live' : 'settings');
@@ -3404,31 +3522,37 @@ mainProjectIdInput.addEventListener('keydown', async (event) => {
     await saveApiKeyModalChanges();
 });
 saveGlossaryButton.addEventListener('click', async () => {
-    setGlossaryTerms(glossaryInput.value || '');
-    setStableSttKeywords(sttKeywordsInput.value || '');
-    await syncTranslationConfig();
-    setStatusKey('status.languageAidsSaved');
+    await withButtonLoading(saveGlossaryButton, async () => {
+        setGlossaryTerms(glossaryInput.value || '');
+        setStableSttKeywords(sttKeywordsInput.value || '');
+        await syncTranslationConfig();
+        setStatusKey('status.languageAidsSaved');
+    });
 });
 importGlossaryButton.addEventListener('click', async () => {
-    const result = await invoke('import_glossary');
-    if (result.ok && typeof result.content === 'string') {
-        setGlossaryTerms(result.content);
-        await syncTranslationConfig();
-        setStatusKey('status.glossaryImported');
-    }
-    else {
-        setStatus(result.message || t('status.glossaryImportCanceled'));
-    }
+    await withButtonLoading(importGlossaryButton, async () => {
+        const result = await invoke('import_glossary');
+        if (result.ok && typeof result.content === 'string') {
+            setGlossaryTerms(result.content);
+            await syncTranslationConfig();
+            setStatusKey('status.glossaryImported');
+        }
+        else {
+            setStatus(result.message || t('status.glossaryImportCanceled'));
+        }
+    });
 });
 exportGlossaryButton.addEventListener('click', async () => {
-    setGlossaryTerms(glossaryInput.value || '');
-    const result = await invoke('export_glossary', { content: glossaryInput.value || '' });
-    if (result.ok) {
-        setStatusKey('status.glossaryExported', { path: result.path });
-    }
-    else {
-        setStatus(result.message || t('status.glossaryExportCanceled'));
-    }
+    await withButtonLoading(exportGlossaryButton, async () => {
+        setGlossaryTerms(glossaryInput.value || '');
+        const result = await invoke('export_glossary', { content: glossaryInput.value || '' });
+        if (result.ok) {
+            setStatusKey('status.glossaryExported', { path: result.path });
+        }
+        else {
+            setStatus(result.message || t('status.glossaryExportCanceled'));
+        }
+    });
 });
 labelAudioInputEl.addEventListener('click', async () => {
     if (controlsLocked)
@@ -3545,7 +3669,9 @@ targetLanguageSelect.addEventListener('change', async () => {
 });
 if (toggleRunButton) {
     toggleRunButton.addEventListener('click', async () => {
-        await setRunning(!running);
+        await withButtonLoading(toggleRunButton, async () => {
+            await setRunning(!running);
+        });
     });
 }
 if (toggleWorshipModeButton) {
@@ -3567,7 +3693,9 @@ if (toggleHelpButton) {
     });
 }
 hintF8El.addEventListener('click', async () => {
-    await setRunning(!running);
+    await withButtonLoading(hintF8El, async () => {
+        await setRunning(!running);
+    });
 });
 hintF7El.addEventListener('click', () => {
     toggleSuspendMode();
@@ -3582,7 +3710,9 @@ hintF1El.addEventListener('click', () => {
     setHelpVisible(!helpVisible);
 });
 liveHotkeyF8El.addEventListener('click', async () => {
-    await setRunning(!running);
+    await withButtonLoading(liveHotkeyF8El, async () => {
+        await setRunning(!running);
+    });
 });
 liveHotkeyF7El.addEventListener('click', () => {
     toggleSuspendMode();
@@ -3634,10 +3764,14 @@ async function toggleOutputWindow() {
     }
 }
 toggleOutputWindowButton.addEventListener('click', async () => {
-    await toggleOutputWindow();
+    await withButtonLoading(toggleOutputWindowButton, async () => {
+        await toggleOutputWindow();
+    });
 });
 liveToggleOutputWindowButton.addEventListener('click', async () => {
-    await toggleOutputWindow();
+    await withButtonLoading(liveToggleOutputWindowButton, async () => {
+        await toggleOutputWindow();
+    });
 });
 openScriptManagerButton.addEventListener('click', () => {
     setScriptModalVisible(true);
@@ -3645,17 +3779,33 @@ openScriptManagerButton.addEventListener('click', () => {
 scriptPanelOpenScriptManagerButton.addEventListener('click', () => {
     setScriptModalVisible(true);
 });
+if (referenceScriptQuickUploadButton) {
+    referenceScriptQuickUploadButton.addEventListener('click', () => {
+        referenceScriptInput.click();
+    });
+}
+if (referenceScriptQuickPasteButton) {
+    referenceScriptQuickPasteButton.addEventListener('click', async () => {
+        await withButtonLoading(referenceScriptQuickPasteButton, async () => {
+            await pasteReferenceScriptFromClipboard();
+        });
+    });
+}
 uploadReferenceScriptButton.addEventListener('click', () => {
     referenceScriptInput.click();
 });
 pasteReferenceScriptButton.addEventListener('click', async () => {
-    await pasteReferenceScriptFromClipboard();
+    await withButtonLoading(pasteReferenceScriptButton, async () => {
+        await pasteReferenceScriptFromClipboard();
+    });
 });
 uploadSermonKeywordsButton.addEventListener('click', () => {
     sermonKeywordsInput.click();
 });
 pasteSermonKeywordsButton.addEventListener('click', async () => {
-    await pasteSermonKeywordsFromClipboard();
+    await withButtonLoading(pasteSermonKeywordsButton, async () => {
+        await pasteSermonKeywordsFromClipboard();
+    });
 });
 clearReferenceScriptButton.addEventListener('click', async () => {
     if (!referenceScriptText) {
@@ -3861,41 +4011,47 @@ autoSaveOnStopInput.addEventListener('change', () => {
 });
 if (pickAutoSaveFolderButton) {
     pickAutoSaveFolderButton.addEventListener('click', async () => {
-        try {
-            const selectedPath = await invoke('pick_auto_save_folder');
-            if (selectedPath && String(selectedPath).trim()) {
-                setAutoSaveFolder(String(selectedPath));
-                setStatusKey('status.autoSaveFolderSet', { path: String(selectedPath) });
+        await withButtonLoading(pickAutoSaveFolderButton, async () => {
+            try {
+                const selectedPath = await invoke('pick_auto_save_folder');
+                if (selectedPath && String(selectedPath).trim()) {
+                    setAutoSaveFolder(String(selectedPath));
+                    setStatusKey('status.autoSaveFolderSet', { path: String(selectedPath) });
+                }
+                else {
+                    setStatusKey('status.autoSaveFolderPickCanceled');
+                }
             }
-            else {
-                setStatusKey('status.autoSaveFolderPickCanceled');
+            catch (err) {
+                setStatusKey('status.autoSaveFolderPickFailed', { error: (err && err.message) || String(err) });
             }
-        }
-        catch (err) {
-            setStatusKey('status.autoSaveFolderPickFailed', { error: (err && err.message) || String(err) });
-        }
+        });
     });
 }
 resetSessionButton.addEventListener('click', () => {
     resetSessionState();
 });
 exportTranscriptButton.addEventListener('click', async () => {
-    const result = await invoke('export_transcript', { entries: transcriptEntries });
-    if (result.ok) {
-        setStatusKey('status.transcriptExported', { path: result.path });
-    }
-    else {
-        setStatus(result.message || t('status.transcriptExportFailed'));
-    }
+    await withButtonLoading(exportTranscriptButton, async () => {
+        const result = await invoke('export_transcript', { entries: transcriptEntries });
+        if (result.ok) {
+            setStatusKey('status.transcriptExported', { path: result.path });
+        }
+        else {
+            setStatus(result.message || t('status.transcriptExportFailed'));
+        }
+    });
 });
 exportTranscriptTranslatedButton.addEventListener('click', async () => {
-    const result = await invoke('export_transcript', { entries: transcriptEntries });
-    if (result.ok) {
-        setStatusKey('status.transcriptExported', { path: result.path });
-    }
-    else {
-        setStatus(result.message || t('status.transcriptExportFailed'));
-    }
+    await withButtonLoading(exportTranscriptTranslatedButton, async () => {
+        const result = await invoke('export_transcript', { entries: transcriptEntries });
+        if (result.ok) {
+            setStatusKey('status.transcriptExported', { path: result.path });
+        }
+        else {
+            setStatus(result.message || t('status.transcriptExportFailed'));
+        }
+    });
 });
 async function loadSavedAdminApiKeyIfAvailable() {
     try {
