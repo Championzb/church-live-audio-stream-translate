@@ -2222,10 +2222,27 @@ pub fn run() {
                 let pkg_info = app.package_info();
                 let config = app.config();
                 let app_name = "Church Live Translate";
+                let short_version = pkg_info
+                    .version
+                    .to_string()
+                    .split('.')
+                    .take(2)
+                    .collect::<Vec<_>>()
+                    .join(".");
+                let app_copyright = config
+                    .bundle
+                    .copyright
+                    .clone()
+                    .unwrap_or_else(|| format!("© {} {}", Utc::now().year(), app_name));
                 let about_metadata = AboutMetadata {
                     name: Some(app_name.to_string()),
                     version: Some(pkg_info.version.to_string()),
-                    copyright: config.bundle.copyright.clone(),
+                    short_version: Some(short_version),
+                    copyright: Some(app_copyright),
+                    credits: Some(
+                        "Audio → Source Transcript → Target Translation for live church services."
+                            .to_string(),
+                    ),
                     authors: config.bundle.publisher.clone().map(|p| vec![p]),
                     ..Default::default()
                 };
