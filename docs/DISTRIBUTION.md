@@ -66,6 +66,12 @@ CI behavior:
 - Uploads build bundles as workflow artifacts
 - Includes unsigned installation steps directly in release body
 
+Current repository default:
+
+- macOS CI build is unsigned by default (no Apple Developer account required).
+- Users may need to right-click -> `Open` on first launch.
+- If you later add Apple signing/notarization, reintroduce Apple signing secrets in workflow env.
+
 ## 4) Suggested release checklist
 
 1. Confirm app version in `package.json` and `src-tauri/tauri.conf.json`.
