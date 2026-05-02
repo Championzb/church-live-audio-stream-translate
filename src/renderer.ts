@@ -173,6 +173,7 @@ const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput') as 
 const labelThemeEl = document.getElementById('labelTheme') as any;
 const labelTranscriptDensityEl = document.getElementById('labelTranscriptDensity') as any;
 const labelRuntimePresetEl = document.getElementById('labelRuntimePreset') as any;
+const runtimePresetHintEl = document.getElementById('runtimePresetHint') as any;
 const labelMockModeEl = document.getElementById('labelMockMode') as any;
 const labelTuneAudioEl = document.getElementById('labelTuneAudio') as any;
 const labelAsrQualityPresetEl = document.getElementById('labelAsrQualityPreset') as any;
@@ -294,6 +295,7 @@ const UI_TEXT = {
     'label.theme': 'Theme',
     'label.transcriptDensity': 'Transcript Density',
     'label.runtimePreset': 'Runtime Preset',
+    'hint.runtimePreset': 'Low Latency: faster turns. Balanced: default. High Accuracy: longer segments for cleaner transcript quality. Manual tuning switches to Custom.',
     'label.mockMode': 'Mock Mode (No API)',
     'label.tuneAudio': 'Tune Audio (Echo/Noise/Auto Gain)',
     'label.asrQualityPreset': 'ASR Confidence Guard',
@@ -591,6 +593,7 @@ const UI_TEXT = {
     'label.theme': '主题',
     'label.transcriptDensity': '字幕密度',
     'label.runtimePreset': '运行预设',
+    'hint.runtimePreset': '低延迟：响应更快。均衡：默认。高精度：更长分段，转写更稳。手动调整参数后会切换为“自定义”。',
     'label.mockMode': '模拟模式（不调用 API）',
     'label.tuneAudio': '音频调优（回声/降噪/自动增益）',
     'label.asrQualityPreset': 'ASR 置信度保护',
@@ -2542,6 +2545,7 @@ function applyUiLanguage() {
   labelThemeEl.textContent = t('label.theme');
   labelTranscriptDensityEl.textContent = t('label.transcriptDensity');
   labelRuntimePresetEl.textContent = t('label.runtimePreset');
+  runtimePresetHintEl.textContent = t('hint.runtimePreset');
   labelMockModeEl.textContent = t('label.mockMode');
   labelTuneAudioEl.textContent = t('label.tuneAudio');
   labelAsrQualityPresetEl.textContent = t('label.asrQualityPreset');

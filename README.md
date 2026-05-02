@@ -121,6 +121,7 @@ Speech pipeline note:
 - Settings now include a sticky section context navigator (`Appearance`, `Runtime & Audio`, `Language Aids`) that highlights the active section and supports one-click jump scrolling.
 - Observability strip now includes health tiers with guidance tooltips (`Good`, `Elevated`, `High`) for queue depth, average latency, skipped segments, and engine mode.
 - `Runtime Preset` is now available in `Runtime & Audio` (`Low Latency`, `Balanced`, `High Accuracy`); selecting a preset updates `VAD Threshold`, `Silence Hold`, and `Max Segment` together, while manual tuning is tracked as `Custom`.
+- `Runtime Preset` now includes an inline helper description in Settings so operators can quickly choose between low-latency, balanced, and high-accuracy behavior.
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Glossary terms now use the same chip editor pattern: paste one/multi-line `source=target` terms, add in batch, remove by chip, and keep import/export compatibility.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.
