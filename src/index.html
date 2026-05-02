@@ -249,6 +249,7 @@
           <section class="controls settings-controls">
             <details class="control-card settings-card settings-card--appearance" open>
               <summary id="appearanceSummary">Appearance</summary>
+              <p id="appearanceSubtitle" class="settings-card-subtitle">Visual preferences and language display.</p>
               <div class="card-body">
                 <div class="row settings-form-row">
                   <label id="labelUiLanguage" for="uiLanguage">UI Language</label>
@@ -268,6 +269,7 @@
 
             <details class="control-card settings-card settings-card--runtime" open>
               <summary id="runtimeSummary">Runtime & Audio</summary>
+              <p id="runtimeSubtitle" class="settings-card-subtitle">Live engine and capture behavior controls.</p>
               <div class="card-body">
                 <div class="row settings-form-row">
                   <label id="labelAsrQualityPreset" for="asrQualityPreset">ASR Confidence Guard</label>
@@ -284,11 +286,13 @@
                 <div class="row settings-toggle-inline settings-mock-toggle">
                   <input id="mockMode" type="checkbox" />
                   <label id="labelMockMode" for="mockMode">Mock Mode (No API)</label>
+                  <span id="mockModeStateChip" class="settings-state-chip">Off</span>
                 </div>
                 <div class="row translation-autosave-row">
                   <div class="settings-toggle-inline">
                     <label id="labelAutoSaveOnStop" for="autoSaveOnStop">Auto-save on stop</label>
                     <input id="autoSaveOnStop" type="checkbox" checked />
+                    <span id="autoSaveStateChip" class="settings-state-chip is-on">On</span>
                   </div>
                   <button id="pickAutoSaveFolder" type="button">Choose Folder</button>
                   <span id="autoSaveFolderPath" class="input-hint autosave-path">Default: Desktop/ChurchTranslateSessions</span>
@@ -298,6 +302,7 @@
 
             <details class="control-card settings-card settings-card--glossary glossary-card" open>
               <summary id="languageAidsSummary">Language Aids</summary>
+              <p id="languageAidsSubtitle" class="settings-card-subtitle">Glossary and stable recognition vocabulary.</p>
               <div class="card-body">
                 <div class="row settings-form-row settings-form-row--stack">
                   <label id="labelGlossary" for="glossaryDraft">Glossary</label>

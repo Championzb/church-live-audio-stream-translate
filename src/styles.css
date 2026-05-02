@@ -970,8 +970,16 @@ h1 {
   margin: 0;
 }
 
+.settings-card-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.32;
+  color: var(--text-subtle);
+}
+
 .settings-card > .card-body {
-  margin-top: 10px;
+  margin-top: 8px;
+  gap: 10px;
 }
 
 .settings-card--appearance,
@@ -1165,6 +1173,27 @@ h1 {
 .settings-mock-toggle > label {
   color: var(--text);
   font-size: 0.84rem;
+}
+
+.settings-state-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--section-border) 78%, transparent);
+  background: color-mix(in srgb, var(--surface-inset) 72%, transparent);
+  color: var(--text-subtle);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-state-chip.is-on {
+  border-color: color-mix(in srgb, var(--accent) 62%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
 }
 
 .settings-header {

@@ -30,8 +30,11 @@ const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
 const runtimeSummaryEl = document.getElementById('runtimeSummary');
+const appearanceSubtitleEl = document.getElementById('appearanceSubtitle');
+const runtimeSubtitleEl = document.getElementById('runtimeSubtitle');
 const translationControlsSummaryEl = document.getElementById('translationControlsSummary');
 const languageAidsSummaryEl = document.getElementById('languageAidsSummary');
+const languageAidsSubtitleEl = document.getElementById('languageAidsSubtitle');
 const liveWorkspaceEl = document.getElementById('liveWorkspace');
 const translationLiveBarEl = document.getElementById('translationLiveBar');
 const liveExitTranslationModeButton = document.getElementById('liveExitTranslationMode');
@@ -183,6 +186,8 @@ const addSttKeywordButton = document.getElementById('addSttKeyword');
 const clearSttKeywordsButton = document.getElementById('clearSttKeywords');
 const sttKeywordChipsEl = document.getElementById('sttKeywordChips');
 const labelAutoSaveOnStopEl = document.getElementById('labelAutoSaveOnStop');
+const mockModeStateChipEl = document.getElementById('mockModeStateChip');
+const autoSaveStateChipEl = document.getElementById('autoSaveStateChip');
 const pickAutoSaveFolderButton = document.getElementById('pickAutoSaveFolder');
 const autoSaveFolderPathEl = document.getElementById('autoSaveFolderPath');
 const englishHeadingEl = document.getElementById('englishHeading');
@@ -289,6 +294,8 @@ const UI_TEXT = {
         'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
         'sttKeywords.empty': 'No stable keywords yet. Paste terms above and click Add.',
         'label.autoSaveOnStop': 'Auto-save on stop',
+        'state.on': 'On',
+        'state.off': 'Off',
         'preset.strict': 'Strict',
         'preset.balanced': 'Balanced',
         'preset.permissive': 'Permissive',
@@ -341,9 +348,12 @@ const UI_TEXT = {
         'button.back': 'Back',
         'heading.settings': 'Settings',
         'heading.appearance': 'Appearance',
+        'heading.appearanceSubtitle': 'Visual preferences and language display.',
         'heading.runtime': 'Runtime & Audio',
+        'heading.runtimeSubtitle': 'Live engine and capture behavior controls.',
         'heading.translationControls': 'Translation Controls',
         'heading.languageAids': 'Language Aids',
+        'heading.languageAidsSubtitle': 'Glossary and stable recognition vocabulary.',
         'heading.referenceScript': 'Reference Script',
         'apiKey.masked': 'OpenAI Key: {masked}',
         'apiKey.hidden': 'OpenAI Key: hidden',
@@ -551,6 +561,8 @@ const UI_TEXT = {
         'placeholder.sttKeywords': '그리스도 (基督), 복음 (福音)',
         'sttKeywords.empty': '尚无稳定关键词。请在上方粘贴后点击添加。',
         'label.autoSaveOnStop': '停止时自动保存',
+        'state.on': '开',
+        'state.off': '关',
         'preset.strict': '严格',
         'preset.balanced': '均衡',
         'preset.permissive': '宽松',
@@ -603,9 +615,12 @@ const UI_TEXT = {
         'button.back': '返回',
         'heading.settings': '设置',
         'heading.appearance': '外观',
+        'heading.appearanceSubtitle': '视觉偏好与界面语言显示。',
         'heading.runtime': '运行与音频',
+        'heading.runtimeSubtitle': '直播引擎与采集行为控制。',
         'heading.translationControls': '翻译控制',
         'heading.languageAids': '语言辅助',
+        'heading.languageAidsSubtitle': '术语表与稳定识别词汇。',
         'heading.referenceScript': '参考讲稿',
         'apiKey.masked': 'OpenAI 密钥：{masked}',
         'apiKey.hidden': 'OpenAI 密钥：隐藏',
@@ -1397,6 +1412,18 @@ function updateObservabilityStrip() {
     obsApiModeValueEl.textContent = mockModeEnabled ? t('obs.engine.mock') : t('obs.engine.live');
     obsApiModeValueEl.dataset.state = mockModeEnabled ? 'warn' : 'idle';
 }
+function updateRuntimeStateChips() {
+    if (mockModeStateChipEl) {
+        const isOn = Boolean(mockModeEnabled);
+        mockModeStateChipEl.textContent = isOn ? t('state.on') : t('state.off');
+        mockModeStateChipEl.classList.toggle('is-on', isOn);
+    }
+    if (autoSaveStateChipEl) {
+        const isOn = Boolean(autoSaveOnStopInput?.checked);
+        autoSaveStateChipEl.textContent = isOn ? t('state.on') : t('state.off');
+        autoSaveStateChipEl.classList.toggle('is-on', isOn);
+    }
+}
 function updateModeSummary() {
     const queueText = segmentQueueRunning
         ? `${pendingSegments.length} (${t('mode.queueProcessing')})`
@@ -2138,9 +2165,12 @@ function applyUiLanguage() {
     setIconButton(liveExitTranslationModeButton, 'back', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
+    appearanceSubtitleEl.textContent = t('heading.appearanceSubtitle');
     runtimeSummaryEl.textContent = t('heading.runtime');
+    runtimeSubtitleEl.textContent = t('heading.runtimeSubtitle');
     translationControlsSummaryEl.textContent = t('heading.translationControls');
     languageAidsSummaryEl.textContent = t('heading.languageAids');
+    languageAidsSubtitleEl.textContent = t('heading.languageAidsSubtitle');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
@@ -2227,6 +2257,7 @@ function applyUiLanguage() {
     updateModeSummary();
     updateCostSummary();
     updateObservabilityStrip();
+    updateRuntimeStateChips();
     syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
     setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
     updateReferenceScriptUi();
@@ -3128,6 +3159,7 @@ async function ensureMainInitialized() {
     const savedTuneAudio = localStorage.getItem('church-tune-audio');
     tuneAudioEnabled = savedTuneAudio ? savedTuneAudio === '1' : DEFAULT_TUNE_AUDIO_ENABLED;
     tuneAudioInput.checked = tuneAudioEnabled;
+    updateRuntimeStateChips();
     const savedControlsLocked = localStorage.getItem('church-controls-locked');
     setControlsLocked(savedControlsLocked === '1');
     const savedSourcePanelCollapsed = localStorage.getItem(SOURCE_PANEL_COLLAPSED_STORAGE_KEY);
@@ -3432,6 +3464,7 @@ themeSelect.addEventListener('change', () => {
 mockModeInput.addEventListener('change', () => {
     mockModeEnabled = Boolean(mockModeInput.checked);
     localStorage.setItem(MOCK_MODE_STORAGE_KEY, mockModeEnabled ? '1' : '0');
+    updateRuntimeStateChips();
     updateModeSummary();
     setStatusKey(mockModeEnabled ? 'status.mockModeEnabled' : 'status.mockModeDisabled');
 });
@@ -3792,6 +3825,7 @@ liveMaxSegmentMsInput.addEventListener('change', () => {
 });
 autoSaveOnStopInput.addEventListener('change', () => {
     localStorage.setItem('church-auto-save-on-stop', autoSaveOnStopInput.checked ? '1' : '0');
+    updateRuntimeStateChips();
 });
 if (pickAutoSaveFolderButton) {
     pickAutoSaveFolderButton.addEventListener('click', async () => {
