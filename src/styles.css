@@ -2054,7 +2054,7 @@ body.presentation-mode #toggleSourcePanelHeader {
 
 body.presentation-mode .app-shell {
   max-width: none;
-  padding: 14px;
+  padding: 0 14px 14px;
 }
 
 body.presentation-mode .app-header,
