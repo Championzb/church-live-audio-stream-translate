@@ -2217,40 +2217,40 @@ fn control_window(action: String, window: tauri::WebviewWindow) -> Result<OkResp
 pub fn run() {
     tauri::Builder::default()
         .menu(|app| {
+            let pkg_info = app.package_info();
+            let config = app.config();
+            let app_name = "Church Live Translate";
+            let short_version = pkg_info
+                .version
+                .to_string()
+                .split('.')
+                .take(2)
+                .collect::<Vec<_>>()
+                .join(".");
+            let app_copyright = config
+                .bundle
+                .copyright
+                .clone()
+                .unwrap_or_else(|| format!("© {} {}", Utc::now().year(), app_name));
+            let about_icon = tauri::image::Image::from_bytes(include_bytes!("../icons/icon.png"))
+                .ok()
+                .or_else(|| app.default_window_icon().cloned());
+            let about_metadata = AboutMetadata {
+                name: Some(app_name.to_string()),
+                version: Some(pkg_info.version.to_string()),
+                short_version: Some(short_version),
+                copyright: Some(app_copyright),
+                credits: Some(
+                    "Audio → Source Transcript → Target Translation for live church services."
+                        .to_string(),
+                ),
+                authors: config.bundle.publisher.clone().map(|p| vec![p]),
+                icon: about_icon,
+                ..Default::default()
+            };
+
             #[cfg(target_os = "macos")]
             {
-                let pkg_info = app.package_info();
-                let config = app.config();
-                let app_name = "Church Live Translate";
-                let short_version = pkg_info
-                    .version
-                    .to_string()
-                    .split('.')
-                    .take(2)
-                    .collect::<Vec<_>>()
-                    .join(".");
-                let app_copyright = config
-                    .bundle
-                    .copyright
-                    .clone()
-                    .unwrap_or_else(|| format!("© {} {}", Utc::now().year(), app_name));
-                let about_icon = tauri::image::Image::from_bytes(include_bytes!("../icons/icon.png"))
-                    .ok()
-                    .or_else(|| app.default_window_icon().cloned());
-                let about_metadata = AboutMetadata {
-                    name: Some(app_name.to_string()),
-                    version: Some(pkg_info.version.to_string()),
-                    short_version: Some(short_version),
-                    copyright: Some(app_copyright),
-                    credits: Some(
-                        "Audio → Source Transcript → Target Translation for live church services."
-                            .to_string(),
-                    ),
-                    authors: config.bundle.publisher.clone().map(|p| vec![p]),
-                    icon: about_icon,
-                    ..Default::default()
-                };
-
                 let app_menu = SubmenuBuilder::new(app, app_name)
                     .about_with_text(format!("About {app_name}"), Some(about_metadata))
                     .separator()
@@ -2296,7 +2296,34 @@ pub fn run() {
             }
             #[cfg(not(target_os = "macos"))]
             {
-                Menu::default(app)
+                let file_menu = SubmenuBuilder::new(app, "File")
+                    .close_window()
+                    .separator()
+                    .quit_with_text(format!("Quit {app_name}"))
+                    .build()?;
+                let edit_menu = SubmenuBuilder::new(app, "Edit")
+                    .undo()
+                    .redo()
+                    .separator()
+                    .cut()
+                    .copy()
+                    .paste()
+                    .select_all()
+                    .build()?;
+                let view_menu = SubmenuBuilder::new(app, "View").fullscreen().build()?;
+                let window_menu = SubmenuBuilder::new(app, "Window")
+                    .minimize()
+                    .maximize()
+                    .separator()
+                    .close_window()
+                    .build()?;
+                let help_menu = SubmenuBuilder::new(app, "Help")
+                    .about_with_text(format!("About {app_name}"), Some(about_metadata))
+                    .build()?;
+                Menu::with_items(
+                    app,
+                    &[&file_menu, &edit_menu, &view_menu, &window_menu, &help_menu],
+                )
             }
         })
         .plugin(

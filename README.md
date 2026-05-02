@@ -91,6 +91,7 @@ Speech pipeline note:
 - macOS app menu labels are now explicitly branded (`About/Hide/Quit Church Live Translate`) so menu text stays polished even when the internal binary name is short.
 - macOS `About` dialog metadata is now polished with branded naming, short version display, copyright, and credits text.
 - macOS `About` dialog now uses the high-resolution app logo for clearer icon rendering.
+- Windows now uses the same branded About metadata and menu naming pattern (`Church Live Translate`) for cross-platform consistency with macOS.
 - For non-English source audio (Korean/Japanese/Chinese), the app transcribes in the source language first using `/v1/audio/transcriptions` with an explicit language code, then translates directly from source text to the selected target language.
 - The backend applies source-transcript quality gates (language mismatch / low-confidence segment mix) and skips weak segments instead of forwarding likely hallucinated text.
 - Rolling context is maintained separately for source-language transcript text and translated output context to keep chunk-to-chunk quality stable.
