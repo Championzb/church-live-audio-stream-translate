@@ -21,6 +21,7 @@
     "release:check:all": "node scripts/check-signing-env.mjs all",
     "test:unit": "node --test tests/unit/*.test.mjs",
     "test:coverage": "c8 --reporter=text --reporter=lcov npm run test:unit",
+    "test:coverage:gate": "c8 --check-coverage --lines 95 --branches 90 --functions 100 --statements 95 --reporter=text --reporter=lcov npm run test:unit",
     "test:visual": "playwright test -c playwright.visual.config.ts",
     "test:visual:update": "playwright test -c playwright.visual.config.ts --update-snapshots"
   },
