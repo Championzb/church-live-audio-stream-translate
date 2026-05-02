@@ -57,7 +57,7 @@ What it does automatically:
 - Syncs `src-tauri/tauri.conf.json` version to match.
 - Commits version files to `main`.
 - Creates and pushes tag `vX.Y.Z`.
-- Tag push triggers `.github/workflows/distribution.yml`.
+- Explicitly dispatches `.github/workflows/distribution.yml` on that tag ref.
 
 CI behavior:
 
