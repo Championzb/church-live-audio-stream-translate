@@ -288,6 +288,15 @@
               <p id="runtimeSubtitle" class="settings-card-subtitle">Live engine and capture behavior controls.</p>
               <div class="card-body">
                 <div class="row settings-form-row">
+                  <label id="labelRuntimePreset" for="runtimePreset">Runtime Preset</label>
+                  <select id="runtimePreset">
+                    <option value="low-latency">Low Latency</option>
+                    <option value="balanced" selected>Balanced</option>
+                    <option value="high-accuracy">High Accuracy</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </div>
+                <div class="row settings-form-row">
                   <label id="labelAsrQualityPreset" for="asrQualityPreset">ASR Confidence Guard</label>
                   <select id="asrQualityPreset">
                     <option value="strict">Strict</option>

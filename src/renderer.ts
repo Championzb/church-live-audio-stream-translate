@@ -65,6 +65,7 @@ const settingsControlsEl = document.getElementById('settingsControls') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
 const themeSelect = document.getElementById('themeSelect') as any;
 const transcriptDensitySelect = document.getElementById('transcriptDensity') as any;
+const runtimePresetSelect = document.getElementById('runtimePreset') as any;
 const mockModeInput = document.getElementById('mockMode') as any;
 const tuneAudioInput = document.getElementById('tuneAudio') as any;
 const audioInputValueEl = document.getElementById('audioInputValue') as any;
@@ -171,6 +172,7 @@ const labelAudioInputEl = document.getElementById('labelAudioInput') as any;
 const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput') as any;
 const labelThemeEl = document.getElementById('labelTheme') as any;
 const labelTranscriptDensityEl = document.getElementById('labelTranscriptDensity') as any;
+const labelRuntimePresetEl = document.getElementById('labelRuntimePreset') as any;
 const labelMockModeEl = document.getElementById('labelMockMode') as any;
 const labelTuneAudioEl = document.getElementById('labelTuneAudio') as any;
 const labelAsrQualityPresetEl = document.getElementById('labelAsrQualityPreset') as any;
@@ -291,6 +293,7 @@ const UI_TEXT = {
     'label.audioInput': 'Audio Input',
     'label.theme': 'Theme',
     'label.transcriptDensity': 'Transcript Density',
+    'label.runtimePreset': 'Runtime Preset',
     'label.mockMode': 'Mock Mode (No API)',
     'label.tuneAudio': 'Tune Audio (Echo/Noise/Auto Gain)',
     'label.asrQualityPreset': 'ASR Confidence Guard',
@@ -506,6 +509,7 @@ const UI_TEXT = {
     'status.projectIdSaved': 'Project ID saved',
     'status.themeSet': 'Theme changed to {theme}',
     'status.transcriptDensitySet': 'Transcript density changed to {density}',
+    'status.runtimePresetSet': 'Runtime preset changed to {preset}',
     'status.clipboardPasted': 'Pasted from clipboard',
     'status.audioTuningEnabled': 'Audio tuning enabled (echo cancellation, noise suppression, auto gain)',
     'status.audioTuningDisabled': 'Audio tuning disabled (raw microphone capture)',
@@ -563,6 +567,10 @@ const UI_TEXT = {
     'theme.minimal-mono': 'Minimal Mono',
     'density.comfortable': 'Comfortable',
     'density.compact': 'Compact',
+    'preset.runtimeLowLatency': 'Low Latency',
+    'preset.runtimeBalanced': 'Balanced',
+    'preset.runtimeHighAccuracy': 'High Accuracy',
+    'preset.runtimeCustom': 'Custom',
     'source.korean': '{language}',
     'source.english': '{language}',
     'source.japanese': '{language}',
@@ -582,6 +590,7 @@ const UI_TEXT = {
     'label.audioInput': '音频输入',
     'label.theme': '主题',
     'label.transcriptDensity': '字幕密度',
+    'label.runtimePreset': '运行预设',
     'label.mockMode': '模拟模式（不调用 API）',
     'label.tuneAudio': '音频调优（回声/降噪/自动增益）',
     'label.asrQualityPreset': 'ASR 置信度保护',
@@ -797,6 +806,7 @@ const UI_TEXT = {
     'status.projectIdSaved': 'Project ID 已保存',
     'status.themeSet': '主题已切换为 {theme}',
     'status.transcriptDensitySet': '字幕密度已切换为 {density}',
+    'status.runtimePresetSet': '运行预设已切换为 {preset}',
     'status.clipboardPasted': '已从剪贴板粘贴',
     'status.audioTuningEnabled': '已启用音频调优（回声消除、降噪、自动增益）',
     'status.audioTuningDisabled': '已关闭音频调优（原始麦克风采集）',
@@ -854,6 +864,10 @@ const UI_TEXT = {
     'theme.minimal-mono': '极简单色',
     'density.comfortable': '舒适',
     'density.compact': '紧凑',
+    'preset.runtimeLowLatency': '低延迟',
+    'preset.runtimeBalanced': '均衡',
+    'preset.runtimeHighAccuracy': '高精度',
+    'preset.runtimeCustom': '自定义',
     'source.korean': '{language}',
     'source.english': '{language}',
     'source.japanese': '{language}',
@@ -899,6 +913,12 @@ const DEFAULT_VAD_THRESHOLD = 0.05;
 const DEFAULT_SILENCE_MS = 1900;
 const DEFAULT_MAX_SEGMENT_MS = 12000;
 const COMPACT_DENSITY_BREAKPOINT = 1600;
+const RUNTIME_PRESET_STORAGE_KEY = 'church-runtime-preset';
+const RUNTIME_PRESETS = {
+  'low-latency': { vad: 0.06, silenceMs: 900, maxSegmentMs: 7000, labelKey: 'preset.runtimeLowLatency' },
+  balanced: { vad: 0.05, silenceMs: 1900, maxSegmentMs: 12000, labelKey: 'preset.runtimeBalanced' },
+  'high-accuracy': { vad: 0.035, silenceMs: 2600, maxSegmentMs: 18000, labelKey: 'preset.runtimeHighAccuracy' }
+} as const;
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
@@ -948,6 +968,61 @@ function applyTranscriptDensity(density: any) {
 
 function defaultTranscriptDensityForViewport() {
   return window.innerWidth <= COMPACT_DENSITY_BREAKPOINT ? 'compact' : 'comfortable';
+}
+
+function isCloseNumber(actual: number, expected: number, tolerance = 0.0009) {
+  return Math.abs(actual - expected) <= tolerance;
+}
+
+function detectRuntimePresetFromCurrent() {
+  const currentVad = Number(vadThresholdInput.value || DEFAULT_VAD_THRESHOLD);
+  const currentSilence = Number(silenceMsInput.value || DEFAULT_SILENCE_MS);
+  const currentMaxSegment = Number(maxSegmentMsInput.value || DEFAULT_MAX_SEGMENT_MS);
+  for (const [presetKey, preset] of Object.entries(RUNTIME_PRESETS)) {
+    const vadMatch = isCloseNumber(currentVad, preset.vad);
+    const silenceMatch = Number(currentSilence) === Number(preset.silenceMs);
+    const maxSegmentMatch = Number(currentMaxSegment) === Number(preset.maxSegmentMs);
+    if (vadMatch && silenceMatch && maxSegmentMatch) {
+      return presetKey;
+    }
+  }
+  return 'custom';
+}
+
+function syncRuntimePresetSelectionFromCurrent(options: { persist?: boolean } = {}) {
+  if (!runtimePresetSelect) return;
+  const detected = detectRuntimePresetFromCurrent();
+  runtimePresetSelect.value = detected;
+  if (options.persist !== false) {
+    localStorage.setItem(RUNTIME_PRESET_STORAGE_KEY, detected);
+  }
+}
+
+async function applyRuntimePreset(presetKey: string, options: { status?: boolean } = {}) {
+  if (!runtimePresetSelect) return;
+  const preset = (RUNTIME_PRESETS as any)[presetKey];
+  if (!preset) {
+    syncRuntimePresetSelectionFromCurrent();
+    return;
+  }
+  vadThresholdInput.value = String(preset.vad);
+  liveVadThresholdInput.value = String(preset.vad);
+  const vadText = Number(preset.vad).toFixed(3);
+  vadValueEl.textContent = vadText;
+  liveVadValueEl.textContent = vadText;
+  silenceMsInput.value = String(preset.silenceMs);
+  liveSilenceMsInput.value = String(preset.silenceMs);
+  maxSegmentMsInput.value = String(preset.maxSegmentMs);
+  liveMaxSegmentMsInput.value = String(preset.maxSegmentMs);
+  localStorage.setItem('church-vad-threshold', String(preset.vad));
+  localStorage.setItem('church-silence-ms', String(preset.silenceMs));
+  localStorage.setItem('church-max-segment-ms', String(preset.maxSegmentMs));
+  runtimePresetSelect.value = presetKey;
+  localStorage.setItem(RUNTIME_PRESET_STORAGE_KEY, presetKey);
+  await syncTranslationConfig();
+  if (options.status !== false) {
+    setStatusKey('status.runtimePresetSet', { preset: t((preset as any).labelKey) });
+  }
 }
 
 function t(key, values = {}) {
@@ -1826,6 +1901,7 @@ function setControlsLocked(nextLocked) {
     liveAudioInputSelect,
     themeSelect,
     transcriptDensitySelect,
+    runtimePresetSelect,
     mockModeInput,
     tuneAudioInput,
     asrQualityPresetSelect,
@@ -2462,6 +2538,7 @@ function applyUiLanguage() {
   labelLiveAudioInputEl.textContent = t('label.audioInput');
   labelThemeEl.textContent = t('label.theme');
   labelTranscriptDensityEl.textContent = t('label.transcriptDensity');
+  labelRuntimePresetEl.textContent = t('label.runtimePreset');
   labelMockModeEl.textContent = t('label.mockMode');
   labelTuneAudioEl.textContent = t('label.tuneAudio');
   labelAsrQualityPresetEl.textContent = t('label.asrQualityPreset');
@@ -2582,6 +2659,15 @@ function applyUiLanguage() {
   });
   Array.from(transcriptDensitySelect.options).forEach((option: any) => {
     option.textContent = t(`density.${option.value}`);
+  });
+  Array.from(runtimePresetSelect.options).forEach((option: any) => {
+    const runtimeLabelMap = {
+      'low-latency': 'preset.runtimeLowLatency',
+      balanced: 'preset.runtimeBalanced',
+      'high-accuracy': 'preset.runtimeHighAccuracy',
+      custom: 'preset.runtimeCustom'
+    } as Record<string, string>;
+    option.textContent = t(runtimeLabelMap[option.value] || 'preset.runtimeCustom');
   });
   Array.from(audioInputSelect.options).forEach((option: any) => {
     if (option.value === '') {
@@ -3564,6 +3650,7 @@ async function ensureMainInitialized() {
   tuneAudioEnabled = savedTuneAudio ? savedTuneAudio === '1' : DEFAULT_TUNE_AUDIO_ENABLED;
   tuneAudioInput.checked = tuneAudioEnabled;
   updateRuntimeStateChips();
+  syncRuntimePresetSelectionFromCurrent({ persist: false });
 
   const savedControlsLocked = localStorage.getItem('church-controls-locked');
   setControlsLocked(savedControlsLocked === '1');
@@ -3906,6 +3993,15 @@ themeSelect.addEventListener('change', () => {
 transcriptDensitySelect.addEventListener('change', () => {
   applyTranscriptDensity(transcriptDensitySelect.value);
   setStatusKey('status.transcriptDensitySet', { density: t(`density.${transcriptDensitySelect.value}`) });
+});
+
+runtimePresetSelect.addEventListener('change', async () => {
+  const nextPreset = runtimePresetSelect.value;
+  if (nextPreset === 'custom') {
+    syncRuntimePresetSelectionFromCurrent();
+    return;
+  }
+  await applyRuntimePreset(nextPreset, { status: true });
 });
 
 mockModeInput.addEventListener('change', () => {
@@ -4316,6 +4412,7 @@ vadThresholdInput.addEventListener('input', () => {
   liveVadThresholdInput.value = vadThresholdInput.value;
   liveVadValueEl.textContent = value;
   localStorage.setItem('church-vad-threshold', vadThresholdInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 liveVadThresholdInput.addEventListener('input', () => {
@@ -4324,26 +4421,31 @@ liveVadThresholdInput.addEventListener('input', () => {
   vadThresholdInput.value = liveVadThresholdInput.value;
   vadValueEl.textContent = value;
   localStorage.setItem('church-vad-threshold', liveVadThresholdInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 silenceMsInput.addEventListener('change', () => {
   liveSilenceMsInput.value = silenceMsInput.value;
   localStorage.setItem('church-silence-ms', silenceMsInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 liveSilenceMsInput.addEventListener('change', () => {
   silenceMsInput.value = liveSilenceMsInput.value;
   localStorage.setItem('church-silence-ms', liveSilenceMsInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 maxSegmentMsInput.addEventListener('change', () => {
   liveMaxSegmentMsInput.value = maxSegmentMsInput.value;
   localStorage.setItem('church-max-segment-ms', maxSegmentMsInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 liveMaxSegmentMsInput.addEventListener('change', () => {
   maxSegmentMsInput.value = liveMaxSegmentMsInput.value;
   localStorage.setItem('church-max-segment-ms', liveMaxSegmentMsInput.value);
+  syncRuntimePresetSelectionFromCurrent();
 });
 
 autoSaveOnStopInput.addEventListener('change', () => {
