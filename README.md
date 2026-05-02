@@ -115,6 +115,7 @@ Speech pipeline note:
 - Added a compact live observability strip in the header with queue depth, average render latency, skipped-segment count, and current engine mode (`Live API` vs `Mock`).
 - Settings page hierarchy polish: added concise section subtitles and runtime state chips (`On`/`Off`) for `Mock Mode` and `Auto-save on stop` for faster scanning.
 - Added `Transcript Density` setting (`Comfortable` / `Compact`) to tune side-by-side transcript readability; preference persists across sessions and applies in Translation Mode.
+- Default transcript density is now adaptive on first launch: widths `<=1600px` start in `Compact`, wider screens start in `Comfortable` (and users can still override in Settings).
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Glossary terms now use the same chip editor pattern: paste one/multi-line `source=target` terms, add in batch, remove by chip, and keep import/export compatibility.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.

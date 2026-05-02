@@ -852,6 +852,7 @@ const DEFAULT_TUNE_AUDIO_ENABLED = true;
 const DEFAULT_VAD_THRESHOLD = 0.05;
 const DEFAULT_SILENCE_MS = 1900;
 const DEFAULT_MAX_SEGMENT_MS = 12000;
+const COMPACT_DENSITY_BREAKPOINT = 1600;
 let uiLanguage = 'en';
 let mainInitialized = false;
 let mainView = 'live';
@@ -897,6 +898,10 @@ function applyTranscriptDensity(density: any) {
   document.body.classList.toggle('density-compact', normalizedDensity === 'compact');
   document.body.classList.toggle('density-comfortable', normalizedDensity !== 'compact');
   localStorage.setItem(TRANSCRIPT_DENSITY_STORAGE_KEY, normalizedDensity);
+}
+
+function defaultTranscriptDensityForViewport() {
+  return window.innerWidth <= COMPACT_DENSITY_BREAKPOINT ? 'compact' : 'comfortable';
 }
 
 function t(key, values = {}) {
@@ -4139,7 +4144,10 @@ async function boot() {
   const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
   applyTheme(savedTheme);
   const savedTranscriptDensity = localStorage.getItem(TRANSCRIPT_DENSITY_STORAGE_KEY);
-  applyTranscriptDensity(savedTranscriptDensity);
+  const preferredDensity = SUPPORTED_TRANSCRIPT_DENSITIES.includes(savedTranscriptDensity)
+    ? savedTranscriptDensity
+    : defaultTranscriptDensityForViewport();
+  applyTranscriptDensity(preferredDensity);
   const savedUiLanguage = localStorage.getItem('church-ui-language');
   if (savedUiLanguage && SUPPORTED_UI_LANGUAGES.includes(savedUiLanguage)) {
     uiLanguageSelect.value = savedUiLanguage;
