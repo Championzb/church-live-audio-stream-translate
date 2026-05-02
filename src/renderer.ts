@@ -60,6 +60,7 @@ const liveHotkeyF1El = document.getElementById('liveHotkeyF1') as any;
 const settingsPageEl = document.getElementById('settingsPage') as any;
 const uiLanguageSelect = document.getElementById('uiLanguage') as any;
 const themeSelect = document.getElementById('themeSelect') as any;
+const transcriptDensitySelect = document.getElementById('transcriptDensity') as any;
 const mockModeInput = document.getElementById('mockMode') as any;
 const tuneAudioInput = document.getElementById('tuneAudio') as any;
 const audioInputValueEl = document.getElementById('audioInputValue') as any;
@@ -162,6 +163,7 @@ const labelUiLanguageEl = document.getElementById('labelUiLanguage') as any;
 const labelAudioInputEl = document.getElementById('labelAudioInput') as any;
 const labelLiveAudioInputEl = document.getElementById('labelLiveAudioInput') as any;
 const labelThemeEl = document.getElementById('labelTheme') as any;
+const labelTranscriptDensityEl = document.getElementById('labelTranscriptDensity') as any;
 const labelMockModeEl = document.getElementById('labelMockMode') as any;
 const labelTuneAudioEl = document.getElementById('labelTuneAudio') as any;
 const labelAsrQualityPresetEl = document.getElementById('labelAsrQualityPreset') as any;
@@ -280,6 +282,7 @@ const UI_TEXT = {
     'label.uiLanguage': 'UI Language',
     'label.audioInput': 'Audio Input',
     'label.theme': 'Theme',
+    'label.transcriptDensity': 'Transcript Density',
     'label.mockMode': 'Mock Mode (No API)',
     'label.tuneAudio': 'Tune Audio (Echo/Noise/Auto Gain)',
     'label.asrQualityPreset': 'ASR Confidence Guard',
@@ -477,6 +480,7 @@ const UI_TEXT = {
     'status.adminApiKeyCopied': 'OpenAI admin key copied',
     'status.projectIdSaved': 'Project ID saved',
     'status.themeSet': 'Theme changed to {theme}',
+    'status.transcriptDensitySet': 'Transcript density changed to {density}',
     'status.audioTuningEnabled': 'Audio tuning enabled (echo cancellation, noise suppression, auto gain)',
     'status.audioTuningDisabled': 'Audio tuning disabled (raw microphone capture)',
     'status.asrQualityPresetSet': 'ASR confidence guard set to {preset}',
@@ -530,6 +534,8 @@ const UI_TEXT = {
     'theme.broadcast-clean': 'Broadcast Clean',
     'theme.paper-light': 'Paper Light',
     'theme.minimal-mono': 'Minimal Mono',
+    'density.comfortable': 'Comfortable',
+    'density.compact': 'Compact',
     'source.korean': '{language}',
     'source.english': '{language}',
     'source.japanese': '{language}',
@@ -548,6 +554,7 @@ const UI_TEXT = {
     'label.uiLanguage': '界面语言',
     'label.audioInput': '音频输入',
     'label.theme': '主题',
+    'label.transcriptDensity': '字幕密度',
     'label.mockMode': '模拟模式（不调用 API）',
     'label.tuneAudio': '音频调优（回声/降噪/自动增益）',
     'label.asrQualityPreset': 'ASR 置信度保护',
@@ -745,6 +752,7 @@ const UI_TEXT = {
     'status.adminApiKeyCopied': '已复制 OpenAI 管理员密钥',
     'status.projectIdSaved': 'Project ID 已保存',
     'status.themeSet': '主题已切换为 {theme}',
+    'status.transcriptDensitySet': '字幕密度已切换为 {density}',
     'status.audioTuningEnabled': '已启用音频调优（回声消除、降噪、自动增益）',
     'status.audioTuningDisabled': '已关闭音频调优（原始麦克风采集）',
     'status.asrQualityPresetSet': 'ASR 置信度保护已设置为 {preset}',
@@ -798,6 +806,8 @@ const UI_TEXT = {
     'theme.broadcast-clean': '投屏高对比',
     'theme.paper-light': '浅色纸面',
     'theme.minimal-mono': '极简单色',
+    'density.comfortable': '舒适',
+    'density.compact': '紧凑',
     'source.korean': '{language}',
     'source.english': '{language}',
     'source.japanese': '{language}',
@@ -830,8 +840,10 @@ const LANGUAGE_DISPLAY = {
 };
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 const SUPPORTED_UI_THEMES = ['broadcast-clean', 'paper-light', 'minimal-mono'];
+const SUPPORTED_TRANSCRIPT_DENSITIES = ['comfortable', 'compact'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
 const UI_THEME_STORAGE_KEY = 'church-ui-theme';
+const TRANSCRIPT_DENSITY_STORAGE_KEY = 'church-transcript-density';
 const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
 const MOCK_MODE_STORAGE_KEY = 'church-mock-mode';
 const OUTPUT_SNAPSHOT_STORAGE_KEY = 'church-output-latest-snapshot';
@@ -877,6 +889,14 @@ function applyTheme(theme: any) {
   themeSelect.value = normalizedTheme;
   document.body.setAttribute('data-theme', normalizedTheme);
   localStorage.setItem(UI_THEME_STORAGE_KEY, normalizedTheme);
+}
+
+function applyTranscriptDensity(density: any) {
+  const normalizedDensity = SUPPORTED_TRANSCRIPT_DENSITIES.includes(density) ? density : 'comfortable';
+  transcriptDensitySelect.value = normalizedDensity;
+  document.body.classList.toggle('density-compact', normalizedDensity === 'compact');
+  document.body.classList.toggle('density-comfortable', normalizedDensity !== 'compact');
+  localStorage.setItem(TRANSCRIPT_DENSITY_STORAGE_KEY, normalizedDensity);
 }
 
 function t(key, values = {}) {
@@ -1583,6 +1603,7 @@ function setControlsLocked(nextLocked) {
     audioInputSelect,
     liveAudioInputSelect,
     themeSelect,
+    transcriptDensitySelect,
     mockModeInput,
     tuneAudioInput,
     asrQualityPresetSelect,
@@ -2214,6 +2235,7 @@ function applyUiLanguage() {
   labelAudioInputEl.textContent = t('label.audioInput');
   labelLiveAudioInputEl.textContent = t('label.audioInput');
   labelThemeEl.textContent = t('label.theme');
+  labelTranscriptDensityEl.textContent = t('label.transcriptDensity');
   labelMockModeEl.textContent = t('label.mockMode');
   labelTuneAudioEl.textContent = t('label.tuneAudio');
   labelAsrQualityPresetEl.textContent = t('label.asrQualityPreset');
@@ -2328,6 +2350,9 @@ function applyUiLanguage() {
   });
   Array.from(themeSelect.options).forEach((option: any) => {
     option.textContent = t(`theme.${option.value}`);
+  });
+  Array.from(transcriptDensitySelect.options).forEach((option: any) => {
+    option.textContent = t(`density.${option.value}`);
   });
   Array.from(audioInputSelect.options).forEach((option: any) => {
     if (option.value === '') {
@@ -3638,6 +3663,11 @@ themeSelect.addEventListener('change', () => {
   setStatusKey('status.themeSet', { theme: t(`theme.${themeSelect.value}`) });
 });
 
+transcriptDensitySelect.addEventListener('change', () => {
+  applyTranscriptDensity(transcriptDensitySelect.value);
+  setStatusKey('status.transcriptDensitySet', { density: t(`density.${transcriptDensitySelect.value}`) });
+});
+
 mockModeInput.addEventListener('change', () => {
   mockModeEnabled = Boolean(mockModeInput.checked);
   localStorage.setItem(MOCK_MODE_STORAGE_KEY, mockModeEnabled ? '1' : '0');
@@ -4108,6 +4138,8 @@ async function boot() {
   bindWindowControls();
   const savedTheme = localStorage.getItem(UI_THEME_STORAGE_KEY);
   applyTheme(savedTheme);
+  const savedTranscriptDensity = localStorage.getItem(TRANSCRIPT_DENSITY_STORAGE_KEY);
+  applyTranscriptDensity(savedTranscriptDensity);
   const savedUiLanguage = localStorage.getItem('church-ui-language');
   if (savedUiLanguage && SUPPORTED_UI_LANGUAGES.includes(savedUiLanguage)) {
     uiLanguageSelect.value = savedUiLanguage;

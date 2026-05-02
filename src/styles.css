@@ -1742,6 +1742,31 @@ body.presentation-mode #toggleSourcePanelHeader {
   cursor: pointer;
 }
 
+body.density-compact .panel {
+  gap: 8px;
+}
+
+body.density-compact .line {
+  padding: 9px 40px 9px 10px;
+  font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+  line-height: 1.42;
+}
+
+body.density-compact .line-meta {
+  margin-top: 4px;
+}
+
+body.density-compact .live-line {
+  min-height: 22px;
+  padding: 5px 8px;
+  font-size: 0.84rem;
+}
+
+body.density-compact .script-content {
+  font-size: 0.92rem;
+  line-height: 1.46;
+}
+
 .line-text {
   display: block;
   white-space: pre-wrap;
@@ -2269,6 +2294,20 @@ body.presentation-mode .line {
   min-height: auto !important;
   height: auto !important;
   display: block;
+}
+
+body.presentation-mode.density-compact .line {
+  font-size: 1.34rem;
+  line-height: 1.45;
+}
+
+body.presentation-mode.density-compact .live-line {
+  font-size: 1rem;
+}
+
+body.presentation-mode.density-compact .script-reference-card .script-content {
+  font-size: 0.96rem;
+  line-height: 1.48;
 }
 
 body.presentation-mode .line-copy-btn {
