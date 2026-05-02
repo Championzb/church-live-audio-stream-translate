@@ -2053,7 +2053,7 @@ body.presentation-mode .translation-live-bar {
 body.presentation-mode .captions {
   --presentation-script-width: clamp(320px, 28vw, 420px);
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--presentation-script-width);
   gap: 10px;
   align-items: stretch;
 }
@@ -2063,11 +2063,7 @@ body.presentation-mode .captions > .caption-card {
 }
 
 body.presentation-mode .script-reference-card {
-  display: none;
-}
-
-body.presentation-mode.has-reference-script .captions {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--presentation-script-width);
+  display: grid !important;
 }
 
 body.presentation-mode.source-panel-collapsed #sourceCaptionCard {
@@ -2078,7 +2074,7 @@ body.presentation-mode.source-panel-collapsed .captions {
   grid-template-columns: minmax(0, 1fr);
 }
 
-body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+body.presentation-mode.source-panel-collapsed .captions {
   grid-template-columns: minmax(0, 1fr) var(--presentation-script-width);
 }
 
@@ -2088,10 +2084,6 @@ body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
 
 body.presentation-mode #closeSourcePanel {
   display: inline-flex;
-}
-
-body.presentation-mode.has-reference-script .script-reference-card {
-  display: grid;
 }
 
 body.presentation-mode .transcription-hidden {
@@ -2170,8 +2162,8 @@ body.presentation-mode .script-reference-card .script-content {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  body.presentation-mode.has-reference-script .captions,
-  body.presentation-mode.has-reference-script.source-panel-collapsed .captions {
+  body.presentation-mode .captions,
+  body.presentation-mode.source-panel-collapsed .captions {
     grid-template-columns: minmax(0, 1fr);
   }
 }
