@@ -28,6 +28,9 @@ const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey');
 const openSettingsPageButton = document.getElementById('openSettingsPage');
 const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
+const settingsNavAppearanceButton = document.getElementById('settingsNavAppearance');
+const settingsNavRuntimeButton = document.getElementById('settingsNavRuntime');
+const settingsNavLanguageAidsButton = document.getElementById('settingsNavLanguageAids');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
 const runtimeSummaryEl = document.getElementById('runtimeSummary');
 const appearanceSubtitleEl = document.getElementById('appearanceSubtitle');
@@ -54,6 +57,7 @@ const liveHotkeyF4El = document.getElementById('liveHotkeyF4');
 const liveHotkeyF2El = document.getElementById('liveHotkeyF2');
 const liveHotkeyF1El = document.getElementById('liveHotkeyF1');
 const settingsPageEl = document.getElementById('settingsPage');
+const settingsControlsEl = document.getElementById('settingsControls');
 const uiLanguageSelect = document.getElementById('uiLanguage');
 const themeSelect = document.getElementById('themeSelect');
 const transcriptDensitySelect = document.getElementById('transcriptDensity');
@@ -264,6 +268,7 @@ let outputBroadcastChannel = null;
 let sourcePanelCollapsed = true;
 let observedLatencyAvgMs = 0;
 let observedSkippedSegments = 0;
+let settingsSectionObserver = null;
 const PROJECTOR_STALE_MS = 7000;
 const PROJECTOR_STATE_POLL_MS = 2500;
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
@@ -1450,6 +1455,9 @@ function setMainView(nextView) {
     const showLive = mainView === 'live';
     liveWorkspaceEl.classList.toggle('hidden', !showLive);
     settingsPageEl.classList.toggle('hidden', showLive);
+    if (!showLive) {
+        initSettingsContextNav();
+    }
 }
 function setApiKeyModalVisible(nextVisible) {
     const visible = Boolean(nextVisible);
@@ -1554,6 +1562,66 @@ function updateRuntimeStateChips() {
         autoSaveStateChipEl.textContent = isOn ? t('state.on') : t('state.off');
         autoSaveStateChipEl.classList.toggle('is-on', isOn);
     }
+}
+function setActiveSettingsSection(sectionId) {
+    const sectionButtons = [
+        settingsNavAppearanceButton,
+        settingsNavRuntimeButton,
+        settingsNavLanguageAidsButton
+    ];
+    sectionButtons.forEach((button) => {
+        if (!button)
+            return;
+        const isActive = button.dataset.target === sectionId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+}
+function initSettingsContextNav() {
+    const sectionButtons = [
+        settingsNavAppearanceButton,
+        settingsNavRuntimeButton,
+        settingsNavLanguageAidsButton
+    ].filter(Boolean);
+    if (!settingsControlsEl || !sectionButtons.length)
+        return;
+    sectionButtons.forEach((button) => {
+        if (button.dataset.bound === '1')
+            return;
+        button.dataset.bound = '1';
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.target;
+            if (!targetId)
+                return;
+            const targetEl = document.getElementById(targetId);
+            if (!targetEl)
+                return;
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setActiveSettingsSection(targetId);
+        });
+    });
+    if (settingsSectionObserver) {
+        settingsSectionObserver.disconnect();
+    }
+    settingsSectionObserver = new IntersectionObserver((entries) => {
+        const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (!visible.length)
+            return;
+        setActiveSettingsSection(visible[0].target.id);
+    }, {
+        root: settingsControlsEl,
+        threshold: [0.2, 0.45, 0.7],
+        rootMargin: '-4% 0px -55% 0px'
+    });
+    sectionButtons.forEach((button) => {
+        const targetId = button.dataset.target;
+        const targetEl = targetId ? document.getElementById(targetId) : null;
+        if (targetEl)
+            settingsSectionObserver?.observe(targetEl);
+    });
+    setActiveSettingsSection('settingsCardAppearance');
 }
 function updateModeSummary() {
     const queueText = segmentQueueRunning
@@ -2304,11 +2372,17 @@ function applyUiLanguage() {
     setIconButton(liveExitTranslationModeButton, 'back', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
+    if (settingsNavAppearanceButton)
+        settingsNavAppearanceButton.textContent = t('heading.appearance');
     appearanceSubtitleEl.textContent = t('heading.appearanceSubtitle');
     runtimeSummaryEl.textContent = t('heading.runtime');
+    if (settingsNavRuntimeButton)
+        settingsNavRuntimeButton.textContent = t('heading.runtime');
     runtimeSubtitleEl.textContent = t('heading.runtimeSubtitle');
     translationControlsSummaryEl.textContent = t('heading.translationControls');
     languageAidsSummaryEl.textContent = t('heading.languageAids');
+    if (settingsNavLanguageAidsButton)
+        settingsNavLanguageAidsButton.textContent = t('heading.languageAids');
     languageAidsSubtitleEl.textContent = t('heading.languageAidsSubtitle');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');
     if (toggleHelpButton) {
@@ -2400,6 +2474,7 @@ function applyUiLanguage() {
     updateCostSummary();
     updateObservabilityStrip();
     updateRuntimeStateChips();
+    initSettingsContextNav();
     syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
     setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
     updateReferenceScriptUi();

@@ -247,11 +247,18 @@
 
         <section id="settingsPage" class="settings-page hidden">
           <div class="settings-header">
-            <h2 id="settingsHeading">Settings</h2>
+            <div class="settings-header-main">
+              <h2 id="settingsHeading">Settings</h2>
+              <nav class="settings-context-nav" aria-label="Settings sections">
+                <button id="settingsNavAppearance" type="button" class="settings-nav-pill is-active" data-target="settingsCardAppearance">Appearance</button>
+                <button id="settingsNavRuntime" type="button" class="settings-nav-pill" data-target="settingsCardRuntime">Runtime & Audio</button>
+                <button id="settingsNavLanguageAids" type="button" class="settings-nav-pill" data-target="settingsCardLanguageAids">Language Aids</button>
+              </nav>
+            </div>
             <button id="backToLivePage" class="icon-btn" aria-label="Back">←</button>
           </div>
-          <section class="controls settings-controls">
-            <details class="control-card settings-card settings-card--appearance" open>
+          <section id="settingsControls" class="controls settings-controls">
+            <details id="settingsCardAppearance" class="control-card settings-card settings-card--appearance" open>
               <summary id="appearanceSummary">Appearance</summary>
               <p id="appearanceSubtitle" class="settings-card-subtitle">Visual preferences and language display.</p>
               <div class="card-body">
@@ -276,7 +283,7 @@
               </div>
             </details>
 
-            <details class="control-card settings-card settings-card--runtime" open>
+            <details id="settingsCardRuntime" class="control-card settings-card settings-card--runtime" open>
               <summary id="runtimeSummary">Runtime & Audio</summary>
               <p id="runtimeSubtitle" class="settings-card-subtitle">Live engine and capture behavior controls.</p>
               <div class="card-body">
@@ -309,7 +316,7 @@
               </div>
             </details>
 
-            <details class="control-card settings-card settings-card--glossary glossary-card" open>
+            <details id="settingsCardLanguageAids" class="control-card settings-card settings-card--glossary glossary-card" open>
               <summary id="languageAidsSummary">Language Aids</summary>
               <p id="languageAidsSubtitle" class="settings-card-subtitle">Glossary and stable recognition vocabulary.</p>
               <div class="card-body">

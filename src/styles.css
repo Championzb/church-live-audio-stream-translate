@@ -1210,10 +1210,48 @@ h1 {
   backdrop-filter: blur(6px);
 }
 
+.settings-header-main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
 .settings-header h2 {
   margin: 0;
   font-size: 1.14rem;
   font-family: var(--font-display);
+}
+
+.settings-context-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-nav-pill {
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--section-border);
+  background: var(--surface-inset);
+  color: var(--text-subtle);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.settings-nav-pill:hover {
+  transform: none;
+  background: color-mix(in srgb, var(--surface-inset) 70%, var(--hover-bg) 30%);
+}
+
+.settings-nav-pill.is-active {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
 }
 
 .control-card {
@@ -2205,6 +2243,10 @@ body.density-compact .script-content {
 
   .settings-header {
     padding: 10px 10px 2px;
+  }
+
+  .settings-context-nav {
+    gap: 6px;
   }
 
   .settings-controls {
