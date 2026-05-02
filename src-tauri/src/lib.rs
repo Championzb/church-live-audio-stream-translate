@@ -14,12 +14,11 @@ use tauri::Emitter;
 use tauri::LogicalSize;
 use tauri::Manager;
 use tauri::Size;
+#[cfg(target_os = "macos")]
 use tauri::TitleBarStyle;
 use tauri::WebviewUrl;
 use tauri::WebviewWindowBuilder;
-use tauri::menu::Menu;
-#[cfg(target_os = "macos")]
-use tauri::menu::{AboutMetadata, SubmenuBuilder};
+use tauri::menu::{AboutMetadata, Menu, SubmenuBuilder};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Shortcut};
 use tauri_plugin_log::{Target, TargetKind};
 
@@ -2080,15 +2079,20 @@ fn toggle_output_window(app: tauri::AppHandle) -> Result<OkResponse, String> {
         return Ok(OkResponse { ok: true });
     }
 
-    let builder = WebviewWindowBuilder::new(&app, "output", WebviewUrl::App("output.html".into()))
+    let mut builder = WebviewWindowBuilder::new(&app, "output", WebviewUrl::App("output.html".into()))
         .title("")
         .inner_size(1280.0, 720.0)
         .resizable(true)
         .decorations(true)
-        .title_bar_style(TitleBarStyle::Overlay)
-        .hidden_title(true)
         .shadow(true)
         .background_color(Color(4, 13, 29, 255));
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder
+            .title_bar_style(TitleBarStyle::Overlay)
+            .hidden_title(true);
+    }
 
     builder
         .build()
