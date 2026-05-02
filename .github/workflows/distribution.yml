@@ -69,6 +69,10 @@ jobs:
             1. Download `.app.zip`.
             2. Unzip and drag `.app` into `Applications`.
             3. First run: right-click app -> `Open` -> confirm `Open`.
+            4. If macOS reports app is damaged, run:
+               `xattr -dr com.apple.quarantine "/Applications/Church Live Translate.app"`
+               then:
+               `open "/Applications/Church Live Translate.app"`
 
             Windows (`.msi`)
             1. Download `.msi`.
