@@ -119,6 +119,7 @@ Speech pipeline note:
 - Empty states are now action-oriented: reference script panel includes quick `Upload/Paste` actions, and glossary/STT keyword empty states include one-click `Paste & Add`.
 - Key async actions now show loading states and temporary button lock (for example save keys, start/stop, import/export, paste script/keywords, auto-save folder pick, transcript export) to prevent duplicate clicks.
 - Settings now include a sticky section context navigator (`Appearance`, `Runtime & Audio`, `Language Aids`) that highlights the active section and supports one-click jump scrolling.
+- Observability strip now includes health tiers with guidance tooltips (`Good`, `Elevated`, `High`) for queue depth, average latency, skipped segments, and engine mode.
 - Stable STT keywords now use a chip editor: paste one/multi-line terms to add in batch, keep source + target aliases (for example, `그리스도 (基督)`), and remove terms with one click.
 - Glossary terms now use the same chip editor pattern: paste one/multi-line `source=target` terms, add in batch, remove by chip, and keep import/export compatibility.
 - Sermon STT keywords still auto-normalize pasted/scripted entries into a single-line list for transmission.

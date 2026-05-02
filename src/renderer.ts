@@ -367,6 +367,20 @@ const UI_TEXT = {
     'obs.engine': 'Engine',
     'obs.engine.live': 'Live API',
     'obs.engine.mock': 'Mock',
+    'obs.tier.good': 'Good',
+    'obs.tier.elevated': 'Elevated',
+    'obs.tier.high': 'High',
+    'obs.queue.good': 'Queue is healthy.',
+    'obs.queue.elevated': 'Queue is building; consider low-latency preset.',
+    'obs.queue.high': 'Queue is high; reduce segment size or pause input.',
+    'obs.latency.good': 'Render delay is healthy.',
+    'obs.latency.elevated': 'Delay is rising; monitor network and model load.',
+    'obs.latency.high': 'High delay; switch to low-latency preset now.',
+    'obs.skipped.good': 'No skipped segments detected.',
+    'obs.skipped.elevated': 'Some segments skipped; review input clarity.',
+    'obs.skipped.high': 'Frequent skips; tune VAD/silence and mic quality.',
+    'obs.engine.good': 'Live API mode active.',
+    'obs.engine.elevated': 'Mock mode active; results are simulated.',
     'button.back': 'Back',
     'heading.settings': 'Settings',
     'heading.appearance': 'Appearance',
@@ -644,6 +658,20 @@ const UI_TEXT = {
     'obs.engine': '引擎',
     'obs.engine.live': '实时 API',
     'obs.engine.mock': '模拟',
+    'obs.tier.good': '良好',
+    'obs.tier.elevated': '升高',
+    'obs.tier.high': '偏高',
+    'obs.queue.good': '队列状态良好。',
+    'obs.queue.elevated': '队列开始堆积；可考虑低延迟预设。',
+    'obs.queue.high': '队列过高；请减小片段或暂停输入。',
+    'obs.latency.good': '渲染延迟正常。',
+    'obs.latency.elevated': '延迟上升；请关注网络与模型负载。',
+    'obs.latency.high': '延迟较高；建议切换低延迟预设。',
+    'obs.skipped.good': '未检测到跳过片段。',
+    'obs.skipped.elevated': '出现少量跳过；请检查输入清晰度。',
+    'obs.skipped.high': '跳过频繁；请调节 VAD/静音与麦克风质量。',
+    'obs.engine.good': '当前为实时 API 模式。',
+    'obs.engine.elevated': '当前为模拟模式；结果为仿真输出。',
     'button.back': '返回',
     'heading.settings': '设置',
     'heading.appearance': '外观',
@@ -1573,19 +1601,29 @@ function updateObservabilityStrip() {
   if (!obsQueueValueEl || !obsLatencyValueEl || !obsSkippedValueEl || !obsApiModeValueEl) {
     return;
   }
+  const tierKey = (state: string) => (state === 'danger' ? 'high' : state === 'warn' ? 'elevated' : 'good');
+
   const queueDepth = pendingSegments.length;
   obsQueueValueEl.textContent = `${queueDepth}`;
-  obsQueueValueEl.dataset.state = queueDepth > 2 ? 'warn' : 'idle';
+  const queueState = queueDepth > 5 ? 'danger' : queueDepth > 2 ? 'warn' : 'idle';
+  obsQueueValueEl.dataset.state = queueState;
+  obsQueueValueEl.title = `${t(`obs.tier.${tierKey(queueState)}`)}: ${t(`obs.queue.${tierKey(queueState)}`)}`;
 
   const latencyMs = Math.max(0, Math.round(observedLatencyAvgMs || 0));
   obsLatencyValueEl.textContent = `${latencyMs} ms`;
-  obsLatencyValueEl.dataset.state = latencyMs > 3500 ? 'danger' : latencyMs > 1800 ? 'warn' : 'idle';
+  const latencyState = latencyMs > 3500 ? 'danger' : latencyMs > 1800 ? 'warn' : 'idle';
+  obsLatencyValueEl.dataset.state = latencyState;
+  obsLatencyValueEl.title = `${t(`obs.tier.${tierKey(latencyState)}`)}: ${t(`obs.latency.${tierKey(latencyState)}`)}`;
 
   obsSkippedValueEl.textContent = `${observedSkippedSegments}`;
-  obsSkippedValueEl.dataset.state = observedSkippedSegments > 0 ? 'warn' : 'idle';
+  const skippedState = observedSkippedSegments > 3 ? 'danger' : observedSkippedSegments > 0 ? 'warn' : 'idle';
+  obsSkippedValueEl.dataset.state = skippedState;
+  obsSkippedValueEl.title = `${t(`obs.tier.${tierKey(skippedState)}`)}: ${t(`obs.skipped.${tierKey(skippedState)}`)}`;
 
   obsApiModeValueEl.textContent = mockModeEnabled ? t('obs.engine.mock') : t('obs.engine.live');
-  obsApiModeValueEl.dataset.state = mockModeEnabled ? 'warn' : 'idle';
+  const engineState = mockModeEnabled ? 'warn' : 'idle';
+  obsApiModeValueEl.dataset.state = engineState;
+  obsApiModeValueEl.title = `${t(`obs.tier.${tierKey(engineState)}`)}: ${t(`obs.engine.${tierKey(engineState)}`)}`;
 }
 
 function updateRuntimeStateChips() {
