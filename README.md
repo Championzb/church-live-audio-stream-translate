@@ -4,6 +4,8 @@ Desktop subtitle app for Windows and macOS using Tauri.
 
 English | [简体中文](./README.zh-CN.md)
 
+Documentation hub: [docs/README.md](./docs/README.md)
+
 ## What This App Does
 
 - Captures live sermon audio from your selected input device.
@@ -68,6 +70,21 @@ Consider a commercial platform if you need:
 
 If no release assets are visible yet, no release has been published for that version.
 In that case, use the source setup path below until a release is published.
+
+## Run From Source (Developer Setup)
+
+Requirements:
+
+- Node.js 20+
+- Rust stable toolchain
+- OpenAI API key
+
+Run:
+
+```bash
+npm install
+npm run start
+```
 
 ## Start Here (By Role)
 

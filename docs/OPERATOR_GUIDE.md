@@ -2,6 +2,10 @@
 
 Use this during live worship translation.
 
+Related docs:
+- Setup and machine prep: [SETUP_AND_CONFIG.md](./SETUP_AND_CONFIG.md)
+- Service-day checks: [TEST_PLAN.md](./TEST_PLAN.md)
+
 ## At A Glance
 
 - Multi-language sermon input: Korean, English, Japanese, Chinese.

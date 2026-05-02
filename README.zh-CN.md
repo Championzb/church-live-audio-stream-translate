@@ -4,6 +4,8 @@ Windows 与 macOS 桌面字幕应用（基于 Tauri）。
 
 [English](./README.md) | 简体中文
 
+文档导航页： [docs/README.md](./docs/README.md)
+
 ## 这个应用能做什么
 
 - 采集你选择的音频输入设备中的实时讲道音频。
@@ -67,6 +69,21 @@ Windows 与 macOS 桌面字幕应用（基于 Tauri）。
 3. 若出现 SmartScreen：点击 `More info` -> `Run anyway`。
 
 如果在 Releases 页面看不到安装包，说明该版本尚未发布资产。此时请先使用源码方式运行。
+
+## 源码运行（开发者）
+
+要求：
+
+- Node.js 20+
+- Rust 稳定版工具链
+- OpenAI API key
+
+运行：
+
+```bash
+npm install
+npm run start
+```
 
 ## 按角色快速开始
 

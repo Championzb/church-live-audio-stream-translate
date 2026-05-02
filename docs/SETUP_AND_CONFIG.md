@@ -2,6 +2,10 @@
 
 Use this when preparing the machine, keys, and language aids before service.
 
+Related docs:
+- Live operation flow: [OPERATOR_GUIDE.md](./OPERATOR_GUIDE.md)
+- Release packaging: [DISTRIBUTION.md](./DISTRIBUTION.md)
+
 ## Keys And Cost
 
 - API key is stored in OS secure storage (Keychain/Credential Manager) with local fallback.
