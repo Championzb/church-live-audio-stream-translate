@@ -104,6 +104,14 @@ const chipWorshipValueEl = document.getElementById('chipWorshipValue');
 const chipPresentationValueEl = document.getElementById('chipPresentationValue');
 const chipQueueValueEl = document.getElementById('chipQueueValue');
 const chipLockValueEl = document.getElementById('chipLockValue');
+const obsQueueLabelEl = document.getElementById('obsQueueLabel');
+const obsLatencyLabelEl = document.getElementById('obsLatencyLabel');
+const obsSkippedLabelEl = document.getElementById('obsSkippedLabel');
+const obsApiModeLabelEl = document.getElementById('obsApiModeLabel');
+const obsQueueValueEl = document.getElementById('obsQueueValue');
+const obsLatencyValueEl = document.getElementById('obsLatencyValue');
+const obsSkippedValueEl = document.getElementById('obsSkippedValue');
+const obsApiModeValueEl = document.getElementById('obsApiModeValue');
 const hintF8El = document.getElementById('hintF8');
 const hintF7El = document.getElementById('hintF7');
 const hintF6El = document.getElementById('hintF6');
@@ -244,6 +252,8 @@ let lastOutputHeartbeatAt = 0;
 let projectorStateTimerId = 0;
 let outputBroadcastChannel = null;
 let sourcePanelCollapsed = true;
+let observedLatencyAvgMs = 0;
+let observedSkippedSegments = 0;
 const PROJECTOR_STALE_MS = 7000;
 const PROJECTOR_STATE_POLL_MS = 2500;
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
@@ -322,6 +332,12 @@ const UI_TEXT = {
         'button.close': 'Close',
         'button.cancel': 'Cancel',
         'button.settings': 'Settings',
+        'obs.queueDepth': 'Queue Depth',
+        'obs.avgLatency': 'Avg Latency',
+        'obs.skippedSegments': 'Skipped Segments',
+        'obs.engine': 'Engine',
+        'obs.engine.live': 'Live API',
+        'obs.engine.mock': 'Mock',
         'button.back': 'Back',
         'heading.settings': 'Settings',
         'heading.appearance': 'Appearance',
@@ -578,6 +594,12 @@ const UI_TEXT = {
         'button.close': '关闭',
         'button.cancel': '取消',
         'button.settings': '设置',
+        'obs.queueDepth': '队列深度',
+        'obs.avgLatency': '平均延迟',
+        'obs.skippedSegments': '跳过片段',
+        'obs.engine': '引擎',
+        'obs.engine.live': '实时 API',
+        'obs.engine.mock': '模拟',
         'button.back': '返回',
         'heading.settings': '设置',
         'heading.appearance': '外观',
@@ -840,8 +862,19 @@ function t(key, values = {}) {
     });
     return text;
 }
+const ICON_PATHS = {
+    settings: '<path d="M12 15.3a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 0 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 0 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/>',
+    projector: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/><path d="M12 16v4"/>',
+    back: '<path d="m15 18-6-6 6-6"/>',
+    script: '<path d="M7 3h8l3 3v15a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v4h4"/><path d="M9 13h6"/><path d="M9 17h4"/>',
+    upload: '<path d="M12 17V5"/><path d="m7 10 5-5 5 5"/><path d="M4 19h16"/>',
+    paste: '<rect x="8" y="3" width="8" height="4" rx="1"/><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M9 12h6"/><path d="M9 16h6"/>',
+    clear: '<path d="m3 6 3 15a2 2 0 0 0 2 1h8a2 2 0 0 0 2-1l3-15"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+    export: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/>',
+    close: '<path d="m6 6 12 12"/><path d="m18 6-12 12"/>'
+};
 function setIconButton(button, icon, label) {
-    button.textContent = icon;
+    button.innerHTML = `<svg class="icon-glyph" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[icon]}</svg><span class="sr-only">${label}</span>`;
     button.setAttribute('aria-label', label);
 }
 function bindMainTitlebarDragFallback() {
@@ -1339,6 +1372,31 @@ function updateCostSummary() {
     }
     maskedApiKeyEl.title = costSummaryText;
 }
+function isSkippedSegmentResult(result, translatedText) {
+    const warningText = String(result?.warning || '').toLowerCase();
+    if (!warningText) {
+        return false;
+    }
+    if (warningText.includes('transcription skipped') || warningText.includes('empty transcription')) {
+        return true;
+    }
+    return !(result?.english || translatedText);
+}
+function updateObservabilityStrip() {
+    if (!obsQueueValueEl || !obsLatencyValueEl || !obsSkippedValueEl || !obsApiModeValueEl) {
+        return;
+    }
+    const queueDepth = pendingSegments.length;
+    obsQueueValueEl.textContent = `${queueDepth}`;
+    obsQueueValueEl.dataset.state = queueDepth > 2 ? 'warn' : 'idle';
+    const latencyMs = Math.max(0, Math.round(observedLatencyAvgMs || 0));
+    obsLatencyValueEl.textContent = `${latencyMs} ms`;
+    obsLatencyValueEl.dataset.state = latencyMs > 3500 ? 'danger' : latencyMs > 1800 ? 'warn' : 'idle';
+    obsSkippedValueEl.textContent = `${observedSkippedSegments}`;
+    obsSkippedValueEl.dataset.state = observedSkippedSegments > 0 ? 'warn' : 'idle';
+    obsApiModeValueEl.textContent = mockModeEnabled ? t('obs.engine.mock') : t('obs.engine.live');
+    obsApiModeValueEl.dataset.state = mockModeEnabled ? 'warn' : 'idle';
+}
 function updateModeSummary() {
     const queueText = segmentQueueRunning
         ? `${pendingSegments.length} (${t('mode.queueProcessing')})`
@@ -1365,6 +1423,7 @@ function updateModeSummary() {
     chipQueueValueEl.dataset.state = segmentQueueRunning ? 'processing' : 'idle';
     chipLockValueEl.textContent = controlsLocked ? t('chip.locked') : t('chip.unlocked');
     chipLockValueEl.dataset.state = controlsLocked ? 'locked' : 'unlocked';
+    updateObservabilityStrip();
     updateMockModeIndicator();
     updateProjectorIndicator();
     syncOutputWindow();
@@ -2071,12 +2130,12 @@ function applyUiLanguage() {
     saveKeyButton.textContent = t('button.saveKey');
     saveMainApiKeyButton.textContent = t('button.saveKey');
     cancelMainApiKeyButton.textContent = t('button.cancel');
-    setIconButton(openSettingsPageButton, '⚙', t('button.settings'));
-    setIconButton(liveOpenSettingsPageButton, '⚙', t('button.settings'));
-    setIconButton(toggleOutputWindowButton, '🖥', t('button.outputWindow'));
-    setIconButton(liveToggleOutputWindowButton, '🖥', t('button.outputWindow'));
-    setIconButton(backToLivePageButton, '←', t('button.back'));
-    setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
+    setIconButton(openSettingsPageButton, 'settings', t('button.settings'));
+    setIconButton(liveOpenSettingsPageButton, 'settings', t('button.settings'));
+    setIconButton(toggleOutputWindowButton, 'projector', t('button.outputWindow'));
+    setIconButton(liveToggleOutputWindowButton, 'projector', t('button.outputWindow'));
+    setIconButton(backToLivePageButton, 'back', t('button.back'));
+    setIconButton(liveExitTranslationModeButton, 'back', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
     runtimeSummaryEl.textContent = t('heading.runtime');
@@ -2086,19 +2145,19 @@ function applyUiLanguage() {
     if (toggleHelpButton) {
         toggleHelpButton.textContent = t('button.help');
     }
-    setIconButton(openScriptManagerButton, '📜', t('button.scriptManager'));
-    setIconButton(scriptPanelOpenScriptManagerButton, '📜', t('button.scriptManager'));
-    setIconButton(uploadReferenceScriptButton, '⬆', t('button.uploadScript'));
-    setIconButton(pasteReferenceScriptButton, '📋', t('button.pasteScript'));
-    setIconButton(clearReferenceScriptButton, '❌', t('button.clearScript'));
-    setIconButton(uploadSermonKeywordsButton, '⬆', t('button.uploadSermonKeywords'));
-    setIconButton(pasteSermonKeywordsButton, '📋', t('button.pasteSermonKeywords'));
-    setIconButton(clearSermonKeywordsButton, '❌', t('button.clearSermonKeywords'));
+    setIconButton(openScriptManagerButton, 'script', t('button.scriptManager'));
+    setIconButton(scriptPanelOpenScriptManagerButton, 'script', t('button.scriptManager'));
+    setIconButton(uploadReferenceScriptButton, 'upload', t('button.uploadScript'));
+    setIconButton(pasteReferenceScriptButton, 'paste', t('button.pasteScript'));
+    setIconButton(clearReferenceScriptButton, 'clear', t('button.clearScript'));
+    setIconButton(uploadSermonKeywordsButton, 'upload', t('button.uploadSermonKeywords'));
+    setIconButton(pasteSermonKeywordsButton, 'paste', t('button.pasteSermonKeywords'));
+    setIconButton(clearSermonKeywordsButton, 'clear', t('button.clearSermonKeywords'));
     scriptActionsLabelEl.textContent = t('label.scriptActions');
     keywordActionsLabelEl.textContent = t('label.keywordActions');
     resetSessionButton.textContent = t('button.resetSession');
-    setIconButton(exportTranscriptButton, '⇩', t('button.exportTranscript'));
-    setIconButton(exportTranscriptTranslatedButton, '⇩', t('button.exportTranscript'));
+    setIconButton(exportTranscriptButton, 'export', t('button.exportTranscript'));
+    setIconButton(exportTranscriptTranslatedButton, 'export', t('button.exportTranscript'));
     saveGlossaryButton.textContent = t('button.saveLanguageAids');
     if (addGlossaryTermButton)
         addGlossaryTermButton.textContent = t('button.addKeyword');
@@ -2113,7 +2172,7 @@ function applyUiLanguage() {
     importGlossaryButton.textContent = t('button.import');
     exportGlossaryButton.textContent = t('button.export');
     closeHelpButton.textContent = t('button.close');
-    setIconButton(closeScriptModalButton, '✕', t('button.close'));
+    setIconButton(closeScriptModalButton, 'close', t('button.close'));
     apiKeyModalTitleEl.textContent = t('modal.apiKeyTitle');
     apiKeyModalSubtitleEl.textContent = t('modal.apiKeySubtitle');
     scriptModalTitleEl.textContent = t('modal.scriptTitle');
@@ -2137,6 +2196,10 @@ function applyUiLanguage() {
     chipPresentationLabelEl.textContent = t('chip.translation');
     chipQueueLabelEl.textContent = t('chip.queue');
     chipLockLabelEl.textContent = t('chip.controls');
+    obsQueueLabelEl.textContent = t('obs.queueDepth');
+    obsLatencyLabelEl.textContent = t('obs.avgLatency');
+    obsSkippedLabelEl.textContent = t('obs.skippedSegments');
+    obsApiModeLabelEl.textContent = t('obs.engine');
     mockModeIndicatorEl.textContent = t('mode.mockBadge');
     updateProjectorIndicator();
     Array.from(uiLanguageSelect.options).forEach((option) => {
@@ -2163,6 +2226,7 @@ function applyUiLanguage() {
     refreshToggleButtonLabels();
     updateModeSummary();
     updateCostSummary();
+    updateObservabilityStrip();
     syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
     setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
     updateReferenceScriptUi();
@@ -2223,11 +2287,14 @@ function resetSessionState() {
     totalSegments = 0;
     totalEnglishChars = 0;
     totalTranslatedChars = 0;
+    observedLatencyAvgMs = 0;
+    observedSkippedSegments = 0;
     pendingSegmentDurationMs = 0;
     clearPanels();
     setStatusKey('status.sessionReset');
     updateModeSummary();
     updateCostSummary();
+    updateObservabilityStrip();
 }
 function arrayBufferToBase64(arrayBuffer) {
     const bytes = new Uint8Array(arrayBuffer);
@@ -2690,6 +2757,12 @@ async function drainSegmentQueue() {
             const translatedText = result.translated || result.chinese || '';
             const segmentEndedAtMs = Number(payload.segmentEndedAtMs || Date.now());
             const renderDelayMs = Math.max(0, Date.now() - segmentEndedAtMs);
+            observedLatencyAvgMs = observedLatencyAvgMs === 0
+                ? renderDelayMs
+                : (observedLatencyAvgMs * 0.78) + (renderDelayMs * 0.22);
+            if (isSkippedSegmentResult(result, translatedText)) {
+                observedSkippedSegments += 1;
+            }
             appendPairedLine(result.english || '', translatedText, { delayMs: renderDelayMs });
             if (result.english || translatedText) {
                 transcriptEntries.push({

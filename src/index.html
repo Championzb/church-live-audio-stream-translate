@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
+    <main id="mainContent" class="app-shell" tabindex="-1">
       <div class="window-frame-overlay">
         <div class="window-drag-zone window-drag-bar" data-tauri-drag-region aria-hidden="true"></div>
         <div class="window-controls floating-window-controls" data-no-drag>
@@ -42,8 +43,8 @@
       <section id="mainPage" class="main-page hidden">
         <div class="titlebar-actions" data-tauri-drag-region>
           <div class="session-setup-slot control-pill">
-            <button id="toggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
-            <button id="openSettingsPage" class="icon-btn" aria-label="Settings">⚙</button>
+            <button id="toggleOutputWindow" class="icon-btn" aria-label="Projector Window">◻</button>
+            <button id="openSettingsPage" class="icon-btn" aria-label="Settings">•</button>
             <div class="audio-input-group">
               <label id="labelAudioInput" for="audioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
               <span id="audioInputValue" class="audio-input-value">System Default</span>
@@ -53,8 +54,8 @@
             </div>
           </div>
           <div class="live-session-setup control-pill">
-            <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">🖥</button>
-            <button id="liveOpenSettingsPage" class="icon-btn" aria-label="Settings">⚙</button>
+            <button id="liveToggleOutputWindow" class="icon-btn" aria-label="Projector Window">◻</button>
+            <button id="liveOpenSettingsPage" class="icon-btn" aria-label="Settings">•</button>
             <div class="audio-input-group">
               <label id="labelLiveAudioInput" for="liveAudioInput" role="button" tabindex="0" aria-label="Audio Input">Audio Input</label>
               <span id="liveAudioInputValue" class="audio-input-value">System Default</span>
@@ -97,6 +98,24 @@
                 <button id="resetSession" class="hotkey-pill" type="button"><kbd>F4</kbd> Reset</button>
                 <button id="hintF2" class="hotkey-pill" type="button"><kbd>F2</kbd> Lock</button>
                 <button id="hintF1" class="hotkey-pill" type="button"><kbd>F1</kbd> Help</button>
+              </div>
+              <div id="observabilityStrip" class="quick-observability" aria-label="Live observability">
+                <div class="quick-chip">
+                  <span id="obsQueueLabel" class="chip-label">Queue Depth</span>
+                  <strong id="obsQueueValue" class="chip-value">0</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="obsLatencyLabel" class="chip-label">Avg Latency</span>
+                  <strong id="obsLatencyValue" class="chip-value">0 ms</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="obsSkippedLabel" class="chip-label">Skipped Segments</span>
+                  <strong id="obsSkippedValue" class="chip-value">0</strong>
+                </div>
+                <div class="quick-chip">
+                  <span id="obsApiModeLabel" class="chip-label">Engine</span>
+                  <strong id="obsApiModeValue" class="chip-value">Live API</strong>
+                </div>
               </div>
             </div>
           </div>
@@ -153,7 +172,7 @@
                     <option value="spanish">Spanish</option>
                     <option value="english">English</option>
                   </select>
-                  <button id="openScriptManager" class="icon-btn" aria-label="Script">📜</button>
+                  <button id="openScriptManager" class="icon-btn" aria-label="Script">•</button>
                 </div>
                 <div class="row tuning-row">
                   <label id="labelVadThreshold" for="vadThreshold">VAD Threshold</label>
@@ -203,7 +222,7 @@
               <div class="caption-card-header">
                 <h2 id="referenceScriptHeading">Reference Script</h2>
                 <div class="caption-tools">
-                  <button id="scriptPanelOpenScriptManager" class="icon-btn panel-tool-btn" aria-label="Script">📜</button>
+                  <button id="scriptPanelOpenScriptManager" class="icon-btn panel-tool-btn" aria-label="Script">•</button>
                 </div>
               </div>
               <div id="referenceScriptMeta" class="live-line status">No reference script loaded.</div>
@@ -368,20 +387,20 @@
 
     <div id="scriptModal" class="overlay hidden">
       <div class="overlay-card compact-overlay-card">
-        <button id="closeScriptModal" class="icon-btn script-modal-close-btn" aria-label="Close">✕</button>
+        <button id="closeScriptModal" class="icon-btn script-modal-close-btn" aria-label="Close">×</button>
         <h3 id="scriptModalTitle">Reference Script</h3>
         <p id="scriptModalSubtitle">Upload or paste script text and sermon keywords, then clear when needed.</p>
         <div class="row script-modal-action-row">
           <span id="scriptActionsLabel" class="action-row-label">Script</span>
-          <button id="uploadReferenceScript" class="icon-btn" aria-label="Upload Script">⬆</button>
-          <button id="pasteReferenceScript" class="icon-btn" aria-label="Paste Script">📋</button>
-          <button id="clearReferenceScript" class="icon-btn" aria-label="Clear Script">❌</button>
+          <button id="uploadReferenceScript" class="icon-btn" aria-label="Upload Script">↑</button>
+          <button id="pasteReferenceScript" class="icon-btn" aria-label="Paste Script">•</button>
+          <button id="clearReferenceScript" class="icon-btn" aria-label="Clear Script">×</button>
         </div>
         <div class="row script-modal-action-row">
           <span id="keywordActionsLabel" class="action-row-label">Keywords</span>
-          <button id="uploadSermonKeywords" type="button" class="icon-btn" aria-label="Upload Sermon Keywords">⬆</button>
-          <button id="pasteSermonKeywords" type="button" class="icon-btn" aria-label="Paste Sermon Keywords">📋</button>
-          <button id="clearSermonKeywords" type="button" class="icon-btn" aria-label="Clear Sermon Keywords">❌</button>
+          <button id="uploadSermonKeywords" type="button" class="icon-btn" aria-label="Upload Sermon Keywords">↑</button>
+          <button id="pasteSermonKeywords" type="button" class="icon-btn" aria-label="Paste Sermon Keywords">•</button>
+          <button id="clearSermonKeywords" type="button" class="icon-btn" aria-label="Clear Sermon Keywords">×</button>
         </div>
         <p id="sermonKeywordsMeta" class="input-hint">No sermon keywords loaded.</p>
         <p id="labelSermonKeywordsList" class="action-row-label">Loaded Keyword List</p>

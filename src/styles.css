@@ -217,6 +217,26 @@ body[data-theme='minimal-mono'] {
   box-sizing: border-box;
 }
 
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 10px;
+  z-index: 2200;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  color: var(--text);
+  text-decoration: none;
+  transform: translateY(-140%);
+  transition: transform 120ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  box-shadow: var(--ring-focus);
+}
+
 .hidden {
   display: none !important;
 }
@@ -553,9 +573,12 @@ body.presentation-mode .titlebar-actions .live-session-setup {
 }
 
 .titlebar-actions .audio-input-group label::before {
-  content: "🎙";
-  font-size: 0.9rem;
-  line-height: 1;
+  content: '';
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z'/%3E%3Cpath d='M19 10v1a7 7 0 1 1-14 0v-1'/%3E%3Cpath d='M12 18v4'/%3E%3Cpath d='M8 22h8'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z'/%3E%3Cpath d='M19 10v1a7 7 0 1 1-14 0v-1'/%3E%3Cpath d='M12 18v4'/%3E%3Cpath d='M8 22h8'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .audio-input-value {
@@ -741,6 +764,20 @@ h1 {
   display: none;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 8px;
+}
+
+.quick-observability {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-observability .chip-value[data-state='warn'] {
+  color: color-mix(in srgb, var(--status) 84%, #ffffff);
+}
+
+.quick-observability .chip-value[data-state='danger'] {
+  color: color-mix(in srgb, var(--danger) 80%, #ffffff);
 }
 
 .quick-chip {
@@ -1333,6 +1370,15 @@ button:focus-visible {
   box-shadow: var(--ring-focus);
 }
 
+a:focus-visible,
+label[role='button']:focus-visible,
+summary:focus-visible,
+.audio-input-value:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+  border-radius: 8px;
+}
+
 button {
   cursor: pointer;
   font-weight: 650;
@@ -1748,6 +1794,31 @@ body.presentation-mode #toggleSourcePanelHeader {
   color: var(--warning-fg);
   background: var(--warning-bg);
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn .icon-glyph {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .line.empty {
@@ -2039,6 +2110,10 @@ body.presentation-mode #toggleSourcePanelHeader {
   }
 
   .quick-state-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-observability {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
