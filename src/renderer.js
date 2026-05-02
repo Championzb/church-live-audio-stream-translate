@@ -29,6 +29,7 @@ const openSettingsPageButton = document.getElementById('openSettingsPage');
 const backToLivePageButton = document.getElementById('backToLivePage');
 const settingsHeadingEl = document.getElementById('settingsHeading');
 const appearanceSummaryEl = document.getElementById('appearanceSummary');
+const runtimeSummaryEl = document.getElementById('runtimeSummary');
 const translationControlsSummaryEl = document.getElementById('translationControlsSummary');
 const languageAidsSummaryEl = document.getElementById('languageAidsSummary');
 const liveWorkspaceEl = document.getElementById('liveWorkspace');
@@ -324,6 +325,7 @@ const UI_TEXT = {
         'button.back': 'Back',
         'heading.settings': 'Settings',
         'heading.appearance': 'Appearance',
+        'heading.runtime': 'Runtime & Audio',
         'heading.translationControls': 'Translation Controls',
         'heading.languageAids': 'Language Aids',
         'heading.referenceScript': 'Reference Script',
@@ -579,6 +581,7 @@ const UI_TEXT = {
         'button.back': '返回',
         'heading.settings': '设置',
         'heading.appearance': '外观',
+        'heading.runtime': '运行与音频',
         'heading.translationControls': '翻译控制',
         'heading.languageAids': '语言辅助',
         'heading.referenceScript': '参考讲稿',
@@ -2076,6 +2079,7 @@ function applyUiLanguage() {
     setIconButton(liveExitTranslationModeButton, '←', t('button.presentationOn'));
     settingsHeadingEl.textContent = t('heading.settings');
     appearanceSummaryEl.textContent = t('heading.appearance');
+    runtimeSummaryEl.textContent = t('heading.runtime');
     translationControlsSummaryEl.textContent = t('heading.translationControls');
     languageAidsSummaryEl.textContent = t('heading.languageAids');
     referenceScriptHeadingEl.textContent = t('heading.referenceScript');

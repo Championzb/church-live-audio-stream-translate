@@ -928,6 +928,10 @@ h1 {
   max-width: 760px;
 }
 
+.settings-card--runtime {
+  max-width: 760px;
+}
+
 .settings-form-row {
   display: grid;
   grid-template-columns: auto minmax(210px, 1fr);
