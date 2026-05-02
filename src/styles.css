@@ -2046,6 +2046,12 @@ body.presentation-mode #liveWorkspace > .controls {
   display: none;
 }
 
+body.presentation-mode #liveWorkspace {
+  min-height: 0;
+  height: calc(100dvh - 132px);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
 body.presentation-mode .translation-live-bar {
   display: grid !important;
 }
@@ -2056,6 +2062,7 @@ body.presentation-mode .captions {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--presentation-script-width);
   gap: 10px;
   align-items: stretch;
+  min-height: 0;
 }
 
 body.presentation-mode .captions > .caption-card {
@@ -2091,7 +2098,8 @@ body.presentation-mode .transcription-hidden {
 }
 
 body.presentation-mode .caption-card {
-  min-height: 460px;
+  min-height: 0;
+  height: 100%;
   padding: 12px;
   display: grid;
   grid-template-rows: auto auto 1fr;
@@ -2132,7 +2140,7 @@ body.presentation-mode .line-copy-btn {
 
 body.presentation-mode .panel {
   height: 100%;
-  max-height: 62vh;
+  max-height: none;
   overflow-y: auto !important;
   overscroll-behavior: contain;
   touch-action: pan-y;
@@ -2158,6 +2166,11 @@ body.presentation-mode .script-reference-card .script-content {
 }
 
 @media (max-width: 760px) {
+  body.presentation-mode #liveWorkspace {
+    height: auto;
+    grid-template-rows: auto auto;
+  }
+
   body.presentation-mode .captions {
     grid-template-columns: minmax(0, 1fr);
   }

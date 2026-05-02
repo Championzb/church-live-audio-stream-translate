@@ -99,6 +99,7 @@ Speech pipeline note:
 - Projector window now includes the same `Source` show/hide behavior (default hidden), and the target panel expands when source is hidden.
 - In Translation Mode, panel folding now uses a class-driven grid layout: when Source is hidden, Target expands while the Script panel keeps a stable width when present.
 - Entering Translation Mode now defaults to Source collapsed, so Target and Script stay side-by-side for comparison; when Source is expanded, all three panels are side-by-side.
+- Translation Mode panels now initialize to fit within the visible screen height on first load, with each panel scrolling internally for transcript comparison.
 - Projector source heading now follows the selected source language (for example, `Korean`).
 - Test audio picker accepts audio files only; non-audio selections are rejected with a status warning.
 - Test audio picker now uses a native audio-filtered dialog first (with web/runtime fallback validation if needed).
