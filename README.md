@@ -115,6 +115,7 @@ Pipeline and behavior summary:
 - Source-transcript quality guards skip weak segments to reduce hallucinated output.
 - Separate rolling context is maintained for source transcript and target translation.
 - Korean -> Chinese has built-in consistency checks by default.
+- In test-audio mode, Start now returns immediately so Stop stays clickable during file playback/processing.
 
 For technical details and latency notes, see [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md).
 For operator-facing controls and UI workflows, see [Operator Guide](./docs/OPERATOR_GUIDE.md) and [Setup And Configuration](./docs/SETUP_AND_CONFIG.md).

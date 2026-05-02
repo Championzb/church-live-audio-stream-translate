@@ -3527,11 +3527,13 @@ async function setRunning(nextRunning) {
           target: languageName(targetLanguageSelect.value || 'zh-hans')
         });
         drainSegmentQueue();
-        await processTestAudioFile(selectedTestAudioFile);
-        if (running) {
-          await setRunning(false);
-          return;
-        }
+        const testAudioFile = selectedTestAudioFile;
+        void (async () => {
+          await processTestAudioFile(testAudioFile);
+          if (running) {
+            await setRunning(false);
+          }
+        })();
       } else {
         await setupAudioPipeline();
         setStatusKey('status.running', {
