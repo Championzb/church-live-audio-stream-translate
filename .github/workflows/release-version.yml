@@ -53,7 +53,9 @@ jobs:
 
       - name: Read new version
         id: version
-        run: echo "value=$(node -p \"require('./package.json').version\")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(node -e 'const fs=require("node:fs");process.stdout.write(JSON.parse(fs.readFileSync("package.json","utf8")).version)')
+          echo "value=${VERSION}" >> "$GITHUB_OUTPUT"
 
       - name: Ensure tag does not already exist on remote
         run: |
