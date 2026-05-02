@@ -4,6 +4,7 @@ declare interface Window {
 
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
+const isVisualRegressionMode = new URLSearchParams(window.location.search).has('visualMode');
 
 const landingPage = document.getElementById('landingPage') as any;
 const mainPage = document.getElementById('mainPage') as any;
@@ -3259,12 +3260,14 @@ async function ensureMainInitialized() {
   if (projectorStateTimerId) {
     window.clearInterval(projectorStateTimerId);
   }
-  projectorStateTimerId = window.setInterval(() => {
-    void refreshProjectorOpenState();
-    if (outputWindowOpen) {
-      void syncOutputWindow();
-    }
-  }, PROJECTOR_STATE_POLL_MS);
+  if (!isVisualRegressionMode) {
+    projectorStateTimerId = window.setInterval(() => {
+      void refreshProjectorOpenState();
+      if (outputWindowOpen) {
+        void syncOutputWindow();
+      }
+    }, PROJECTOR_STATE_POLL_MS);
+  }
 
   mainInitialized = true;
 }

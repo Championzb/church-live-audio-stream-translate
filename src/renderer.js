@@ -1,6 +1,7 @@
 "use strict";
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
+const isVisualRegressionMode = new URLSearchParams(window.location.search).has('visualMode');
 const landingPage = document.getElementById('landingPage');
 const mainPage = document.getElementById('mainPage');
 const landingTitleEl = document.getElementById('landingTitle');
@@ -3105,12 +3106,14 @@ async function ensureMainInitialized() {
     if (projectorStateTimerId) {
         window.clearInterval(projectorStateTimerId);
     }
-    projectorStateTimerId = window.setInterval(() => {
-        void refreshProjectorOpenState();
-        if (outputWindowOpen) {
-            void syncOutputWindow();
-        }
-    }, PROJECTOR_STATE_POLL_MS);
+    if (!isVisualRegressionMode) {
+        projectorStateTimerId = window.setInterval(() => {
+            void refreshProjectorOpenState();
+            if (outputWindowOpen) {
+                void syncOutputWindow();
+            }
+        }, PROJECTOR_STATE_POLL_MS);
+    }
     mainInitialized = true;
 }
 async function persistApiKey(apiKey, options = {}) {
