@@ -2244,6 +2244,7 @@ pub fn run() {
                             .to_string(),
                     ),
                     authors: config.bundle.publisher.clone().map(|p| vec![p]),
+                    icon: app.default_window_icon().cloned(),
                     ..Default::default()
                 };
 
