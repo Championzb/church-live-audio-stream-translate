@@ -2234,6 +2234,9 @@ pub fn run() {
                     .copyright
                     .clone()
                     .unwrap_or_else(|| format!("© {} {}", Utc::now().year(), app_name));
+                let about_icon = tauri::image::Image::from_bytes(include_bytes!("../icons/icon.png"))
+                    .ok()
+                    .or_else(|| app.default_window_icon().cloned());
                 let about_metadata = AboutMetadata {
                     name: Some(app_name.to_string()),
                     version: Some(pkg_info.version.to_string()),
@@ -2244,7 +2247,7 @@ pub fn run() {
                             .to_string(),
                     ),
                     authors: config.bundle.publisher.clone().map(|p| vec![p]),
-                    icon: app.default_window_icon().cloned(),
+                    icon: about_icon,
                     ..Default::default()
                 };
 
