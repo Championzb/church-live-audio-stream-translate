@@ -126,7 +126,7 @@ Script modal keyword tools now show both sermon keyword term count and the full 
 - Typecheck: `npm run typecheck`
 - Unit tests: `npm run test:unit`
 - Unit test coverage report: `npm run test:coverage`
-- Visual regression tests: `npm run test:visual`
+- Visual regression tests (desktop baseline): `npm run test:visual`
 
 ## Open Source Project Docs
 
