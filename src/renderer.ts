@@ -571,6 +571,7 @@ const UI_TEXT = {
     'mode.summary':
       'Status: {mode} | Translation: {translation} | Translation Mode: {presentation} | Queue: {queue}',
     'cost.summary': 'Cost estimate: session {session} USD | month {month} USD',
+    'cost.summaryProviders': 'Cost estimate (OpenAI STT): session {openaiSession} USD | month {openaiMonth} USD\nCost estimate (Groq STT): session {groqSession} USD | month {groqMonth} USD',
     'cost.project': 'Project: {projectId}',
     'cost.realSummary': 'Real cost: today {today} {currency} | month {month} {currency}',
     'cost.realLoading': 'Loading real cost from OpenAI billing API...',
@@ -875,6 +876,7 @@ const UI_TEXT = {
     'mode.summary':
       '状态：{mode} | 翻译：{translation} | 翻译模式：{presentation} | 队列：{queue}',
     'cost.summary': '费用估算：本场 {session} 美元 | 每月 {month} 美元',
+    'cost.summaryProviders': '费用估算（OpenAI STT）：本场 {openaiSession} 美元 | 每月 {openaiMonth} 美元\n费用估算（Groq STT）：本场 {groqSession} 美元 | 每月 {groqMonth} 美元',
     'cost.project': 'Project：{projectId}',
     'cost.realSummary': '真实费用：今日 {today} {currency} | 本月 {month} {currency}',
     'cost.realLoading': '正在从 OpenAI 计费 API 获取真实费用...',
@@ -1664,10 +1666,10 @@ function setScriptModalVisible(nextVisible) {
 }
 
 function sttRatePerMinute() {
-  if (sourceLanguageSelect.value === 'korean') {
-    return 0.006;
-  }
-  return 0.003;
+  const sourceLanguage = sourceLanguageSelect.value;
+  const openAiRate = sourceLanguage === 'korean' ? 0.006 : 0.003;
+  const groqRate = sourceLanguage === 'korean' ? 0.0018 : 0.0009;
+  return { openai: openAiRate, groq: groqRate };
 }
 
 function estimateTranslationCostUsd() {
@@ -1680,18 +1682,24 @@ function estimateTranslationCostUsd() {
 
 function updateCostSummary() {
   const minutes = totalAudioMs / 60000;
-  const sessionSttCost = minutes * sttRatePerMinute();
+  const sttRates = sttRatePerMinute();
+  const sessionSttCostOpenAi = minutes * sttRates.openai;
+  const sessionSttCostGroq = minutes * sttRates.groq;
   const sessionTranslationCost = estimateTranslationCostUsd();
-  const sessionTotal = sessionSttCost + sessionTranslationCost;
-  const estimatedMonth = sessionTotal * 4;
-  const costSummaryText = t('cost.summary', {
-    session: sessionTotal.toFixed(2),
-    month: estimatedMonth.toFixed(2)
+  const sessionTotalOpenAi = sessionSttCostOpenAi + sessionTranslationCost;
+  const sessionTotalGroq = sessionSttCostGroq + sessionTranslationCost;
+  const estimatedMonthOpenAi = sessionTotalOpenAi * 4;
+  const estimatedMonthGroq = sessionTotalGroq * 4;
+  const costSummaryText = t('cost.summaryProviders', {
+    openaiSession: sessionTotalOpenAi.toFixed(2),
+    openaiMonth: estimatedMonthOpenAi.toFixed(2),
+    groqSession: sessionTotalGroq.toFixed(2),
+    groqMonth: estimatedMonthGroq.toFixed(2)
   });
   const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
   if (projectId) {
     if (cachedRealCostProjectId === projectId && !cachedRealCostError) {
-      maskedApiKeyEl.title = `${t('cost.realSummary', {
+      maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realSummary', {
         today: cachedRealCostToday.toFixed(2),
         month: cachedRealCostMonth.toFixed(2),
         currency: cachedRealCostCurrency

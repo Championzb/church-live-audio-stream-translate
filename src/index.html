@@ -401,42 +401,42 @@
     </div>
 
     <div id="apiKeyModal" class="overlay hidden">
-      <div class="overlay-card compact-overlay-card">
+      <div class="overlay-card compact-overlay-card api-key-overlay-card">
         <h3 id="apiKeyModalTitle">Update OpenAI API Key</h3>
         <p id="apiKeyModalSubtitle">Enter a new key and save it to secure storage.</p>
-        <div class="row">
+        <div class="row api-key-row">
           <label id="labelMainApiKey" for="mainApiKeyInput">OpenAI API Key</label>
           <div class="inline-input-action">
             <input id="mainApiKeyInput" type="text" placeholder="sk-..." autocomplete="off" />
             <button id="copyMainApiKey" type="button" class="icon-copy" aria-label="Copy OpenAI API key">⧉</button>
           </div>
         </div>
-        <div class="row">
+        <div class="row api-key-row">
           <label id="labelMainAdminApiKey" for="mainAdminApiKeyInput">OpenAI Admin Key</label>
           <div class="inline-input-action">
             <input id="mainAdminApiKeyInput" type="text" placeholder="sk-admin-..." autocomplete="off" />
             <button id="copyMainAdminApiKey" type="button" class="icon-copy" aria-label="Copy OpenAI admin key">⧉</button>
           </div>
         </div>
-        <div class="row">
+        <div class="row api-key-row">
           <label id="labelMainGroqApiKey" for="mainGroqApiKeyInput">Groq API Key</label>
           <div class="inline-input-action">
             <input id="mainGroqApiKeyInput" type="text" placeholder="gsk_..." autocomplete="off" />
             <button id="copyMainGroqApiKey" type="button" class="icon-copy" aria-label="Copy Groq API key">⧉</button>
           </div>
         </div>
-        <div class="row">
+        <div class="row api-key-row">
           <label id="labelMainSttProvider" for="mainSttProvider">STT Provider</label>
           <select id="mainSttProvider">
             <option value="openai">OpenAI</option>
             <option value="groq">Groq</option>
           </select>
         </div>
-        <div class="row">
+        <div class="row api-key-row">
           <label id="labelMainProjectId" for="mainProjectIdInput">Project ID</label>
           <input id="mainProjectIdInput" type="text" placeholder="proj_..." autocomplete="off" />
         </div>
-        <div class="row">
+        <div class="row api-key-actions">
           <button id="saveMainApiKey">Save Key</button>
           <button id="cancelMainApiKey">Cancel</button>
         </div>

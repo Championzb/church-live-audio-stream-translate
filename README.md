@@ -118,6 +118,7 @@ Pipeline and behavior summary:
 - Source-transcript quality guards skip weak segments to reduce hallucinated output.
 - Separate rolling context is maintained for source transcript and target translation.
 - Korean -> Chinese has built-in consistency checks by default.
+- Status-bar cost tooltip shows side-by-side OpenAI STT and Groq STT estimates (plus OpenAI project actuals when configured).
 - In test-audio mode, Start now returns immediately so Stop stays clickable during file playback/processing.
 
 For technical details and latency notes, see [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md).
