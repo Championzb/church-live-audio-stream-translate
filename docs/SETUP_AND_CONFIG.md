@@ -8,7 +8,10 @@ Related docs:
 
 ## Keys And Cost
 
-- API key is stored in OS secure storage (Keychain/Credential Manager) with local fallback.
+- OpenAI API key is required and stored in OS secure storage (Keychain/Credential Manager) with local fallback.
+- Groq API key is optional and stored with the same secure-storage + local-fallback strategy.
+- `STT Provider` controls source transcription engine (`OpenAI` or `Groq`).
+- Translation remains on OpenAI (`/v1/responses`), so OpenAI key is always required for live translation.
 - Optional Admin key + Project ID enable richer OpenAI project cost visibility.
 - Key update is available via masked-key control in bottom status bar.
 

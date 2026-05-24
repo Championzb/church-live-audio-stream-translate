@@ -8,7 +8,8 @@ Use this for architecture, API behavior, and latency troubleshooting.
 
 - Node.js 20+
 - Rust stable toolchain
-- OpenAI API key
+- OpenAI API key (required for translation)
+- Groq API key (optional, when using Groq for STT)
 
 ### Run locally
 
@@ -37,7 +38,7 @@ If your markdown viewer cannot render Mermaid, use the text fallback right below
 sequenceDiagram
   participant FE as Frontend (VAD + Queue)
   participant BE as Tauri Backend
-  participant OA as OpenAI Audio API
+  participant OA as STT API (OpenAI or Groq)
   participant OR as OpenAI Responses API
 
   FE->>FE: Capture audio and run VAD segmentation
@@ -61,15 +62,17 @@ Text fallback:
 
 1. Frontend captures audio and segments with VAD.
 2. Frontend sends `process_segment` chunk to backend.
-3. Backend calls `/v1/audio/transcriptions` and gets source-language text.
+3. Backend calls `/v1/audio/transcriptions` (OpenAI or Groq) and gets source-language text.
 4. Backend calls `/v1/responses` for source -> target translation.
 5. Backend returns `{ english, translated, warning }`.
 6. Frontend renders panels and syncs projector output.
 
 ## Normal Korean -> Chinese Call Pattern (2 APIs)
 
-1. `/v1/audio/transcriptions` (`whisper-1`, `language=ko`) for Korean speech -> Korean text
-2. `/v1/responses` (`gpt-4o-mini`) for Korean -> Chinese
+1. `/v1/audio/transcriptions`:
+   - OpenAI STT mode: `whisper-1` (`language=ko`)
+   - Groq STT mode: `whisper-large-v3-turbo` (`language=ko`)
+2. `/v1/responses` (`gpt-4o-mini`) for Korean -> Chinese (always OpenAI)
 
 ## Where Latency Is Usually Spent
 

@@ -16,15 +16,16 @@ Related docs:
 
 ## Quick Start
 
-1. Open app, enter OpenAI key once, click `Save Key`.
-2. Choose `Audio Input`, source language, target language.
-3. Optional: load reference script and sermon keywords from `Script` modal.
-4. Optional: tune `VAD Threshold`, `Silence Hold`, `Max Segment`.
-5. Press `Start` (`F8`).
-6. Use `Suspend` (`F7`) during songs/prayer if needed.
-7. Use `Translation Mode` (`F6`) for subtitle-focused layout.
-8. Open `Projector Window` for audience output.
-9. Export transcript or rely on auto-save on stop (folder from `Settings`, default `~/Desktop/ChurchTranslateSessions`).
+1. Open app, enter OpenAI key once, select `STT Provider` (`OpenAI` or `Groq`), then click `Save Key`.
+2. If you selected `Groq`, also enter a Groq API key before saving.
+3. Choose `Audio Input`, source language, target language.
+4. Optional: load reference script and sermon keywords from `Script` modal.
+5. Optional: tune `VAD Threshold`, `Silence Hold`, `Max Segment`.
+6. Press `Start` (`F8`).
+7. Use `Suspend` (`F7`) during songs/prayer if needed.
+8. Use `Translation Mode` (`F6`) for subtitle-focused layout.
+9. Open `Projector Window` for audience output.
+10. Export transcript or rely on auto-save on stop (folder from `Settings`, default `~/Desktop/ChurchTranslateSessions`).
 
 ## Hotkeys
 
