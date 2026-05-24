@@ -9,6 +9,8 @@ const landingSubtitleEl = document.getElementById('landingSubtitle');
 const landingStatusEl = document.getElementById('landingStatus');
 const apiKeyInput = document.getElementById('apiKey');
 const adminApiKeyInput = document.getElementById('adminApiKey');
+const groqApiKeyInput = document.getElementById('groqApiKey');
+const sttProviderSelect = document.getElementById('sttProvider');
 const projectIdInput = document.getElementById('projectId');
 const saveKeyButton = document.getElementById('saveKey');
 const maskedApiKeyEl = document.getElementById('maskedApiKey');
@@ -17,12 +19,17 @@ const apiKeyModalTitleEl = document.getElementById('apiKeyModalTitle');
 const apiKeyModalSubtitleEl = document.getElementById('apiKeyModalSubtitle');
 const labelMainApiKeyEl = document.getElementById('labelMainApiKey');
 const labelMainAdminApiKeyEl = document.getElementById('labelMainAdminApiKey');
+const labelMainGroqApiKeyEl = document.getElementById('labelMainGroqApiKey');
+const labelMainSttProviderEl = document.getElementById('labelMainSttProvider');
 const labelMainProjectIdEl = document.getElementById('labelMainProjectId');
 const mainApiKeyInput = document.getElementById('mainApiKeyInput');
 const mainAdminApiKeyInput = document.getElementById('mainAdminApiKeyInput');
+const mainGroqApiKeyInput = document.getElementById('mainGroqApiKeyInput');
+const mainSttProviderSelect = document.getElementById('mainSttProvider');
 const mainProjectIdInput = document.getElementById('mainProjectIdInput');
 const copyMainApiKeyButton = document.getElementById('copyMainApiKey');
 const copyMainAdminApiKeyButton = document.getElementById('copyMainAdminApiKey');
+const copyMainGroqApiKeyButton = document.getElementById('copyMainGroqApiKey');
 const saveMainApiKeyButton = document.getElementById('saveMainApiKey');
 const cancelMainApiKeyButton = document.getElementById('cancelMainApiKey');
 const openSettingsPageButton = document.getElementById('openSettingsPage');
@@ -162,6 +169,8 @@ const helpOverlay = document.getElementById('helpOverlay');
 const closeHelpButton = document.getElementById('closeHelp');
 const labelApiKeyEl = document.getElementById('labelApiKey');
 const labelAdminApiKeyEl = document.getElementById('labelAdminApiKey');
+const labelGroqApiKeyEl = document.getElementById('labelGroqApiKey');
+const labelSttProviderEl = document.getElementById('labelSttProvider');
 const labelProjectIdEl = document.getElementById('labelProjectId');
 const labelUiLanguageEl = document.getElementById('labelUiLanguage');
 const labelAudioInputEl = document.getElementById('labelAudioInput');
@@ -277,10 +286,12 @@ const PROJECTOR_STATE_POLL_MS = 2500;
 const OUTPUT_BROADCAST_CHANNEL_NAME = 'church-output-caption';
 const UI_TEXT = {
     en: {
-        'landing.title': 'Connect OpenAI API Key',
+        'landing.title': 'Connect API Keys',
         'landing.subtitle': 'Enter your key once to continue. It is stored securely in your OS keychain/credential manager.',
         'label.apiKey': 'OpenAI API Key',
         'label.adminApiKey': 'OpenAI Admin Key',
+        'label.groqApiKey': 'Groq API Key',
+        'label.sttProvider': 'STT Provider',
         'label.projectId': 'Project ID',
         'label.uiLanguage': 'UI Language',
         'label.audioInput': 'Audio Input',
@@ -390,8 +401,8 @@ const UI_TEXT = {
         'heading.referenceScript': 'Reference Script',
         'apiKey.masked': 'OpenAI Key: {masked}',
         'apiKey.hidden': 'OpenAI Key: hidden',
-        'modal.apiKeyTitle': 'Update OpenAI API Key',
-        'modal.apiKeySubtitle': 'Enter API/Admin key or update project ID, then save.',
+        'modal.apiKeyTitle': 'Update API Keys',
+        'modal.apiKeySubtitle': 'Enter API keys, choose STT provider, or update project ID, then save.',
         'modal.scriptTitle': 'Reference Script',
         'modal.scriptSubtitle': 'Upload or paste script text and sermon keywords, then clear when needed.',
         'tooltip.saveKey': 'Save API key to secure OS storage (Keychain/Credential Manager).',
@@ -498,8 +509,10 @@ const UI_TEXT = {
         'status.autoSaveFolderPickFailed': 'Failed to choose auto-save folder: {error}',
         'status.apiKeySaved': 'API key configured and saved securely',
         'status.adminApiKeySaved': 'Admin key saved securely',
+        'status.groqApiKeySaved': 'Groq API key saved securely',
         'status.apiKeyCopied': 'OpenAI API key copied',
         'status.adminApiKeyCopied': 'OpenAI admin key copied',
+        'status.groqApiKeyCopied': 'Groq API key copied',
         'status.projectIdSaved': 'Project ID saved',
         'status.themeSet': 'Theme changed to {theme}',
         'status.transcriptDensitySet': 'Transcript density changed to {density}',
@@ -564,6 +577,8 @@ const UI_TEXT = {
         'preset.runtimeBalanced': 'Balanced',
         'preset.runtimeHighAccuracy': 'High Accuracy',
         'preset.runtimeCustom': 'Custom',
+        'provider.openai': 'OpenAI',
+        'provider.groq': 'Groq',
         'source.korean': '{language}',
         'source.english': '{language}',
         'source.japanese': '{language}',
@@ -574,10 +589,12 @@ const UI_TEXT = {
         'device.testAudioInput': 'Test Audio: {name}'
     },
     'zh-hans': {
-        'landing.title': '连接 OpenAI API 密钥',
+        'landing.title': '连接 API 密钥',
         'landing.subtitle': '请输入一次密钥后继续。密钥将安全存储在系统钥匙串/凭据管理器中。',
         'label.apiKey': 'OpenAI API 密钥',
         'label.adminApiKey': 'OpenAI 管理员密钥',
+        'label.groqApiKey': 'Groq API 密钥',
+        'label.sttProvider': 'STT 提供方',
         'label.projectId': 'Project ID',
         'label.uiLanguage': '界面语言',
         'label.audioInput': '音频输入',
@@ -687,8 +704,8 @@ const UI_TEXT = {
         'heading.referenceScript': '参考讲稿',
         'apiKey.masked': 'OpenAI 密钥：{masked}',
         'apiKey.hidden': 'OpenAI 密钥：隐藏',
-        'modal.apiKeyTitle': '更新 OpenAI API 密钥',
-        'modal.apiKeySubtitle': '输入 API/管理员密钥或更新 Project ID，然后保存。',
+        'modal.apiKeyTitle': '更新 API 密钥',
+        'modal.apiKeySubtitle': '输入 API 密钥、选择 STT 提供方或更新 Project ID，然后保存。',
         'modal.scriptTitle': '参考讲稿',
         'modal.scriptSubtitle': '可上传或粘贴讲稿文本与讲道关键词，需要时可清除。',
         'tooltip.saveKey': '将 API 密钥保存到系统安全存储（钥匙串/凭据管理器）。',
@@ -795,8 +812,10 @@ const UI_TEXT = {
         'status.autoSaveFolderPickFailed': '选择自动保存文件夹失败：{error}',
         'status.apiKeySaved': 'API 密钥已配置并安全保存',
         'status.adminApiKeySaved': '管理员密钥已安全保存',
+        'status.groqApiKeySaved': 'Groq API 密钥已安全保存',
         'status.apiKeyCopied': '已复制 OpenAI API 密钥',
         'status.adminApiKeyCopied': '已复制 OpenAI 管理员密钥',
+        'status.groqApiKeyCopied': '已复制 Groq API 密钥',
         'status.projectIdSaved': 'Project ID 已保存',
         'status.themeSet': '主题已切换为 {theme}',
         'status.transcriptDensitySet': '字幕密度已切换为 {density}',
@@ -861,6 +880,8 @@ const UI_TEXT = {
         'preset.runtimeBalanced': '均衡',
         'preset.runtimeHighAccuracy': '高精度',
         'preset.runtimeCustom': '自定义',
+        'provider.openai': 'OpenAI',
+        'provider.groq': 'Groq',
         'source.korean': '{language}',
         'source.english': '{language}',
         'source.japanese': '{language}',
@@ -894,7 +915,9 @@ const LANGUAGE_DISPLAY = {
 const SUPPORTED_UI_LANGUAGES = ['en', 'zh-hans'];
 const SUPPORTED_UI_THEMES = ['broadcast-clean', 'paper-light', 'minimal-mono'];
 const SUPPORTED_TRANSCRIPT_DENSITIES = ['comfortable', 'compact'];
+const SUPPORTED_STT_PROVIDERS = ['openai', 'groq'];
 const PROJECT_ID_STORAGE_KEY = 'church-openai-project-id';
+const STT_PROVIDER_STORAGE_KEY = 'church-stt-provider';
 const UI_THEME_STORAGE_KEY = 'church-ui-theme';
 const TRANSCRIPT_DENSITY_STORAGE_KEY = 'church-transcript-density';
 const REFERENCE_SCRIPT_STORAGE_KEY = 'church-reference-script';
@@ -1487,6 +1510,24 @@ function setMaskedApiKey(masked) {
 function normalizeProjectId(rawProjectId) {
     return (rawProjectId || '').trim();
 }
+function normalizeSttProvider(rawProvider) {
+    const normalized = String(rawProvider || '').trim().toLowerCase();
+    return SUPPORTED_STT_PROVIDERS.includes(normalized) ? normalized : 'openai';
+}
+function syncSttProviderInputs(rawProvider) {
+    const provider = normalizeSttProvider(rawProvider);
+    sttProviderSelect.value = provider;
+    mainSttProviderSelect.value = provider;
+}
+function saveSttProvider(rawProvider) {
+    const provider = normalizeSttProvider(rawProvider);
+    localStorage.setItem(STT_PROVIDER_STORAGE_KEY, provider);
+    syncSttProviderInputs(provider);
+    return provider;
+}
+function getCurrentSttProvider() {
+    return normalizeSttProvider(sttProviderSelect.value || localStorage.getItem(STT_PROVIDER_STORAGE_KEY));
+}
 function formatCostError(rawError) {
     const text = String(rawError || 'unknown error').replace(/\s+/g, ' ').trim();
     if (text.length <= 120)
@@ -1568,12 +1609,14 @@ function setApiKeyModalVisible(nextVisible) {
     apiKeyModal.classList.toggle('hidden', !visible);
     if (visible) {
         mainProjectIdInput.value = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
+        syncSttProviderInputs(localStorage.getItem(STT_PROVIDER_STORAGE_KEY));
         mainApiKeyInput.focus();
         void loadSavedKeysForUpdatePanel();
     }
     else {
         mainApiKeyInput.value = '';
         mainAdminApiKeyInput.value = '';
+        mainGroqApiKeyInput.value = '';
     }
 }
 function setScriptModalVisible(nextVisible) {
@@ -2158,6 +2201,7 @@ function setStaticButtonTooltips() {
     closeScriptModalButton.title = t('tooltip.close');
     copyMainApiKeyButton.title = t('tooltip.copyKey');
     copyMainAdminApiKeyButton.title = t('tooltip.copyKey');
+    copyMainGroqApiKeyButton.title = t('tooltip.copyKey');
 }
 function setPresentationMode(nextMode) {
     presentationMode = Boolean(nextMode);
@@ -2438,6 +2482,8 @@ function applyUiLanguage() {
     landingSubtitleEl.textContent = t('landing.subtitle');
     labelApiKeyEl.textContent = t('label.apiKey');
     labelAdminApiKeyEl.textContent = t('label.adminApiKey');
+    labelGroqApiKeyEl.textContent = t('label.groqApiKey');
+    labelSttProviderEl.textContent = t('label.sttProvider');
     labelProjectIdEl.textContent = t('label.projectId');
     labelUiLanguageEl.textContent = t('label.uiLanguage');
     labelAudioInputEl.textContent = t('label.audioInput');
@@ -2545,7 +2591,15 @@ function applyUiLanguage() {
     updateAutoSaveFolderUi();
     labelMainApiKeyEl.textContent = t('label.apiKey');
     labelMainAdminApiKeyEl.textContent = t('label.adminApiKey');
+    labelMainGroqApiKeyEl.textContent = t('label.groqApiKey');
+    labelMainSttProviderEl.textContent = t('label.sttProvider');
     labelMainProjectIdEl.textContent = t('label.projectId');
+    Array.from(sttProviderSelect.options).forEach((option) => {
+        option.textContent = t(`provider.${option.value}`);
+    });
+    Array.from(mainSttProviderSelect.options).forEach((option) => {
+        option.textContent = t(`provider.${option.value}`);
+    });
     helpTitleEl.textContent = t('help.title');
     helpF8El.innerHTML = t('help.f8');
     helpF7El.innerHTML = t('help.f7');
@@ -2604,6 +2658,7 @@ function applyUiLanguage() {
     updateRuntimeStateChips();
     initSettingsContextNav();
     syncProjectIdInputs(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
+    syncSttProviderInputs(localStorage.getItem(STT_PROVIDER_STORAGE_KEY));
     setMaskedApiKey(localStorage.getItem('church-masked-api-key') || 'hidden');
     updateReferenceScriptUi();
 }
@@ -2876,6 +2931,7 @@ async function processTestAudioFile(file) {
             const payload = {
                 audio_base64: bytesToBase64(wavBytes),
                 mime_type: 'audio/wav',
+                stt_provider: getCurrentSttProvider(),
                 durationMs,
                 segmentEndedAtMs: Date.now()
             };
@@ -3272,6 +3328,7 @@ async function setupAudioPipeline() {
         pendingSegments.push({
             audio_base64: arrayBufferToBase64(audioBuffer),
             mime_type: blob.type,
+            stt_provider: getCurrentSttProvider(),
             durationMs: pendingSegmentDurationMs,
             segmentEndedAtMs: pendingSegmentEndedAtMs || Date.now()
         });
@@ -3620,11 +3677,31 @@ async function persistAdminApiKey(adminApiKey) {
     }
     return false;
 }
+async function persistGroqApiKey(groqApiKey) {
+    const trimmed = (groqApiKey || '').trim();
+    if (!trimmed) {
+        return true;
+    }
+    try {
+        const result = await invoke('config_groq_api_key', { groqApiKey: trimmed });
+        if (result.ok) {
+            groqApiKeyInput.value = '';
+            mainGroqApiKeyInput.value = '';
+            setStatusKey('status.groqApiKeySaved');
+            return true;
+        }
+    }
+    catch (err) {
+        setStatus(err.message || t('status.apiKeyFailed'));
+    }
+    return false;
+}
 async function loadSavedKeysForUpdatePanel() {
     try {
         const payload = await invoke('load_saved_raw_keys_for_update_panel');
         mainApiKeyInput.value = (payload && payload.apiKey) || '';
         mainAdminApiKeyInput.value = (payload && payload.adminApiKey) || '';
+        mainGroqApiKeyInput.value = (payload && payload.groqApiKey) || '';
     }
     catch {
         // Keep current in-memory values if loading from secure storage fails.
@@ -3647,9 +3724,14 @@ saveKeyButton.addEventListener('click', async () => {
     await withButtonLoading(saveKeyButton, async () => {
         const apiKey = apiKeyInput.value.trim();
         const adminApiKey = adminApiKeyInput.value.trim();
+        const groqApiKey = groqApiKeyInput.value.trim();
+        saveSttProvider(sttProviderSelect.value);
         saveProjectId(projectIdInput.value);
         const adminSaved = await persistAdminApiKey(adminApiKey);
         if (!adminSaved)
+            return;
+        const groqSaved = await persistGroqApiKey(groqApiKey);
+        if (!groqSaved)
             return;
         const saved = await persistApiKey(apiKey, { enterMain: true });
         if (saved) {
@@ -3657,19 +3739,30 @@ saveKeyButton.addEventListener('click', async () => {
         }
     });
 });
+sttProviderSelect.addEventListener('change', () => {
+    saveSttProvider(sttProviderSelect.value);
+});
 maskedApiKeyEl.addEventListener('click', () => {
     setApiKeyModalVisible(true);
 });
 async function saveApiKeyModalChanges() {
     const apiKey = mainApiKeyInput.value.trim();
     const adminApiKey = mainAdminApiKeyInput.value.trim();
+    const groqApiKey = mainGroqApiKeyInput.value.trim();
+    saveSttProvider(mainSttProviderSelect.value);
     saveProjectId(mainProjectIdInput.value);
     const adminSaved = await persistAdminApiKey(adminApiKey);
     if (!adminSaved)
         return;
+    const groqSaved = await persistGroqApiKey(groqApiKey);
+    if (!groqSaved)
+        return;
     if (!apiKey) {
         if (adminApiKey) {
             setStatusKey('status.adminApiKeySaved');
+        }
+        else if (groqApiKey) {
+            setStatusKey('status.groqApiKeySaved');
         }
         else {
             setStatusKey('status.projectIdSaved');
@@ -3716,16 +3809,27 @@ mainAdminApiKeyInput.addEventListener('keydown', async (event) => {
         return;
     await saveApiKeyModalChanges();
 });
+mainGroqApiKeyInput.addEventListener('keydown', async (event) => {
+    if (event.key !== 'Enter')
+        return;
+    await saveApiKeyModalChanges();
+});
 copyMainApiKeyButton.addEventListener('click', async () => {
     await copyTextToClipboard(mainApiKeyInput.value, 'status.apiKeyCopied');
 });
 copyMainAdminApiKeyButton.addEventListener('click', async () => {
     await copyTextToClipboard(mainAdminApiKeyInput.value, 'status.adminApiKeyCopied');
 });
+copyMainGroqApiKeyButton.addEventListener('click', async () => {
+    await copyTextToClipboard(mainGroqApiKeyInput.value, 'status.groqApiKeyCopied');
+});
 mainProjectIdInput.addEventListener('keydown', async (event) => {
     if (event.key !== 'Enter')
         return;
     await saveApiKeyModalChanges();
+});
+mainSttProviderSelect.addEventListener('change', () => {
+    saveSttProvider(mainSttProviderSelect.value);
 });
 saveGlossaryButton.addEventListener('click', async () => {
     await withButtonLoading(saveGlossaryButton, async () => {
@@ -4285,6 +4389,17 @@ async function loadSavedAdminApiKeyIfAvailable() {
         hasConfiguredAdminKey = false;
     }
 }
+async function loadSavedGroqApiKeyIfAvailable() {
+    try {
+        const loadedGroq = await invoke('load_saved_groq_api_key');
+        if (loadedGroq && loadedGroq.found) {
+            console.info('[api-key-storage] Groq API key loaded from saved storage');
+        }
+    }
+    catch {
+        // Groq key is optional; ignore load failures.
+    }
+}
 async function boot() {
     bindMainTitlebarDragFallback();
     bindWindowControls();
@@ -4306,6 +4421,7 @@ async function boot() {
     applyUiLanguage();
     setMainView('live');
     await loadSavedAdminApiKeyIfAvailable();
+    await loadSavedGroqApiKeyIfAvailable();
     try {
         const loaded = await invoke('load_saved_api_key');
         if (loaded.found) {

@@ -10,6 +10,7 @@ Documentation hub: [docs/README.md](./docs/README.md)
 
 - Captures live sermon audio from your selected input device.
 - Produces source-language transcript + target-language translation in near real-time.
+- Supports STT provider selection (`OpenAI` or `Groq`) for source transcription.
 - Supports Korean, English, Japanese, and Chinese as source input.
 - Supports Simplified Chinese, Traditional Chinese, Korean, Japanese, Spanish, and English as target output.
 - Provides an optional projector window for audience display.
@@ -84,7 +85,8 @@ Requirements:
 
 - Node.js 20+
 - Rust stable toolchain
-- OpenAI API key
+- OpenAI API key (required for translation pipeline)
+- Groq API key (optional, only when selecting Groq as STT provider)
 
 Run:
 
@@ -112,6 +114,7 @@ Default audio capture preset for new sessions:
 
 Pipeline and behavior summary:
 - Non-English source audio uses source-language transcription first, then source -> target translation.
+- Translation remains on OpenAI Responses API; STT provider can be switched between OpenAI and Groq.
 - Source-transcript quality guards skip weak segments to reduce hallucinated output.
 - Separate rolling context is maintained for source transcript and target translation.
 - Korean -> Chinese has built-in consistency checks by default.

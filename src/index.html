@@ -32,6 +32,17 @@
             <input id="adminApiKey" type="password" placeholder="sk-admin-..." autocomplete="off" />
           </div>
           <div class="landing-row">
+            <label id="labelGroqApiKey" for="groqApiKey">Groq API Key</label>
+            <input id="groqApiKey" type="password" placeholder="gsk_..." autocomplete="off" />
+          </div>
+          <div class="landing-row">
+            <label id="labelSttProvider" for="sttProvider">STT Provider</label>
+            <select id="sttProvider">
+              <option value="openai">OpenAI</option>
+              <option value="groq">Groq</option>
+            </select>
+          </div>
+          <div class="landing-row">
             <label id="labelProjectId" for="projectId">Project ID</label>
             <input id="projectId" type="text" placeholder="proj_..." autocomplete="off" />
             <button id="saveKey">Save Key</button>
@@ -406,6 +417,20 @@
             <input id="mainAdminApiKeyInput" type="text" placeholder="sk-admin-..." autocomplete="off" />
             <button id="copyMainAdminApiKey" type="button" class="icon-copy" aria-label="Copy OpenAI admin key">⧉</button>
           </div>
+        </div>
+        <div class="row">
+          <label id="labelMainGroqApiKey" for="mainGroqApiKeyInput">Groq API Key</label>
+          <div class="inline-input-action">
+            <input id="mainGroqApiKeyInput" type="text" placeholder="gsk_..." autocomplete="off" />
+            <button id="copyMainGroqApiKey" type="button" class="icon-copy" aria-label="Copy Groq API key">⧉</button>
+          </div>
+        </div>
+        <div class="row">
+          <label id="labelMainSttProvider" for="mainSttProvider">STT Provider</label>
+          <select id="mainSttProvider">
+            <option value="openai">OpenAI</option>
+            <option value="groq">Groq</option>
+          </select>
         </div>
         <div class="row">
           <label id="labelMainProjectId" for="mainProjectIdInput">Project ID</label>
