@@ -25,6 +25,7 @@ use tauri_plugin_log::{Target, TargetKind};
 struct AppState {
     api_key: Mutex<Option<String>>,
     admin_api_key: Mutex<Option<String>>,
+    groq_api_key: Mutex<Option<String>>,
     glossary: Mutex<String>,
     stt_keywords: Mutex<String>,
     sermon_stt_keywords: Mutex<String>,
@@ -42,6 +43,7 @@ struct AppState {
 struct SegmentPayload {
     audio_base64: String,
     mime_type: Option<String>,
+    stt_provider: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -104,6 +106,7 @@ struct SavedApiKeyResponse {
 struct SavedRawKeysResponse {
     api_key: String,
     admin_api_key: String,
+    groq_api_key: String,
 }
 
 #[derive(Serialize)]
@@ -265,6 +268,7 @@ fn build_audio_form(
 const KEYRING_SERVICE: &str = "church-live-audio-stream-translate";
 const KEYRING_ACCOUNT: &str = "openai_api_key";
 const KEYRING_ADMIN_ACCOUNT: &str = "openai_admin_api_key";
+const KEYRING_GROQ_ACCOUNT: &str = "groq_api_key";
 
 fn log_api_key_storage(message: &str) {
     log::info!("[api-key-storage] {message}");
@@ -448,6 +452,14 @@ fn fallback_admin_api_key_path(app: &tauri::AppHandle) -> Result<PathBuf, String
     Ok(config_dir.join("admin_api_key_fallback.txt"))
 }
 
+fn fallback_groq_api_key_path(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    let config_dir = app
+        .path()
+        .app_config_dir()
+        .map_err(|e| format!("Failed to resolve app config directory: {e}"))?;
+    Ok(config_dir.join("groq_api_key_fallback.txt"))
+}
+
 fn save_fallback_api_key(app: &tauri::AppHandle, api_key: &str) -> Result<(), String> {
     let path = fallback_api_key_path(app)?;
     log_api_key_storage(&format!("fallback path resolved: {}", path.display()));
@@ -511,6 +523,46 @@ fn load_fallback_admin_api_key(app: &tauri::AppHandle) -> Result<Option<String>,
         mask_api_key(&trimmed)
     ));
     Ok(Some(trimmed))
+}
+
+fn save_fallback_groq_api_key(app: &tauri::AppHandle, groq_api_key: &str) -> Result<(), String> {
+    let path = fallback_groq_api_key_path(app)?;
+    log_api_key_storage(&format!("groq fallback path resolved: {}", path.display()));
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create app config directory: {e}"))?;
+    }
+    fs::write(path, groq_api_key)
+        .map_err(|e| format!("Failed to persist fallback Groq API key: {e}"))?;
+    Ok(())
+}
+
+fn load_fallback_groq_api_key(app: &tauri::AppHandle) -> Result<Option<String>, String> {
+    let path = fallback_groq_api_key_path(app)?;
+    log_api_key_storage(&format!("checking groq fallback path: {}", path.display()));
+    if !path.exists() {
+        log_api_key_storage("groq fallback key file not found");
+        return Ok(None);
+    }
+    let value =
+        fs::read_to_string(path).map_err(|e| format!("Failed to read fallback Groq API key: {e}"))?;
+    let trimmed = value.trim().to_string();
+    if trimmed.is_empty() {
+        log_api_key_storage("groq fallback key file exists but is empty");
+        return Ok(None);
+    }
+    log_api_key_storage(&format!(
+        "loaded Groq API key from fallback file (masked: {})",
+        mask_api_key(&trimmed)
+    ));
+    Ok(Some(trimmed))
+}
+
+fn normalize_stt_provider(provider: Option<&str>) -> &'static str {
+    match provider.unwrap_or_default().trim().to_ascii_lowercase().as_str() {
+        "groq" => "groq",
+        _ => "openai",
+    }
 }
 
 fn source_language_label(code: &str) -> &'static str {
@@ -952,6 +1004,46 @@ fn config_admin_api_key(
 }
 
 #[tauri::command]
+fn config_groq_api_key(
+    groq_api_key: String,
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<ApiKeyConfigResponse, String> {
+    let trimmed = groq_api_key.trim().to_string();
+    if trimmed.is_empty() {
+        return Err("Groq API key is empty".to_string());
+    }
+    let secure_value = trimmed.clone();
+
+    let mut key_guard = state
+        .groq_api_key
+        .lock()
+        .map_err(|_| "Failed to lock Groq API key state".to_string())?;
+    *key_guard = Some(trimmed);
+
+    log_api_key_storage(&format!(
+        "saving Groq API key (masked: {})",
+        mask_api_key(&secure_value)
+    ));
+
+    match keyring::Entry::new(KEYRING_SERVICE, KEYRING_GROQ_ACCOUNT) {
+        Ok(entry) => match entry.set_password(&secure_value) {
+            Ok(_) => log_api_key_storage("saved Groq API key to keyring"),
+            Err(e) => log_api_key_storage(&format!("Groq keyring save failed: {e}")),
+        },
+        Err(e) => log_api_key_storage(&format!("Groq keyring init failed: {e}")),
+    }
+
+    save_fallback_groq_api_key(&app, &secure_value)?;
+    log_api_key_storage("saved Groq API key to fallback file");
+
+    Ok(ApiKeyConfigResponse {
+        ok: true,
+        masked_key: mask_api_key(&secure_value),
+    })
+}
+
+#[tauri::command]
 fn load_saved_admin_api_key(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
@@ -1001,6 +1093,55 @@ fn load_saved_admin_api_key(
 }
 
 #[tauri::command]
+fn load_saved_groq_api_key(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AppState>,
+) -> Result<SavedApiKeyResponse, String> {
+    log_api_key_storage("loading saved Groq API key");
+    let mut value_from_storage: Option<String> = None;
+
+    match keyring::Entry::new(KEYRING_SERVICE, KEYRING_GROQ_ACCOUNT) {
+        Ok(entry) => match entry.get_password() {
+            Ok(value) if !value.trim().is_empty() => {
+                log_api_key_storage("loaded Groq API key from keyring");
+                value_from_storage = Some(value.trim().to_string());
+            }
+            Ok(_) => log_api_key_storage("Groq keyring entry is empty"),
+            Err(keyring::Error::NoEntry) => log_api_key_storage("no Groq keyring entry found"),
+            Err(e) => log_api_key_storage(&format!("Groq keyring read failed: {e}")),
+        },
+        Err(e) => log_api_key_storage(&format!("Groq keyring init failed: {e}")),
+    }
+
+    if value_from_storage.is_none() {
+        log_api_key_storage("falling back to local Groq key file");
+        value_from_storage = load_fallback_groq_api_key(&app)?;
+    }
+
+    if let Some(value) = value_from_storage {
+        let mut key_guard = state
+            .groq_api_key
+            .lock()
+            .map_err(|_| "Failed to lock Groq API key state".to_string())?;
+        *key_guard = Some(value.clone());
+        log_api_key_storage(&format!(
+            "Groq API key loaded successfully (masked: {})",
+            mask_api_key(&value)
+        ));
+        return Ok(SavedApiKeyResponse {
+            found: true,
+            masked_key: Some(mask_api_key(&value)),
+        });
+    }
+
+    log_api_key_storage("no saved Groq API key found in keyring or fallback file");
+    Ok(SavedApiKeyResponse {
+        found: false,
+        masked_key: None,
+    })
+}
+
+#[tauri::command]
 fn load_saved_raw_keys_for_update_panel(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
@@ -1017,6 +1158,13 @@ fn load_saved_raw_keys_for_update_panel(
             .admin_api_key
             .lock()
             .map_err(|_| "Failed to lock admin API key state".to_string())?;
+        guard.clone()
+    };
+    let current_groq_api_key = {
+        let guard = state
+            .groq_api_key
+            .lock()
+            .map_err(|_| "Failed to lock Groq API key state".to_string())?;
         guard.clone()
     };
 
@@ -1063,10 +1211,32 @@ fn load_saved_raw_keys_for_update_panel(
             load_fallback_admin_api_key(&app)?.unwrap_or_default()
         }
     };
+    let groq_api_key = if let Some(value) = current_groq_api_key {
+        value
+    } else {
+        let keyring_value = match keyring::Entry::new(KEYRING_SERVICE, KEYRING_GROQ_ACCOUNT) {
+            Ok(entry) => match entry.get_password() {
+                Ok(value) if !value.trim().is_empty() => Some(value.trim().to_string()),
+                _ => None,
+            },
+            Err(_) => None,
+        };
+        if let Some(value) = keyring_value {
+            let mut guard = state
+                .groq_api_key
+                .lock()
+                .map_err(|_| "Failed to lock Groq API key state".to_string())?;
+            *guard = Some(value.clone());
+            value
+        } else {
+            load_fallback_groq_api_key(&app)?.unwrap_or_default()
+        }
+    };
 
     Ok(SavedRawKeysResponse {
         api_key,
         admin_api_key,
+        groq_api_key,
     })
 }
 
@@ -1372,6 +1542,20 @@ async fn process_segment(
             .clone()
             .ok_or_else(|| "OpenAI API key is not configured.".to_string())?
     };
+    let stt_provider = normalize_stt_provider(payload.stt_provider.as_deref());
+    let groq_api_key = if stt_provider == "groq" {
+        let key_guard = state
+            .groq_api_key
+            .lock()
+            .map_err(|_| "Failed to lock Groq API key state".to_string())?;
+        Some(
+            key_guard
+                .clone()
+                .ok_or_else(|| "Groq API key is not configured.".to_string())?,
+        )
+    } else {
+        None
+    };
 
     let glossary = {
         let glossary_guard = state
@@ -1525,21 +1709,38 @@ async fn process_segment(
 
     let client = Client::new();
 
+    let stt_api_url = if stt_provider == "groq" {
+        "https://api.groq.com/openai/v1/audio/transcriptions"
+    } else {
+        "https://api.openai.com/v1/audio/transcriptions"
+    };
+    let stt_bearer_token = groq_api_key.as_deref().unwrap_or(&api_key);
+    let english_stt_model = if stt_provider == "groq" {
+        "whisper-large-v3-turbo"
+    } else {
+        "gpt-4o-mini-transcribe"
+    };
+    let source_stt_model = if stt_provider == "groq" {
+        "whisper-large-v3-turbo"
+    } else {
+        "whisper-1"
+    };
+
     let source_label = source_language_label(&source_language);
     let (source_text_for_context, mut english_text) = if source_language == "english" {
         let form = build_audio_form(
             &audio_bytes,
             extension,
             &mime,
-            "gpt-4o-mini-transcribe",
+            english_stt_model,
             stt_prompt.as_deref(),
             source_language_api_code("english"),
             None,
         )?;
 
         let transcription_response = client
-            .post("https://api.openai.com/v1/audio/transcriptions")
-            .bearer_auth(&api_key)
+            .post(stt_api_url)
+            .bearer_auth(stt_bearer_token)
             .multipart(form)
             .send()
             .await
@@ -1566,14 +1767,14 @@ async fn process_segment(
             &audio_bytes,
             extension,
             &mime,
-            "whisper-1",
+            source_stt_model,
             stt_prompt.as_deref(),
             source_language_code,
             Some("verbose_json"),
         )?;
         let transcribe_response = client
-            .post("https://api.openai.com/v1/audio/transcriptions")
-            .bearer_auth(&api_key)
+            .post(stt_api_url)
+            .bearer_auth(stt_bearer_token)
             .multipart(transcribe_form)
             .send()
             .await
@@ -2346,6 +2547,7 @@ pub fn run() {
         .manage(AppState {
             api_key: Mutex::new(None),
             admin_api_key: Mutex::new(None),
+            groq_api_key: Mutex::new(None),
             glossary: Mutex::new(String::new()),
             stt_keywords: Mutex::new(String::new()),
             sermon_stt_keywords: Mutex::new(String::new()),
@@ -2442,6 +2644,8 @@ pub fn run() {
             load_saved_api_key,
             config_admin_api_key,
             load_saved_admin_api_key,
+            config_groq_api_key,
+            load_saved_groq_api_key,
             load_saved_raw_keys_for_update_panel,
             set_translation_config,
             get_running,
