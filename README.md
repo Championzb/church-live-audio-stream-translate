@@ -119,6 +119,7 @@ Pipeline and behavior summary:
 - Separate rolling context is maintained for source transcript and target translation.
 - Korean -> Chinese has built-in consistency checks by default.
 - Status-bar cost tooltip shows side-by-side OpenAI STT and Groq STT estimates (plus OpenAI project actuals when configured).
+- Groq real-cost API is not currently exposed publicly, so Groq real spend must be checked in Groq Dashboard Usage.
 - In test-audio mode, Start now returns immediately so Stop stays clickable during file playback/processing.
 
 For technical details and latency notes, see [Translation Pipeline](./docs/TRANSLATION_PIPELINE.md).

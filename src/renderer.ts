@@ -574,6 +574,7 @@ const UI_TEXT = {
     'cost.summaryProviders': 'Cost estimate (OpenAI STT): session {openaiSession} USD | month {openaiMonth} USD\nCost estimate (Groq STT): session {groqSession} USD | month {groqMonth} USD',
     'cost.project': 'Project: {projectId}',
     'cost.realSummary': 'Real cost: today {today} {currency} | month {month} {currency}',
+    'cost.realGroqUnavailable': 'Groq real cost via API is currently unavailable. Check Groq Dashboard -> Usage for near real-time spend.',
     'cost.realLoading': 'Loading real cost from OpenAI billing API...',
     'cost.realUnavailable': 'Real cost unavailable: {reason}',
     'ui.en': 'English',
@@ -879,6 +880,7 @@ const UI_TEXT = {
     'cost.summaryProviders': '费用估算（OpenAI STT）：本场 {openaiSession} 美元 | 每月 {openaiMonth} 美元\n费用估算（Groq STT）：本场 {groqSession} 美元 | 每月 {groqMonth} 美元',
     'cost.project': 'Project：{projectId}',
     'cost.realSummary': '真实费用：今日 {today} {currency} | 本月 {month} {currency}',
+    'cost.realGroqUnavailable': '目前无法通过 API 获取 Groq 真实费用。请在 Groq Dashboard -> Usage 查看近实时支出。',
     'cost.realLoading': '正在从 OpenAI 计费 API 获取真实费用...',
     'cost.realUnavailable': '真实费用不可用：{reason}',
     'ui.en': 'English',
@@ -1697,26 +1699,27 @@ function updateCostSummary() {
     groqMonth: estimatedMonthGroq.toFixed(2)
   });
   const projectId = normalizeProjectId(localStorage.getItem(PROJECT_ID_STORAGE_KEY));
+  const groqRealCostLine = t('cost.realGroqUnavailable');
   if (projectId) {
     if (cachedRealCostProjectId === projectId && !cachedRealCostError) {
       maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realSummary', {
         today: cachedRealCostToday.toFixed(2),
         month: cachedRealCostMonth.toFixed(2),
         currency: cachedRealCostCurrency
-      })}\n${t('cost.project', { projectId })}`;
+      })}\n${groqRealCostLine}\n${t('cost.project', { projectId })}`;
     } else if (cachedRealCostProjectId === projectId && cachedRealCostError) {
       maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realUnavailable', {
         reason: cachedRealCostError
-      })}\n${t('cost.project', { projectId })}`;
+      })}\n${groqRealCostLine}\n${t('cost.project', { projectId })}`;
     } else {
       maskedApiKeyEl.title = `${costSummaryText}\n${t('cost.realLoading')}\n${t('cost.project', {
         projectId
-      })}`;
+      })}\n${groqRealCostLine}`;
     }
     void refreshRealProjectCosts();
     return;
   }
-  maskedApiKeyEl.title = costSummaryText;
+  maskedApiKeyEl.title = `${costSummaryText}\n${groqRealCostLine}`;
 }
 
 function isSkippedSegmentResult(result, translatedText) {
