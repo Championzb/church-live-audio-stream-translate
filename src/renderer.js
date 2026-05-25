@@ -1514,7 +1514,7 @@ function normalizeProjectId(rawProjectId) {
 }
 function normalizeSttProvider(rawProvider) {
     const normalized = String(rawProvider || '').trim().toLowerCase();
-    return SUPPORTED_STT_PROVIDERS.includes(normalized) ? normalized : 'openai';
+    return SUPPORTED_STT_PROVIDERS.includes(normalized) ? normalized : 'groq';
 }
 function syncSttProviderInputs(rawProvider) {
     const provider = normalizeSttProvider(rawProvider);

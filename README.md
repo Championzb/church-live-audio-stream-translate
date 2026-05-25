@@ -11,6 +11,7 @@ Documentation hub: [docs/README.md](./docs/README.md)
 - Captures live sermon audio from your selected input device.
 - Produces source-language transcript + target-language translation in near real-time.
 - Supports STT provider selection (`OpenAI` or `Groq`) for source transcription.
+- Default STT provider for new installs/sessions is `Groq` (can be switched to `OpenAI`).
 - Supports Korean, English, Japanese, and Chinese as source input.
 - Supports Simplified Chinese, Traditional Chinese, Korean, Japanese, Spanish, and English as target output.
 - Provides an optional projector window for audience display.
